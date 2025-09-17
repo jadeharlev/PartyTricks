@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Background" style="flex-grow: 1; background-color: rgb(173, 156, 223);">
+        <ui:VisualElement name="GameLogo" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/UI/GameLogo.png?fileID=2800000&amp;guid=11c6b6203cbbf422c878192631be8927&amp;type=3#GameLogo&quot;); background-size: 1152px 200px; align-items: stretch;" />
+    </ui:VisualElement>
+</ui:UXML>

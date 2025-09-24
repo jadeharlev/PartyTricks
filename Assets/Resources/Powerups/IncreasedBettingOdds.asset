@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 951cdfe52dcf4e2fb705eebb9841980b, type: 3}
+  m_Name: IncreasedBettingOdds
+  m_EditorClassIdentifier: Assembly-CSharp::ShopItem
+  Icon: {fileID: -2208915360007888351, guid: 3f076be9f071048168cc8fbebdc326b9, type: 3}
+  Id: increaseBettingOdds
+  DisplayName: Increase Odds
+  Cost: 70
+  Category: 1
+  Description: Increase your gambling odds. How much? Find out :)
+  isTemporary: 0
+  NumberOfUsesIfApplicable: 0
+  PowerUpEffect: {fileID: 0}

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 951cdfe52dcf4e2fb705eebb9841980b, type: 3}
+  m_Name: MagnetItem
+  m_EditorClassIdentifier: Assembly-CSharp::ShopItem
+  Icon: {fileID: 1535325516486818496, guid: 1d3d7e208cae546e9894ad8bb53b48b2, type: 3}
+  Id: magnet
+  DisplayName: Magnet
+  Cost: 250
+  Category: 0
+  Description: Wield the power of magnetism. Attracts coins.
+  isTemporary: 0
+  NumberOfUsesIfApplicable: 0
+  PowerUpEffect: {fileID: 0}

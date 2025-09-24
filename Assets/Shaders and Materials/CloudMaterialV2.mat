@@ -33,8 +33,8 @@ Material:
     - _NoiseScale: 1.3
     - _Octaves: 4.21
     - _PeakShape: 1.62
-    - _ScrollSpeedX: 0.005
-    - _ScrollSpeedY: 0.005
+    - _ScrollSpeedX: 0.015
+    - _ScrollSpeedY: 0.015
     m_Colors:
     - _DarkColor: {r: 0, g: 0, b: 1, a: 1}
     - _LightColor: {r: 0.96862745, g: 0.96862745, b: 1, a: 1}

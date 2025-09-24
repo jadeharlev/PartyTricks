@@ -1,3 +1,4 @@
+// WIP: Not in use yet.
 using UnityEngine;
 
 public class GameState : MonoBehaviour

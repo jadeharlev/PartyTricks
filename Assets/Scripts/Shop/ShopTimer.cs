@@ -17,7 +17,6 @@ public class ShopTimer : MonoBehaviour {
     private IEnumerator ShopCountdown() {
         timeRemaining = shopDurationInSeconds;
         while (timeRemaining > 0) {
-            Debug.Log("Shop time remaining: " + timeRemaining + " seconds");
             OnTick?.Invoke(timeRemaining);
             yield return new WaitForSeconds(1f);
             timeRemaining--;

@@ -10,7 +10,9 @@ public class ShopPointers : MonoBehaviour {
             pointer.gameObject.SetActive(false);
             return;
         }
+        
         pointer.gameObject.SetActive(true);
+        
         if (shouldBeLocked) {
             pointer.SetLocked();
         } else pointer.SetUnlocked();

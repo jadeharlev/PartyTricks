@@ -4,8 +4,8 @@ using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class ShopItemsDisplay : MonoBehaviour {
-    [SerializeField] private ShopItemUI[] ShopItemUIElements;
+public class ShopItemsDisplay : MonoBehaviour { 
+    private ShopItemUI[] ShopItemUIElements;
     private ShopItem[] powerups;
     private ShopItem emptyPowerup;
     private List<ShopItem> selectedPowerups;
@@ -14,6 +14,10 @@ public class ShopItemsDisplay : MonoBehaviour {
         powerups = Resources.LoadAll<ShopItem>("Powerups");
         emptyPowerup = Resources.Load<ShopItem>("SpecialPowerups/EmptyItem");
         selectedPowerups = new List<ShopItem>();
+    }
+
+    public void SetShopItemUIElements(ShopItemUI[] shopItemElements) {
+        ShopItemUIElements = shopItemElements;
     }
 
     public void Reset() {

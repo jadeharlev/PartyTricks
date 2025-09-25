@@ -21,3 +21,8 @@ Button:hover {
     scale: 1.2 1.2 1.2;
     transition-duration: 0.3s;
 }
+
+Button:focus {
+    scale: 1.2 1.2 1.2;
+    transition-duration: 0.3s;
+}

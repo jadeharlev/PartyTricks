@@ -124,7 +124,7 @@ MonoBehaviour:
   cost: {fileID: 988344454664960914}
   category: {fileID: 4046722443698327286}
   description: {fileID: 6218741642533383627}
-  pointers: {fileID: 2741789965226249902}
+  pointers: {fileID: 7905567681782355406}
 --- !u!1 &2891994408703904255
 GameObject:
   m_ObjectHideFlags: 0
@@ -585,11 +585,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2741789965226249902}
   m_SourcePrefab: {fileID: 100100000, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
---- !u!1 &369992515814791707 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7483238166076490939, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
-  m_PrefabInstance: {fileID: 7132495977420889760}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &3737944976881315361 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5846919624773628033, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
@@ -607,27 +602,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 588147969d754907a287cb54c59b90d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopPointers
-  RedPointer: {fileID: 7457794658840679247}
-  BluePointer: {fileID: 7319709583976866092}
-  PurplePointer: {fileID: 369992515814791707}
-  GreenPointer: {fileID: 4841172991002921684}
---- !u!1 &4841172991002921684 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2437848600364110964, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
-  m_PrefabInstance: {fileID: 7132495977420889760}
-  m_PrefabAsset: {fileID: 0}
+  pointers: []
 --- !u!224 &5723853034014514385 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3284392206154662513, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
   m_PrefabInstance: {fileID: 7132495977420889760}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &7319709583976866092 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 535755012989894540, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
+--- !u!114 &7905567681782355406 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1102678936449518446, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
   m_PrefabInstance: {fileID: 7132495977420889760}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &7457794658840679247 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 397688922824642031, guid: 51251c0abd45549a5aa9fbb003b92408, type: 3}
-  m_PrefabInstance: {fileID: 7132495977420889760}
-  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737944976881315361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588147969d754907a287cb54c59b90d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Shop::ShopPointers

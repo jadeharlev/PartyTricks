@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,14 +6,36 @@ using UnityEngine;
 public class Shop : MonoBehaviour {
     [SerializeField] private ShopItemUI[] ShopItemUIElements;
     [SerializeField] public ShopItemsDisplay ShopItemDisplay;
+    [SerializeField] private ShopTimer ShopTimer;
     public int ShopDurationInSeconds = 10;
     private List<ShopSlotSelector> activeShopPlayerSelectors = new List<ShopSlotSelector>();
-    private int timeRemaining;
-    void Start() {
+
+    private void Start() {
         ShopItemDisplay.SetShopItemUIElements(ShopItemUIElements);
         ShopItemDisplay.SetUpItems();
         InitializePlayerSelectors();
         StartShopLogic();
+        ShopTimer.OnTimerEnd += ResolvePurchases;
+    }
+
+    public void Reset() {
+        ShopTimer.Reset();
+        ShopTimer.StartTimer(ShopDurationInSeconds);
+        foreach (ShopSlotSelector selector in activeShopPlayerSelectors) {
+            selector.CanAct = true;
+        }
+    }
+
+    public void UnlockAISelectors() {
+        foreach (ShopSlotSelector selector in activeShopPlayerSelectors) {
+            if (selector.Navigator is AIShopInputHandler) {
+                selector.Unlock();
+            }
+        }
+    }
+
+    private void OnDestroy() {
+        ShopTimer.OnTimerEnd -= ResolvePurchases;
     }
 
     private void InitializePlayerSelectors() {
@@ -51,18 +74,7 @@ public class Shop : MonoBehaviour {
             HandleSelectionChanged(playerSelector, playerSelector.CurrentShopItemIndex);
         }
 
-        StartCoroutine(ShopCountdown());
-    }
-
-    private IEnumerator ShopCountdown() {
-        timeRemaining = ShopDurationInSeconds;
-        while (timeRemaining > 0) {
-            Debug.Log("Shop time remaining: " + timeRemaining + " seconds");
-            yield return new WaitForSeconds(1f);
-            timeRemaining--;
-        }
-
-        ResolvePurchases();
+        ShopTimer.StartTimer(ShopDurationInSeconds);
     }
 
     private void HandleSelectionChanged(ShopSlotSelector slotSelector, int newIndex) {

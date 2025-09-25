@@ -5,8 +5,9 @@ public class ShopDebugMenu : MonoBehaviour
 {
     public ShopItemsDisplay Display;
     public GameObject DebugMenu;
+    public Shop Shop;
     private InputAction toggleDebugMenuAction;
-    bool lastDebugMenuActiveState = false;
+    private bool lastDebugMenuActiveState = false;
 
     private void Awake() {
         toggleDebugMenuAction = InputSystem.actions.FindAction("UI/ToggleDebugMenu");
@@ -22,5 +23,13 @@ public class ShopDebugMenu : MonoBehaviour
     public void RefreshShop() {
         Display.Reset();
         Display.SetUpItems();
+    }
+
+    public void ResetTimer() {
+        Shop.Reset();
+    }
+
+    public void UnlockAI() {
+        Shop.UnlockAISelectors();
     }
 }

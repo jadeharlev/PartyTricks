@@ -5,7 +5,8 @@ using UnityEngine.UIElements;
 public class MainMenu : MonoBehaviour {
     [SerializeField]
     private UIDocument mainMenu;
-    void Start()
+
+    private void Start()
     {
         VisualElement root = mainMenu.rootVisualElement;
         Button QuitButton = root.Query<Button>("QuitButton");

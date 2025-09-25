@@ -8,7 +8,7 @@ public class ShopItemUI : MonoBehaviour {
     [SerializeField] private TMP_Text cost;
     [SerializeField] private TMP_Text category;
     [SerializeField] private TMP_Text description;
-    [SerializeField] ShopPointers pointers;
+    [SerializeField] private ShopPointers pointers;
     
     public void SetItem(ShopItem item) {
         icon.sprite = item.Icon;

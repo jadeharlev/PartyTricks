@@ -15,7 +15,7 @@ public class ShopSlotSelector : MonoBehaviour {
     private Vector2 lastNavigateDirection;
     public bool CanAct;
 
-    public void Initialize(int index, IShopNavigator navigator) {
+    public void Initialize(int index, IShopNavigator navigator, int currentShopIndex = 0) {
         PlayerIndex = index;
         Navigator = navigator;
         CurrentShopItemIndex = 0;
@@ -79,7 +79,7 @@ public class ShopSlotSelector : MonoBehaviour {
         OnLockChanged?.Invoke(this, true);
     }
 
-    private void Unlock() {
+    public void Unlock() {
         IsLocked = false;
         OnLockChanged?.Invoke(this, false);
     }

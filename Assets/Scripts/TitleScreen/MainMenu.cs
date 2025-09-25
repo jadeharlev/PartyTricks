@@ -17,7 +17,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     private void LoadGameScene() {
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("Shop");
     }
 
     private void ShowOptions() {

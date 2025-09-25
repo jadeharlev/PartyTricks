@@ -27,7 +27,7 @@ public class ShopItemUI : MonoBehaviour {
         description.gameObject.SetActive(false);
     }
 
-    public void OnPointedTo() {
-        pointers.OnPointedTo();
+    public void OnPointedTo(int playerIndex, bool shouldShow, bool shouldBeLocked) {
+        pointers.OnPointedTo(playerIndex, shouldShow, shouldBeLocked);
     }
 }

@@ -12,8 +12,6 @@ public class ShopSlotSelector : MonoBehaviour {
 
     public int GridColumns = 2;
     public int GridRows = 2;
-    public float InputRepeatDelay = 0.2f;
-    private float lastInputTime;
     private Vector2 lastNavigateDirection;
     public bool CanAct;
 
@@ -25,7 +23,7 @@ public class ShopSlotSelector : MonoBehaviour {
         CanAct = true;
     }
 
-    void Update() {
+    private void Update() {
         if (!CanAct) return;
         if (Navigator == null || !Navigator.IsActive()) return;
         Vector2 navigateDirection = Navigator.GetNavigate();
@@ -35,34 +33,38 @@ public class ShopSlotSelector : MonoBehaviour {
         HandleSelection();
     }
 
-    void HandleNavigation(Vector2 navigateDirection) {
-        Vector2 discreteDirection = Vector2.zero;
-        if(navigateDirection.x != 0) discreteDirection.x = Mathf.Sign(navigateDirection.x);
-        if(navigateDirection.y != 0) discreteDirection.y = Mathf.Sign(navigateDirection.y);
+    private void HandleNavigation(Vector2 navigateDirection) {
+        var discreteDirection = CalculateDiscreteDirection(navigateDirection);
         if(discreteDirection == Vector2.zero) {
             lastNavigateDirection = Vector2.zero;
             return;
         }
-
-        if (Time.time - lastInputTime > InputRepeatDelay || discreteDirection != lastNavigateDirection) {
-            lastInputTime = Time.time;
-            lastNavigateDirection = discreteDirection;
-
-            if (!IsLocked) {
-                int x = CurrentShopItemIndex % GridColumns;
-                int y = CurrentShopItemIndex / GridColumns;
-                if (discreteDirection.x < 0) x = Mathf.Clamp(x - 1, 0, GridColumns - 1);
-                if (discreteDirection.x > 0) x = Mathf.Clamp(x + 1, 0, GridColumns - 1);
-                if (discreteDirection.y > 0) y = Mathf.Clamp(y - 1, 0, GridRows - 1);
-                if (discreteDirection.y < 0) y = Mathf.Clamp(y + 1, 0, GridRows - 1);
-                
-                CurrentShopItemIndex = y * GridColumns + x;
-                OnSelectionChanged?.Invoke(this, CurrentShopItemIndex);
-            }
-        }
+        bool moveDirectionIsNew = (discreteDirection != lastNavigateDirection);
+        if (!moveDirectionIsNew || IsLocked) return;
+        lastNavigateDirection = discreteDirection;
+        var (x, y) = CalculateShopGridPosition(discreteDirection);
+        CurrentShopItemIndex = y * GridColumns + x;
+        OnSelectionChanged?.Invoke(this, CurrentShopItemIndex);
     }
 
-    void HandleSelection() {
+    private (int x, int y) CalculateShopGridPosition(Vector2 discreteDirection) {
+        int x = CurrentShopItemIndex % GridColumns;
+        int y = CurrentShopItemIndex / GridColumns;
+        if (discreteDirection.x < 0) x = Mathf.Clamp(x - 1, 0, GridColumns - 1);
+        if (discreteDirection.x > 0) x = Mathf.Clamp(x + 1, 0, GridColumns - 1);
+        if (discreteDirection.y > 0) y = Mathf.Clamp(y - 1, 0, GridRows - 1);
+        if (discreteDirection.y < 0) y = Mathf.Clamp(y + 1, 0, GridRows - 1);
+        return (x, y);
+    }
+
+    private static Vector2 CalculateDiscreteDirection(Vector2 navigateDirection) {
+        Vector2 discreteDirection = Vector2.zero;
+        if(navigateDirection.x != 0) discreteDirection.x = Mathf.Sign(navigateDirection.x);
+        if(navigateDirection.y != 0) discreteDirection.y = Mathf.Sign(navigateDirection.y);
+        return discreteDirection;
+    }
+
+    private void HandleSelection() {
         if (Navigator.SelectIsPressed()) {
             Lock();
         }

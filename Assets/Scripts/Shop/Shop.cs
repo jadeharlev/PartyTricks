@@ -24,16 +24,24 @@ public class Shop : MonoBehaviour {
         activeShopPlayerSelectors.Clear();
         for (int i = 0; i < GameSessionManager.Instance.PlayerSlots.Length; i++) {
             PlayerSlot playerSlot = GameSessionManager.Instance.PlayerSlots[i];
-            if (playerSlot.Navigator != null) {
-                GameObject selectorGameObject = new GameObject("Player_"+i+"_ShopSlotSelector");
-                selectorGameObject.transform.SetParent(transform);
-                ShopSlotSelector shopSlotSelector = selectorGameObject.AddComponent<ShopSlotSelector>();
-                shopSlotSelector.Initialize(i, playerSlot.Navigator);
-                activeShopPlayerSelectors.Add(shopSlotSelector);
-                shopSlotSelector.GridColumns = 2;
-                shopSlotSelector.GridRows = 2;
-            }
+            if (playerSlot.Navigator == null) continue;
+            CreatePlayerShopSlotSelector(i, playerSlot);
         }
+    }
+
+    private void CreatePlayerShopSlotSelector(int playerIndex, PlayerSlot playerSlot) {
+        var shopSlotSelector = CreateShopSlotSelectorGameObject(playerIndex, playerSlot);
+        activeShopPlayerSelectors.Add(shopSlotSelector);
+        shopSlotSelector.GridColumns = 2;
+        shopSlotSelector.GridRows = 2;
+    }
+
+    private ShopSlotSelector CreateShopSlotSelectorGameObject(int playerIndex, PlayerSlot playerSlot) {
+        GameObject selectorGameObject = new GameObject("Player_"+playerIndex+"_ShopSlotSelector");
+        selectorGameObject.transform.SetParent(transform);
+        ShopSlotSelector shopSlotSelector = selectorGameObject.AddComponent<ShopSlotSelector>();
+        shopSlotSelector.Initialize(playerIndex, playerSlot.Navigator);
+        return shopSlotSelector;
     }
 
     public void StartShopLogic() {

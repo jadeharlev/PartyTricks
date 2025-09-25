@@ -50,11 +50,15 @@ public class GameSessionManager : MonoBehaviour
             Debug.LogError("GameSessionManager: PlayerSlot at index " + i + " is not assigned in the inspector.");
             continue;
          }
-         var aiGameObject = new GameObject("AIInput_P" + i);
-         aiGameObject.transform.SetParent(PlayerSlots[i].transform);
-         var aiHandler = aiGameObject.AddComponent<AIShopInputHandler>();
-         PlayerSlots[i].Initialize(i, aiHandler, true);
+         SetUpAIShopInput(i);
       }
+   }
+
+   private void SetUpAIShopInput(int playerSlotIndex) {
+      var aiGameObject = new GameObject("AIInput_P" + playerSlotIndex);
+      aiGameObject.transform.SetParent(PlayerSlots[playerSlotIndex].transform);
+      var aiHandler = aiGameObject.AddComponent<AIShopInputHandler>();
+      PlayerSlots[playerSlotIndex].Initialize(playerSlotIndex, aiHandler, true);
    }
 
    public void OnPlayerJoined(PlayerInput playerInput) {

@@ -12,12 +12,12 @@ public class GameSessionManager : MonoBehaviour
 
    private void OnEnable() {
       InputSystem.onDeviceChange += deviceDisconnectService.OnDeviceChange;
-      SceneManager.sceneLoaded += sceneObserver.OnSceneLoaded;
+      SceneManager.sceneLoaded += SceneObserver.OnSceneLoaded;
    }
 
    private void OnDisable() {
       InputSystem.onDeviceChange -= deviceDisconnectService.OnDeviceChange;
-      SceneManager.sceneLoaded -= sceneObserver.OnSceneLoaded;
+      SceneManager.sceneLoaded -= SceneObserver.OnSceneLoaded;
    }
 
    private void Awake() {
@@ -27,6 +27,10 @@ public class GameSessionManager : MonoBehaviour
       Instance = this;
       DontDestroyOnLoad(gameObject);
       playerSlotManager = new PlayerSlotManager(PlayerSlots);
+      foreach (var playerSlot in PlayerSlots) {
+         var profile = new PlayerProfile(200);
+         playerSlot.AssignProfile(profile);
+      }
       deviceDisconnectService = new DeviceDisconnectService();
       sceneObserver = new SceneObserver();
    }

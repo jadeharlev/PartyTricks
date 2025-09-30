@@ -11,14 +11,16 @@ public class ShopSlotSelector : MonoBehaviour {
     public event Action<ShopSlotSelector, bool> OnLockChanged;
     private Vector2 lastNavigateDirection;
     private ShopNavigationService shopNavigationService;
+    public PlayerProfile Profile { get; private set; }
     public bool CanAct;
 
-    public void Initialize(int index, IShopNavigator navigator, ShopNavigationService shopNavigationService, int currentShopIndex = 0) {
+    public void Initialize(int index, IShopNavigator navigator, ShopNavigationService shopNavigationService, PlayerProfile profile, int currentShopIndex = 0) {
         PlayerIndex = index;
         Navigator = navigator;
         CurrentShopItemIndex = currentShopIndex;
         IsLocked = false;
         CanAct = true;
+        Profile = profile;
         this.shopNavigationService = shopNavigationService;
     }
 

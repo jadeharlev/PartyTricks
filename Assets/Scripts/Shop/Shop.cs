@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Shop : MonoBehaviour {
     [SerializeField] private ShopItemUI[] ShopItemUIElements;
+    [SerializeField] private PlayerCornerDisplay[] PlayerCornerDisplays;
     [SerializeField] public ShopItemsDisplay ShopItemDisplay;
     [SerializeField] private ShopTimer ShopTimer;
     private ShopNavigationService shopNavigationService;
@@ -20,8 +21,15 @@ public class Shop : MonoBehaviour {
         shopPurchaseService = new ShopPurchaseService();
         shopNavigationService = new ShopNavigationService(GridRows, GridColumns);
         InitializePlayerSelectors();
+        InitializePlayerCornerDisplays();
         StartShopLogic();
         ShopTimer.OnTimerEnd += ResolvePurchases;
+    }
+
+    private void InitializePlayerCornerDisplays() {
+        for (int i = 0; i < PlayerCornerDisplays.Length; i++) {
+            PlayerCornerDisplays[i].Initialize(GameSessionManager.Instance.PlayerSlots[i].Profile);
+        }
     }
 
     public void Reset() {
@@ -71,7 +79,7 @@ public class Shop : MonoBehaviour {
         GameObject selectorGameObject = new GameObject("Player_"+playerIndex+"_ShopSlotSelector");
         selectorGameObject.transform.SetParent(transform);
         ShopSlotSelector shopSlotSelector = selectorGameObject.AddComponent<ShopSlotSelector>();
-        shopSlotSelector.Initialize(playerIndex, playerSlot.Navigator, shopNavigationService);
+        shopSlotSelector.Initialize(playerIndex, playerSlot.Navigator, shopNavigationService, playerSlot.Profile);
         return shopSlotSelector;
     }
 

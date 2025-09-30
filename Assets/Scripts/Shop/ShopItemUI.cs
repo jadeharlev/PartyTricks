@@ -10,8 +10,10 @@ public class ShopItemUI : MonoBehaviour {
     [SerializeField] private TMP_Text category;
     [SerializeField] private TMP_Text description;
     [SerializeField] private ShopPointers pointers;
+    private ShopItem item;
     
     public void SetItem(ShopItem item) {
+        this.item = item;
         icon.sprite = item.Icon;
         itemName.text = item.DisplayName;
         cost.text = "Cost: " + item.Cost;
@@ -34,5 +36,13 @@ public class ShopItemUI : MonoBehaviour {
 
     public override string ToString() {
         return $"{itemName.text} ({cost.text}): {description.text}";
+    }
+
+    public int GetItemCost() {
+        return item.Cost;
+    }
+
+    public ShopItem GetItem() {
+        return item;
     }
 }

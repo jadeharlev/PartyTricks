@@ -1,10 +1,11 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ShopItemUI : MonoBehaviour {
     [SerializeField] private Image icon;
-    [SerializeField] private TMP_Text name;
+    [FormerlySerializedAs("name")] [SerializeField] private TMP_Text itemName;
     [SerializeField] private TMP_Text cost;
     [SerializeField] private TMP_Text category;
     [SerializeField] private TMP_Text description;
@@ -12,7 +13,7 @@ public class ShopItemUI : MonoBehaviour {
     
     public void SetItem(ShopItem item) {
         icon.sprite = item.Icon;
-        name.text = item.DisplayName;
+        itemName.text = item.DisplayName;
         cost.text = "Cost: " + item.Cost;
         category.text = item.Category.ToString();
         description.text = item.Description;
@@ -29,5 +30,9 @@ public class ShopItemUI : MonoBehaviour {
 
     public void OnPointedTo(int playerIndex, bool shouldShow, bool shouldBeLocked) {
         pointers.OnPointedTo(playerIndex, shouldShow, shouldBeLocked);
+    }
+
+    public override string ToString() {
+        return $"{itemName.text} ({cost.text}): {description.text}";
     }
 }

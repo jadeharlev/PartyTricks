@@ -9,18 +9,17 @@ public class ShopSlotSelector : MonoBehaviour {
     public bool IsLocked { get; private set; }
     public event Action<ShopSlotSelector, int> OnSelectionChanged;
     public event Action<ShopSlotSelector, bool> OnLockChanged;
-
-    public int GridColumns = 2;
-    public int GridRows = 2;
     private Vector2 lastNavigateDirection;
+    private ShopNavigationService shopNavigationService;
     public bool CanAct;
 
-    public void Initialize(int index, IShopNavigator navigator, int currentShopIndex = 0) {
+    public void Initialize(int index, IShopNavigator navigator, ShopNavigationService shopNavigationService, int currentShopIndex = 0) {
         PlayerIndex = index;
         Navigator = navigator;
-        CurrentShopItemIndex = 0;
+        CurrentShopItemIndex = currentShopIndex;
         IsLocked = false;
         CanAct = true;
+        this.shopNavigationService = shopNavigationService;
     }
 
     private void Update() {
@@ -42,25 +41,14 @@ public class ShopSlotSelector : MonoBehaviour {
         bool moveDirectionIsNew = (discreteDirection != lastNavigateDirection);
         if (!moveDirectionIsNew || IsLocked) return;
         lastNavigateDirection = discreteDirection;
-        var (x, y) = CalculateShopGridPosition(discreteDirection);
-        CurrentShopItemIndex = y * GridColumns + x;
+        CurrentShopItemIndex = shopNavigationService.Move(CurrentShopItemIndex, discreteDirection);
         OnSelectionChanged?.Invoke(this, CurrentShopItemIndex);
     }
 
-    private (int x, int y) CalculateShopGridPosition(Vector2 discreteDirection) {
-        int x = CurrentShopItemIndex % GridColumns;
-        int y = CurrentShopItemIndex / GridColumns;
-        if (discreteDirection.x < 0) x = Mathf.Clamp(x - 1, 0, GridColumns - 1);
-        if (discreteDirection.x > 0) x = Mathf.Clamp(x + 1, 0, GridColumns - 1);
-        if (discreteDirection.y > 0) y = Mathf.Clamp(y - 1, 0, GridRows - 1);
-        if (discreteDirection.y < 0) y = Mathf.Clamp(y + 1, 0, GridRows - 1);
-        return (x, y);
-    }
-
-    private static Vector2 CalculateDiscreteDirection(Vector2 navigateDirection) {
-        Vector2 discreteDirection = Vector2.zero;
-        if(navigateDirection.x != 0) discreteDirection.x = Mathf.Sign(navigateDirection.x);
-        if(navigateDirection.y != 0) discreteDirection.y = Mathf.Sign(navigateDirection.y);
+    private static Vector2Int CalculateDiscreteDirection(Vector2 navigateDirection) {
+        Vector2Int discreteDirection = Vector2Int.zero;
+        if(navigateDirection.x != 0) discreteDirection.x = (int)Mathf.Sign(navigateDirection.x);
+        if(navigateDirection.y != 0) discreteDirection.y = (int)Mathf.Sign(navigateDirection.y);
         return discreteDirection;
     }
 

@@ -7,12 +7,18 @@ public class Shop : MonoBehaviour {
     [SerializeField] private ShopItemUI[] ShopItemUIElements;
     [SerializeField] public ShopItemsDisplay ShopItemDisplay;
     [SerializeField] private ShopTimer ShopTimer;
+    private ShopNavigationService shopNavigationService;
+    private ShopPurchaseService shopPurchaseService;
+    public int GridRows = 2;
+    public int GridColumns = 2;
     public int ShopDurationInSeconds = 10;
     private List<ShopSlotSelector> activeShopPlayerSelectors = new List<ShopSlotSelector>();
 
     private void Start() {
         ShopItemDisplay.SetShopItemUIElements(ShopItemUIElements);
         ShopItemDisplay.SetUpItems();
+        shopPurchaseService = new ShopPurchaseService();
+        shopNavigationService = new ShopNavigationService(GridRows, GridColumns);
         InitializePlayerSelectors();
         StartShopLogic();
         ShopTimer.OnTimerEnd += ResolvePurchases;
@@ -36,6 +42,10 @@ public class Shop : MonoBehaviour {
 
     private void OnDestroy() {
         ShopTimer.OnTimerEnd -= ResolvePurchases;
+        foreach (var playerSelector in activeShopPlayerSelectors) {
+            playerSelector.OnSelectionChanged -= HandleSelectionChanged;
+            playerSelector.OnLockChanged -= HandleLockChanged;
+        }
     }
 
     private void InitializePlayerSelectors() {
@@ -55,15 +65,13 @@ public class Shop : MonoBehaviour {
     private void CreatePlayerShopSlotSelector(int playerIndex, PlayerSlot playerSlot) {
         var shopSlotSelector = CreateShopSlotSelectorGameObject(playerIndex, playerSlot);
         activeShopPlayerSelectors.Add(shopSlotSelector);
-        shopSlotSelector.GridColumns = 2;
-        shopSlotSelector.GridRows = 2;
     }
 
     private ShopSlotSelector CreateShopSlotSelectorGameObject(int playerIndex, PlayerSlot playerSlot) {
         GameObject selectorGameObject = new GameObject("Player_"+playerIndex+"_ShopSlotSelector");
         selectorGameObject.transform.SetParent(transform);
         ShopSlotSelector shopSlotSelector = selectorGameObject.AddComponent<ShopSlotSelector>();
-        shopSlotSelector.Initialize(playerIndex, playerSlot.Navigator);
+        shopSlotSelector.Initialize(playerIndex, playerSlot.Navigator, shopNavigationService);
         return shopSlotSelector;
     }
 
@@ -89,12 +97,6 @@ public class Shop : MonoBehaviour {
     }
 
     private void ResolvePurchases() {
-        Debug.Log("Shop closed! Resolving purchases.");
-        foreach (var playerSelector in activeShopPlayerSelectors) {
-            int index = playerSelector.CurrentShopItemIndex;
-            playerSelector.Lock();
-            playerSelector.CanAct = false;
-            Debug.Log("Shop.cs: Player " + playerSelector.PlayerIndex + " buys item " + index);
-        }
+        shopPurchaseService.ResolvePurchases(activeShopPlayerSelectors, ShopItemUIElements);
     }
 }

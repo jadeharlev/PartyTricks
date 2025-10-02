@@ -24,4 +24,9 @@ public class Wallet {
     public bool CanPurchase(int cost) {
         return currentFunds >= cost;
     }
+
+    public void AddFunds(int amount) {
+        currentFunds += amount;
+        OnFundsChanged?.Invoke(currentFunds);
+    }
 }

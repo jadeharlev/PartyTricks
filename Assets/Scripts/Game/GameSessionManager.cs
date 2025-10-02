@@ -8,7 +8,6 @@ public class GameSessionManager : MonoBehaviour
    public PlayerSlot[] PlayerSlots = new PlayerSlot[4];
    private PlayerSlotManager playerSlotManager;
    private DeviceDisconnectService deviceDisconnectService;
-   private SceneObserver sceneObserver;
 
    private void OnEnable() {
       InputSystem.onDeviceChange += deviceDisconnectService.OnDeviceChange;
@@ -32,7 +31,6 @@ public class GameSessionManager : MonoBehaviour
          playerSlot.AssignProfile(profile);
       }
       deviceDisconnectService = new DeviceDisconnectService();
-      sceneObserver = new SceneObserver();
    }
    
 

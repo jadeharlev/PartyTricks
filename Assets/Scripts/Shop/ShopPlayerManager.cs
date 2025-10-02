@@ -64,8 +64,17 @@ public class ShopPlayerManager {
     }
 
     public void EnableAllSelectors() {
+        UnsubscribeFromSelectorEvents();
         foreach (var selector in activeSelectors) {
             selector.CanAct = true;
+        }
+		SubscribeToSelectorEvents();
+    }
+    
+    private void UnsubscribeFromSelectorEvents() {
+        foreach (var selector in activeSelectors) {
+            selector.OnSelectionChanged -= HandleSelectionChanged;
+            selector.OnLockChanged -= HandleLockChanged;
         }
     }
 

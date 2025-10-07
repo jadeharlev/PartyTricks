@@ -1191,7 +1191,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "<line-height=125%><b>Shop</b>\n</line-height><indent=\"50%\">D-Pad or
-    Arrow Keys to navigate. \nPress A/Enter to lock your choice in and ESC/B to undo.\nCtrl+Esc
+    Arrow Keys to navigate. \nPress A/Enter to lock your choice in and ESC/B to undo.\nCtrl+`
     on the keyboard for debug menu.</indent>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 41b22375f2f0244b09486fa52e64e118, type: 2}

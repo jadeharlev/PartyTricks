@@ -1,4 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
@@ -6,15 +9,50 @@ public class MainMenu : MonoBehaviour {
     [SerializeField]
     private UIDocument mainMenu;
 
+    private Button startGameButton;
+    private Button optionsButton;
+    private Button quitButton;
+    private bool hasFocused;
+    private InputAction navigateAction;
+
     private void Start()
     {
         VisualElement root = mainMenu.rootVisualElement;
-        Button QuitButton = root.Query<Button>("QuitButton");
-        Button StartGameButton = root.Query<Button>("StartGameButton");
-        Button OptionsButton = root.Query<Button>("OptionsButton");
-        QuitButton.clicked += Application.Quit;
-        StartGameButton.clicked += LoadGameScene;
-        OptionsButton.clicked += ShowOptions;
+        startGameButton = root.Query<Button>("StartGameButton");
+        optionsButton = root.Query<Button>("OptionsButton");
+        quitButton = root.Query<Button>("QuitButton");
+        quitButton.clicked += QuitGame;
+        startGameButton.clicked += LoadGameScene;
+        optionsButton.clicked += ShowOptions;
+        navigateAction = InputSystem.actions.FindAction("UI/Navigate");
+        StartCoroutine(FocusFirstButtonAfterOneFrame());
+    }
+
+    private void QuitGame() {
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
+        Application.Quit();
+        #endif
+    }
+
+    private void Update() {
+        if (!hasFocused && navigateAction.ReadValue<Vector2>() != Vector2.zero) {
+            FocusFirstButton();
+        }
+    }
+
+    private IEnumerator FocusFirstButtonAfterOneFrame() {
+        yield return null;
+        FocusFirstButton();
+    }
+
+    private void FocusFirstButton() {
+        if (startGameButton != null) {
+            startGameButton.Focus();
+        }
+
+        hasFocused = true;
     }
 
     private void LoadGameScene() {

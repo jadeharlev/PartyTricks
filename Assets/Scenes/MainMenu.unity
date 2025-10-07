@@ -148,6 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fdf6168116874f42955a0ead9a34da1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSessionManager
+  pauseMenuPrefab: {fileID: 1961542531240964899, guid: 90dc9ed9202ac4df4ba9a56b2da69d30, type: 3}
   PlayerSlots:
   - {fileID: 1789486791}
   - {fileID: 1011157846}

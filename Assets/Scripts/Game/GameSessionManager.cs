@@ -5,6 +5,10 @@ using UnityEngine.SceneManagement;
 public class GameSessionManager : MonoBehaviour
 {
    public static GameSessionManager Instance { get; private set; }
+
+   [Header("Pause Settings")] [SerializeField]
+   private GameObject pauseMenuPrefab;
+   
    public PlayerSlot[] PlayerSlots = new PlayerSlot[4];
    private PlayerSlotManager playerSlotManager;
    private DeviceDisconnectService deviceDisconnectService;
@@ -31,8 +35,23 @@ public class GameSessionManager : MonoBehaviour
          playerSlot.AssignProfile(profile);
       }
       deviceDisconnectService = new DeviceDisconnectService();
+      SetUpPauseManager();
    }
-   
+
+   private void SetUpPauseManager() {
+      if (PauseManager.Instance == null) {
+         GameObject pauseManagerObject = new GameObject("PauseManager");
+         pauseManagerObject.transform.SetParent(transform);
+         var pauseManager = pauseManagerObject.AddComponent<PauseManager>();
+         if (pauseMenuPrefab != null) {
+            pauseManager.SetPauseMenuPrefab(pauseMenuPrefab);
+         }
+         else {
+            Debug.LogWarning("GameSessionManager: pauseMenuPrefab is not assigned.");
+         }
+      }
+   }
+
 
    public void OnPlayerJoined(PlayerInput playerInput) {
       playerSlotManager.AssignPlayer(playerInput);

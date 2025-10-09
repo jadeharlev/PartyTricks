@@ -1,73 +1,65 @@
-using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class PauseMenu : MonoBehaviour {
-    [SerializeField] private Button resumeButton;
-    [SerializeField] private Button optionsButton;
-    [SerializeField] private Button returnToMenuButton;
+    private Button resumeButton;
+    private Button optionsButton;
+    private Button returnToMenuButton;
     private PauseManager pauseManager;
     private InputAction cancelAction;
+    private InputAction navigateAction;
+    private bool hasFocused;
+    [SerializeField] private UIDocument pauseMenu;
 
     public void Initialize(PauseManager manager) {
+        VisualElement root = pauseMenu.rootVisualElement;
         pauseManager = manager;
+        resumeButton = root.Q<Button>("ResumeButton");
+        optionsButton = root.Q<Button>("OptionsButton");
+        returnToMenuButton = root.Q<Button>("ReturnToMenuButton");
         if (resumeButton != null) {
-            resumeButton.onClick.AddListener(OnResumeClicked);
+            resumeButton.clicked += OnResumeClicked;
         }
 
         if (optionsButton != null) {
-            optionsButton.onClick.AddListener(OnOptionsClicked);
+            optionsButton.clicked += OnOptionsClicked;
         }
 
         if (returnToMenuButton != null) {
-            returnToMenuButton.onClick.AddListener(OnReturnToMenuClicked);
+            returnToMenuButton.clicked += OnReturnToMenuClicked;
         }
-
-        SetUpNavigation();
-        SelectFirstButton();
+        navigateAction = InputSystem.actions.FindAction("UI/Navigate");
         cancelAction = InputSystem.actions.FindAction("UI/Cancel");
+        StartCoroutine(FocusFirstButtonAfterOneFrame());
     }
 
     private void Update() {
         if (cancelAction != null && cancelAction.WasPressedThisFrame()) {
             OnResumeClicked();
         }
+        if (!hasFocused && navigateAction.ReadValue<Vector2>() != Vector2.zero) {
+            FocusFirstButton();
+        }
+    }
+    
+    private IEnumerator FocusFirstButtonAfterOneFrame() {
+        yield return null;
+        FocusFirstButton();
+        EventSystem.current.SetSelectedGameObject(this.gameObject);
     }
 
-    private void SelectFirstButton() {
+    private void FocusFirstButton() {
         if (resumeButton != null) {
-            resumeButton.Select();
-            EventSystem.current?.SetSelectedGameObject(resumeButton.gameObject);
+            resumeButton.Focus();
         }
-    }
 
-    private void SetUpNavigation() {
-        if (resumeButton != null) {
-            var navigation = resumeButton.navigation;
-            navigation.mode = Navigation.Mode.Explicit;
-            navigation.selectOnUp = resumeButton;
-            navigation.selectOnDown = optionsButton;
-            resumeButton.navigation = navigation;
-        }
-        if (resumeButton != null) {
-            var navigation = optionsButton.navigation;
-            navigation.mode = Navigation.Mode.Explicit;
-            navigation.selectOnUp = resumeButton;
-            navigation.selectOnDown = returnToMenuButton;
-            optionsButton.navigation = navigation;
-        }
-        if (resumeButton != null) {
-            var navigation = returnToMenuButton.navigation;
-            navigation.mode = Navigation.Mode.Explicit;
-            navigation.selectOnUp = optionsButton;
-            navigation.selectOnDown = returnToMenuButton;
-            returnToMenuButton.navigation = navigation;
-        }
-        
+        hasFocused = true;
     }
+    
 
     private void OnReturnToMenuClicked() {
         SceneManager.LoadScene("MainMenu");
@@ -85,15 +77,15 @@ public class PauseMenu : MonoBehaviour {
 
     private void OnDestroy() {
         if (resumeButton != null) {
-            resumeButton.onClick.RemoveListener(OnResumeClicked);
+            resumeButton.clicked -= OnResumeClicked;
         }
 
         if (optionsButton != null) {
-            optionsButton.onClick.RemoveListener(OnOptionsClicked);
+            optionsButton.clicked -= OnOptionsClicked;
         }
 
         if (returnToMenuButton != null) {
-            returnToMenuButton.onClick.RemoveListener(OnReturnToMenuClicked);
+            returnToMenuButton.clicked -= OnReturnToMenuClicked;
         }
         cancelAction = null;
     }

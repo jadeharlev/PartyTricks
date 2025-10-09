@@ -15,6 +15,8 @@ public class PauseManager : MonoBehaviour
     private InputAction submitAction;
     private InputAction cancelAction;
     private InputAction clickAction;
+    private InputAction pointAction;
+    private InputAction toggleDebugMenuAction;
     private bool pauseIsEnabled = true;
     public bool IsPaused { get; private set; }
 
@@ -25,21 +27,9 @@ public class PauseManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        SetUpCanvas();
         SetUpInputAction();
     }
-
-    private void SetUpCanvas() {
-        GameObject canvasObject = new GameObject("PauseCanvas");
-        canvasObject.transform.SetParent(transform);
-        pauseMenuCanvas = canvasObject.AddComponent<Canvas>();
-        pauseMenuCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        pauseMenuCanvas.sortingOrder = 1000;
-        var canvasScaler = canvasObject.AddComponent<CanvasScaler>();
-        canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        canvasScaler.referenceResolution = new Vector2(1920, 1080);
-        canvasObject.AddComponent<GraphicRaycaster>();
-    }
+    
 
     private void SetUpInputAction() {
         pauseAction = InputSystem.actions.FindAction("UI/Pause");
@@ -47,6 +37,8 @@ public class PauseManager : MonoBehaviour
         submitAction = InputSystem.actions.FindAction("UI/Submit");
         cancelAction = InputSystem.actions.FindAction("UI/Cancel");
         clickAction = InputSystem.actions.FindAction("UI/Click");
+        pointAction = InputSystem.actions.FindAction("UI/Point");
+        toggleDebugMenuAction = InputSystem.actions.FindAction("UI/ToggleDebugMenu");
         if (pauseAction == null) {
             Debug.LogError("PauseManager: Could not find UI pause action.");
         }
@@ -89,11 +81,13 @@ public class PauseManager : MonoBehaviour
             submitAction.Enable();
             cancelAction.Enable();
             clickAction.Enable();
+            pointAction.Enable();
+            toggleDebugMenuAction.Enable();
         }
         InputSystem.actions.FindActionMap("Player")?.Disable();
         
         if (pauseMenuPrefab != null) {
-            activePauseMenu = Instantiate(pauseMenuPrefab, pauseMenuCanvas.transform);
+            activePauseMenu = Instantiate(pauseMenuPrefab);
             var pauseMenu = activePauseMenu.GetComponent<PauseMenu>();
             if (pauseMenu != null) {
                 pauseMenu.Initialize(this);

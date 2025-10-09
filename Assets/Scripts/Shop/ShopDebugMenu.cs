@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class ShopDebugMenu : MonoBehaviour
 {
@@ -31,5 +32,11 @@ public class ShopDebugMenu : MonoBehaviour
 
     public void UnlockAI() {
         Shop.UnlockAISelectors();
+    }
+
+    public void ReturnToMainMenu() {
+        Destroy(GameObject.Find("GameSessionManager"));
+        Destroy(GameObject.Find("PlayerInputManager"));
+        SceneManager.LoadScene("MainMenu");
     }
 }

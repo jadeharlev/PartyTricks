@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,7 @@ public class GameSessionManager : MonoBehaviour
    public PlayerSlot[] PlayerSlots = new PlayerSlot[4];
    private PlayerSlotManager playerSlotManager;
    private DeviceDisconnectService deviceDisconnectService;
+   public Action<PlayerInput> OnPlayerJoined;
 
    private void OnEnable() {
       InputSystem.onDeviceChange += deviceDisconnectService.OnDeviceChange;
@@ -53,8 +55,9 @@ public class GameSessionManager : MonoBehaviour
    }
 
 
-   public void OnPlayerJoined(PlayerInput playerInput) {
+   public void HandlePlayerJoin(PlayerInput playerInput) {
       playerSlotManager.AssignPlayer(playerInput);
+      OnPlayerJoined?.Invoke(playerInput);
    }
 
 }

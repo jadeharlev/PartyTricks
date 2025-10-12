@@ -592,7 +592,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 181813200}
         m_TargetAssemblyTypeName: GameSessionManager, Assembly-CSharp
-        m_MethodName: OnPlayerJoined
+        m_MethodName: HandlePlayerJoin
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

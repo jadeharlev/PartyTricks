@@ -17,6 +17,7 @@ public class PauseManager : MonoBehaviour
     private InputAction clickAction;
     private InputAction pointAction;
     private InputAction toggleDebugMenuAction;
+    private List<InputAction> playerPauseActions = new List<InputAction>();
     private bool pauseIsEnabled = true;
     public bool IsPaused { get; private set; }
 
@@ -26,7 +27,6 @@ public class PauseManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
         SetUpInputAction();
     }
     
@@ -42,16 +42,44 @@ public class PauseManager : MonoBehaviour
         if (pauseAction == null) {
             Debug.LogError("PauseManager: Could not find UI pause action.");
         }
+        GameSessionManager.Instance.OnPlayerJoined += OnPlayerJoined;
+    }
+
+    private void OnPlayerJoined(PlayerInput playerInput) {
+        var playerPauseAction = playerInput.currentActionMap.FindAction("Pause");
+        if (playerPauseAction == null) {
+            var uiMap = playerInput.actions.FindActionMap("UI");
+            if (uiMap != null) {
+                playerPauseAction = uiMap.FindAction("Pause");
+            }
+        }
+        
+        if (playerPauseAction != null && !playerPauseActions.Contains(playerPauseAction)) {
+            playerPauseActions.Add(playerPauseAction);
+            DebugLogger.Log(LogChannel.Systems, $"Added pause action for player {playerInput.playerIndex}");
+        }
     }
 
     private void Update() {
-        if (pauseAction != null && pauseAction.WasPressedThisFrame() && pauseIsEnabled) {
-            if (IsPaused) {
-                Resume();
+        if (!pauseIsEnabled) return;
+        if (pauseAction != null && pauseAction.WasPressedThisFrame()) {
+            TogglePause();
+            return;
+        }
+        foreach (var action in playerPauseActions) {
+            if (action != null && action.WasPressedThisFrame()) {
+                TogglePause();
+                return;
             }
-            else {
-                Pause();
-            }
+        }
+    }
+
+    private void TogglePause() {
+        if (IsPaused) {
+            Resume();
+        }
+        else {
+            Pause();
         }
     }
 
@@ -84,6 +112,13 @@ public class PauseManager : MonoBehaviour
             pointAction.Enable();
             toggleDebugMenuAction.Enable();
         }
+        
+        foreach (var action in playerPauseActions) {
+            if (action != null) {
+                action.Enable();
+            }
+        }
+        
         InputSystem.actions.FindActionMap("Player")?.Disable();
         
         if (pauseMenuPrefab != null) {
@@ -146,5 +181,6 @@ public class PauseManager : MonoBehaviour
 
     private void OnDestroy() {
         Time.timeScale = 1f;
+        GameSessionManager.Instance.OnPlayerJoined -= OnPlayerJoined;
     }
 }

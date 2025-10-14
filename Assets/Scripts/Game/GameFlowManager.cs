@@ -10,7 +10,6 @@ public class GameFlowManager : MonoBehaviour {
     [SerializeField] private GameObject gameBoardDisplayPrefab;
     private GameBoardGenerator boardGenerator;
     private GameBoardDisplay currentBoardDisplay;
-    [SerializeField] private MinigameIconMappingSO iconMapping;
     private int currentRoundIndex = -1;
     private List<(MinigameType minigameType, bool IsDouble)> gameBoard;
     private void Awake() {

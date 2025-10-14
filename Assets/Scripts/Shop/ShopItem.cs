@@ -11,7 +11,11 @@ public class ShopItem : ScriptableObject {
     public bool IsTemporary;
     public int NumberOfUsesIfApplicable;
     [SerializeField]
-    public PowerUpEffect PowerUpEffect;
+    public string PowerUpEffectId;
 
-    public ItemDefinition ToDefinition() => new ItemDefinition(Icon, Id, DisplayName, Cost, Category, Description, IsTemporary, NumberOfUsesIfApplicable, PowerUpEffect);
+    public ItemDefinition ToDefinition() {
+        PowerUpEffect effect = PowerUpRegistry.CreateEffect(PowerUpEffectId);
+        return new ItemDefinition(Icon, Id, DisplayName, Cost, Category, Description,
+        IsTemporary, NumberOfUsesIfApplicable, effect);
+    }
 }

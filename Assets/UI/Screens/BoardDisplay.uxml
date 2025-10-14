@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Screens/BoardDisplayStyles.uss?fileID=7433441132597879392&amp;guid=c8e900364581d4eeeacf291ef501f99b&amp;type=3#BoardDisplayStyles" />
+    <ui:VisualElement name="Background" style="flex-grow: 1; background-color: rgb(255, 255, 255); background-image: none; justify-content: center;">
+        <ui:Label text="Game Board" name="Title" style="-unity-font-definition: url(&quot;project://database/Assets/Fonts/DM_Sans/static/DMSans-Bold.ttf?fileID=12800000&amp;guid=612c4a868c3d84f8194a29de218f5b14&amp;type=3#DMSans-Bold&quot;); -unity-font-style: normal; font-size: 85px; -unity-text-align: upper-center; margin-top: 100px; margin-bottom: 100px; position: absolute; width: 100%; top: 0;" />
+        <ui:VisualElement name="IconRow" style="flex-grow: 0; background-size: 100% 100%; height: 40%; flex-direction: row; margin-left: 90px; margin-right: 90px;" />
+    </ui:VisualElement>
+</ui:UXML>

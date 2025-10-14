@@ -20,3 +20,4 @@ MonoBehaviour:
   Description: Get to know the shopkeeper. -50 cost on shop items.
   IsTemporary: 0
   NumberOfUsesIfApplicable: 0
+  PowerUpEffectId: shopDiscount

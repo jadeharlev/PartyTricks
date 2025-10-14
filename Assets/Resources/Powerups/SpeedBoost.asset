@@ -18,6 +18,6 @@ MonoBehaviour:
   Cost: 50
   Category: 0
   Description: Simple stat boost.\nMove faster!
-  isTemporary: 0
+  IsTemporary: 0
   NumberOfUsesIfApplicable: 0
-  PowerUpEffect: {fileID: 0}
+  PowerUpEffectId: speedBoost

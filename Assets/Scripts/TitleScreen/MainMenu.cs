@@ -22,7 +22,7 @@ public class MainMenu : MonoBehaviour {
         optionsButton = root.Query<Button>("OptionsButton");
         quitButton = root.Query<Button>("QuitButton");
         quitButton.clicked += QuitGame;
-        startGameButton.clicked += LoadGameScene;
+        startGameButton.clicked += StartGame;
         optionsButton.clicked += ShowOptions;
         navigateAction = InputSystem.actions.FindAction("UI/Navigate");
         StartCoroutine(FocusFirstButtonAfterOneFrame());
@@ -55,8 +55,13 @@ public class MainMenu : MonoBehaviour {
         hasFocused = true;
     }
 
-    private void LoadGameScene() {
-        SceneManager.LoadScene("Shop");
+    private void StartGame() {
+        if (GameFlowManager.Instance != null) {
+            GameFlowManager.Instance.StartGame();
+        }
+        else {
+            Debug.LogError("MainMenu: GameFlowManager not found.");
+        }
     }
 
     private void ShowOptions() {

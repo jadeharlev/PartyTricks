@@ -18,6 +18,6 @@ MonoBehaviour:
   Cost: 250
   Category: 0
   Description: Wield the power of magnetism. Attracts coins.
-  isTemporary: 0
+  IsTemporary: 0
   NumberOfUsesIfApplicable: 0
-  PowerUpEffect: {fileID: 0}
+  PowerUpEffectId: magnet

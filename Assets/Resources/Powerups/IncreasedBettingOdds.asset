@@ -18,6 +18,6 @@ MonoBehaviour:
   Cost: 70
   Category: 1
   Description: Increase your gambling odds. How much? Find out :)
-  isTemporary: 0
+  IsTemporary: 0
   NumberOfUsesIfApplicable: 0
-  PowerUpEffect: {fileID: 0}
+  PowerUpEffectId: increaseBettingOdds

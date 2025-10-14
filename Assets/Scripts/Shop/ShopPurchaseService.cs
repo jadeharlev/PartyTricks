@@ -13,10 +13,19 @@ public class ShopPurchaseService {
         int index = playerSelector.CurrentShopItemIndex;
         playerSelector.Lock();
         playerSelector.CanAct = false;
+        
         PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[playerSelector.PlayerIndex];
         PlayerProfile profile = slot.Profile;
         ShopItemUI item = shopItems[index];
-        bool purchaseSuccess = profile.Wallet.Buy(item.GetItemCost());
+        
+        int cost = item.GetItemCost();
+        int finalCost = cost;
+        foreach (var itemDefinition in profile.Inventory.Items) {
+            if (itemDefinition.PowerUpEffect != null) {
+                finalCost = itemDefinition.PowerUpEffect.ApplyCostDiscount(finalCost);
+            }
+        }
+        bool purchaseSuccess = profile.Wallet.Buy(finalCost);
         if (purchaseSuccess) {
             profile.Inventory.AddItem(item.GetItem().ToDefinition());
             Debug.Log("Shop.cs: Player " + playerSelector.PlayerIndex + " buys " + shopItems[index].ToString());

@@ -36,6 +36,18 @@ public class Shop : MonoBehaviour {
     
     private void OnShopTimerEnd() {
         shopPurchaseService.ResolvePurchases(playerManager.GetSelectors(), ShopItemUIElements);
+        if (GameFlowManager.Instance != null) {
+            StartCoroutine(WaitAndThenMoveToNextMinigame());
+        }
+        else {
+            Debug.LogError($"Shop: GameFlowManager is missing!");
+        }
+    }
+
+    private IEnumerator WaitAndThenMoveToNextMinigame() {
+        int numberOfSecondsToWait = 5;
+        yield return new WaitForSeconds(numberOfSecondsToWait);
+        GameFlowManager.Instance.OnShopEnd();
     }
 
     public void Reset() {

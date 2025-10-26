@@ -189,7 +189,6 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 34ab9c2c23dec4ad4b9d0d3c4baca2eb, type: 2}
   initialGameLength: 6
   gameBoardDisplayPrefab: {fileID: 6226369746933357051, guid: 91fa6cdfe75e641988a37beb4d3e4f29, type: 3}
-  iconMapping: {fileID: 0}
 --- !u!1 &194905646
 GameObject:
   m_ObjectHideFlags: 0
@@ -207,7 +206,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &194905647
 MonoBehaviour:
   m_ObjectHideFlags: 0

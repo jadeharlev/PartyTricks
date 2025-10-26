@@ -18,7 +18,7 @@ MonoBehaviour:
     - TestMinigameScene
   - Type: 1
     SceneNames:
-    - TestMinigameScene
+    - Blackjack
   - Type: 2
     SceneNames:
     - TestMinigameScene

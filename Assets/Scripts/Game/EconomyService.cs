@@ -38,7 +38,18 @@ public class EconomyService : MonoBehaviour {
             }
 
             int fundsEarned = 0;
-            if (result.BaseFundsEarned > 0) {
+            bool WasGamblingMinigame = (result.AmountBet > 0);
+            if (WasGamblingMinigame) {
+                fundsEarned = result.BaseFundsEarned;
+                int netFundsEarned = result.NetFundsEarned;
+                string resultText = netFundsEarned.ToString();
+                if (netFundsEarned >= 0) {
+                    resultText = $"-{netFundsEarned}";
+                }
+                
+                DebugLogger.Log(LogChannel.Systems, $"Player {result.PlayerIndex} - Bet {result.AmountBet}. Payout: " 
+                                                    + $"{fundsEarned}, Net: {resultText}");
+            } else if (result.BaseFundsEarned > 0) {
                 fundsEarned = result.BaseFundsEarned;
             } else if (useRankFallback) {
                 fundsEarned = GetFundsByRank(result.PlayerPlace);

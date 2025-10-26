@@ -102,6 +102,10 @@ public class GameFlowManager : MonoBehaviour {
             if (minigameManager is TestMinigameManager testManager) {
                 testManager.Initialize(currentRoundDefinition.IsDouble);
             }
+
+            if (minigameManager is BlackjackMinigameManager blackjackManager) {
+                blackjackManager.Initialize(currentRoundDefinition.IsDouble);
+            }
         }
         else {
             Debug.LogError($"GameFlowManager: Couldn't find minigame manager for scene {scene.name}");

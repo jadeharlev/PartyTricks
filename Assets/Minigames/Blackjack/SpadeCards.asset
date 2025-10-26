@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 857878fb146e24ab7b7c800cd8c20fb9, type: 3}
+  m_Name: SpadeCards
+  m_EditorClassIdentifier: Game::SuitCards
+  TwoCard: {fileID: 21300000, guid: 156330a1849656844bd3d5f0311c6f8d, type: 3}
+  ThreeCard: {fileID: 21300000, guid: b2f38fc7ad9244a4e966458cc29e36bf, type: 3}
+  FourCard: {fileID: 21300000, guid: fa11906ff7a436846ac8ab8dee8afade, type: 3}
+  FiveCard: {fileID: 21300000, guid: 241d4f0f3ad76a949bc5daed30271947, type: 3}
+  SixCard: {fileID: 21300000, guid: eb9de5e45282efa4eb40bb5e956b8ed9, type: 3}
+  SevenCard: {fileID: 21300000, guid: 9d8b9658bb59644428d3acba82f06b8f, type: 3}
+  EightCard: {fileID: 21300000, guid: ee27a665d0dcebd4f9f9220f8423211b, type: 3}
+  NineCard: {fileID: 21300000, guid: e0a2fc547b0194d46a79c4f930224c15, type: 3}
+  TenCard: {fileID: 21300000, guid: 68a69c5b709295c4d949b29fe5d72159, type: 3}
+  JackCard: {fileID: 21300000, guid: 40bb000e7fd29094d9bc51c5373cbf60, type: 3}
+  QueenCard: {fileID: 21300000, guid: 90666266e36bf0742813dd3dc3193315, type: 3}
+  KingCard: {fileID: 21300000, guid: 7255c5c8f342487489b2f8b45871f544, type: 3}
+  AceCard: {fileID: 21300000, guid: 6d0248b776c18e24db50f351ca84a88f, type: 3}

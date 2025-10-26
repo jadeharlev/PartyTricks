@@ -5,12 +5,16 @@ public struct PlayerMinigameResult {
     private readonly int playerRank;
     // funds earned based on minigame calculation; already includes doubling.
     public readonly int BaseFundsEarned;
-    public PlayerMinigameResult(int playerIndex, int playerRank, int baseFundsEarned) {
+    // applicable only in gambling minigames
+    public int AmountBet { get; }
+    public PlayerMinigameResult(int playerIndex, int playerRank, int baseFundsEarned, int amountBet = 0) {
         PlayerIndex = playerIndex;
         this.playerRank = playerRank;
         BaseFundsEarned = baseFundsEarned;
+        this.AmountBet = amountBet;
     }
 
     public bool PlayerWon => this.playerRank == 0;
     public int PlayerPlace => this.playerRank+1;
+    public int NetFundsEarned => this.BaseFundsEarned - this.AmountBet;
 }

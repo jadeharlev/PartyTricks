@@ -29,4 +29,9 @@ public class Wallet {
         currentFunds += amount;
         OnFundsChanged?.Invoke(currentFunds);
     }
+
+    public void RemoveFunds(int amount) {
+        currentFunds -= amount;
+        OnFundsChanged?.Invoke(currentFunds);
+    }
 }

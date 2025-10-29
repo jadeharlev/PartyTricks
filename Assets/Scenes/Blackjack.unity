@@ -3012,7 +3012,6 @@ GameObject:
   - component: {fileID: 1686776217}
   - component: {fileID: 1686776216}
   - component: {fileID: 1686776215}
-  - component: {fileID: 1686776221}
   m_Layer: 5
   m_Name: TestingCanvas
   m_TagString: Untagged
@@ -3138,29 +3137,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1686776221
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1686776214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4df24c54b9a74f7b928d4c7cb333701d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game::BlackjackBettingUIController
-  bettingPanel: {fileID: 0}
-  playerNameTexts: []
-  playerBetTexts: []
-  playerWalletTexts: []
-  playerBetSliders: []
-  playerReadyButtons: []
-  startGameButton: {fileID: 0}
-  timerText: {fileID: 0}
-  minBet: 10
-  maxBet: 500
-  bettingTimeLimit: 30
 --- !u!1 &1689600823
 GameObject:
   m_ObjectHideFlags: 0

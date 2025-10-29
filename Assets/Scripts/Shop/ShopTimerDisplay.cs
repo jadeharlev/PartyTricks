@@ -1,18 +1,19 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ShopTimerDisplay : MonoBehaviour
 {
     [SerializeField] private TMP_Text timerText;
-    [SerializeField] private ShopTimer shopTimer;
+    [FormerlySerializedAs("shopTimer")] [SerializeField] private CountdownTimer CountdownTimer;
     [SerializeField] private TMP_Text labelText;
     [SerializeField] private GameObject timerTextGameObject;
 
     private void Awake() {
-        shopTimer.OnTick += UpdateTimerText;
-        shopTimer.OnTimerEnd += OnTimerEnd;
-        shopTimer.OnReset += Reset;
+        CountdownTimer.OnTick += UpdateTimerText;
+        CountdownTimer.OnTimerEnd += OnTimerEnd;
+        CountdownTimer.OnReset += Reset;
     }
 
     private void Reset() {
@@ -21,9 +22,9 @@ public class ShopTimerDisplay : MonoBehaviour
         labelText.text = "Time Remaining: ";
     }
     private void OnDestroy() {
-        shopTimer.OnTick -= UpdateTimerText;
-        shopTimer.OnTimerEnd -= OnTimerEnd;
-        shopTimer.OnReset -= Reset;
+        CountdownTimer.OnTick -= UpdateTimerText;
+        CountdownTimer.OnTimerEnd -= OnTimerEnd;
+        CountdownTimer.OnReset -= Reset;
     }
 
     private void UpdateTimerText(int timeRemaining) {

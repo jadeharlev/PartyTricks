@@ -14,12 +14,12 @@ public class AIBetInputHandler : MonoBehaviour, IDirectionalTwoButtonInputHandle
     private IEnumerator AIRoutine() {
         while (true) {
             currentNavigate = GetRandomNavigationVector();
-            yield return new WaitForSeconds(Random.Range(0.1f, 2f));
+            yield return new WaitForSeconds(Random.Range(0.5f, 2f));
             
             currentNavigate = Vector2.zero;
-            yield return new WaitForSeconds(Random.Range(0.1f, 1.5f));
+            yield return new WaitForSeconds(Random.Range(0.5f, 1.5f));
 
-            if (Random.value < 0.2f) {
+            if (Random.value < 0.01f) {
                 selectIsPressed = true;
                 yield return null;
                 selectIsPressed = false;

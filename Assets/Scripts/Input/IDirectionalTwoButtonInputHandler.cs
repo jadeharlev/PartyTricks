@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IShopNavigator {
+public interface IDirectionalTwoButtonInputHandler {
     Vector2 GetNavigate();
     bool SelectIsPressed();
     bool CancelIsPressed();

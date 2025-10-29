@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class ShopSlotSelector : MonoBehaviour {
     public int PlayerIndex;
-    public IShopNavigator Navigator { get; private set; }
+    public IDirectionalTwoButtonInputHandler Navigator { get; private set; }
     public int CurrentShopItemIndex { get; private set; }
     public bool IsLocked { get; private set; }
     public event Action<ShopSlotSelector, int> OnSelectionChanged;
@@ -14,7 +14,7 @@ public class ShopSlotSelector : MonoBehaviour {
     public PlayerProfile Profile { get; private set; }
     public bool CanAct;
 
-    public void Initialize(int index, IShopNavigator navigator, ShopNavigationService shopNavigationService, PlayerProfile profile, int currentShopIndex = 0) {
+    public void Initialize(int index, IDirectionalTwoButtonInputHandler navigator, ShopNavigationService shopNavigationService, PlayerProfile profile, int currentShopIndex = 0) {
         PlayerIndex = index;
         Navigator = navigator;
         CurrentShopItemIndex = currentShopIndex;

@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class PlayerSlot : MonoBehaviour {
     [SerializeField] private int playerIndex;
-    public IShopNavigator Navigator { get; private set; }
+    public IDirectionalTwoButtonInputHandler Navigator { get; private set; }
     public bool IsAI { get; private set; }
     public PlayerProfile Profile { get; private set; }
 
-    public void Initialize(int index, IShopNavigator shopNavigator, bool isAI) {
+    public void Initialize(int index, IDirectionalTwoButtonInputHandler directionalTwoButtonInputHandler, bool isAI) {
         playerIndex = index;
-        Navigator = shopNavigator;
+        Navigator = directionalTwoButtonInputHandler;
         IsAI = isAI;
     }
 
@@ -16,8 +16,8 @@ public class PlayerSlot : MonoBehaviour {
         this.Profile = profile;
     }
 
-    public void ReplaceShopNavigator(IShopNavigator shopNavigator, bool isAI) {
-        this.Navigator = shopNavigator;
+    public void ReplaceDirectionalTwoButtonInputHandler(IDirectionalTwoButtonInputHandler directionalTwoButtonInputHandler, bool isAI) {
+        this.Navigator = directionalTwoButtonInputHandler;
         this.IsAI = isAI;
     }
 }

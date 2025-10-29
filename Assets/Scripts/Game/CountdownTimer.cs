@@ -2,20 +2,20 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class ShopTimer : MonoBehaviour {
-    private int shopDurationInSeconds;
+public class CountdownTimer : MonoBehaviour {
+    private int countdownDurationInSeconds;
     private int timeRemaining;
     public Action OnTimerEnd;
     public Action<int> OnTick;
     public Action OnReset;
 
     public void StartTimer(int ShopDurationInSeconds) {
-        this.shopDurationInSeconds = ShopDurationInSeconds;
-        StartCoroutine(ShopCountdown());
+        this.countdownDurationInSeconds = ShopDurationInSeconds;
+        StartCoroutine(Countdown());
     }
     
-    private IEnumerator ShopCountdown() {
-        timeRemaining = shopDurationInSeconds;
+    private IEnumerator Countdown() {
+        timeRemaining = countdownDurationInSeconds;
         while (timeRemaining > 0) {
             OnTick?.Invoke(timeRemaining);
             yield return new WaitForSeconds(1f);

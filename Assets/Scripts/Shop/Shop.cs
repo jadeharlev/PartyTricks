@@ -2,12 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Shop : MonoBehaviour {
     [SerializeField] private ShopItemUI[] ShopItemUIElements;
     [SerializeField] private PlayerCornerDisplay[] PlayerCornerDisplays;
     [SerializeField] public ShopItemsDisplay ShopItemDisplay;
-    [SerializeField] private ShopTimer ShopTimer;
+    [FormerlySerializedAs("ShopTimer")] [SerializeField] private CountdownTimer CountdownTimer;
     private ShopPlayerManager playerManager;
     private ShopNavigationService shopNavigationService;
     private ShopPurchaseService shopPurchaseService;
@@ -26,12 +27,12 @@ public class Shop : MonoBehaviour {
         shopPurchaseService = new ShopPurchaseService();
         shopNavigationService = new ShopNavigationService(GridRows, GridColumns);
         playerManager = new ShopPlayerManager(shopNavigationService, ShopItemUIElements, PlayerCornerDisplays);
-        ShopTimer.OnTimerEnd += OnShopTimerEnd;
+        CountdownTimer.OnTimerEnd += OnShopTimerEnd;
     }
 
     private void StartShop() {
         playerManager.InitializePlayers();
-        ShopTimer.StartTimer(ShopDurationInSeconds);
+        CountdownTimer.StartTimer(ShopDurationInSeconds);
     }
     
     private void OnShopTimerEnd() {
@@ -51,8 +52,8 @@ public class Shop : MonoBehaviour {
     }
 
     public void Reset() {
-        ShopTimer.Reset();
-        ShopTimer.StartTimer(ShopDurationInSeconds);
+        CountdownTimer.Reset();
+        CountdownTimer.StartTimer(ShopDurationInSeconds);
         playerManager.EnableAllSelectors();
     }
 
@@ -62,7 +63,7 @@ public class Shop : MonoBehaviour {
     
 
     private void OnDestroy() {
-        ShopTimer.OnTimerEnd -= OnShopTimerEnd;
+        CountdownTimer.OnTimerEnd -= OnShopTimerEnd;
         playerManager?.Cleanup();
     }
 }

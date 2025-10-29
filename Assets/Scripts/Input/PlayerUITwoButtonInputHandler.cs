@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerShopInputHandler : MonoBehaviour, IShopNavigator {
+public class PlayerUITwoButtonInputHandler : MonoBehaviour, IDirectionalTwoButtonInputHandler {
     private PlayerInput playerInput;
     private InputAction navigateAction;
     private InputAction cancelAction;

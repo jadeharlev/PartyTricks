@@ -1,7 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
-public class AIShopInputHandler : MonoBehaviour, IDirectionalTwoButtonInputHandler {
+// this code is largely copied from AIShopInputHandler; may eventually refactor.
+public class AIBetInputHandler : MonoBehaviour, IDirectionalTwoButtonInputHandler
+{
     private Vector2 currentNavigate;
     private bool selectIsPressed;
 
@@ -12,10 +14,10 @@ public class AIShopInputHandler : MonoBehaviour, IDirectionalTwoButtonInputHandl
     private IEnumerator AIRoutine() {
         while (true) {
             currentNavigate = GetRandomNavigationVector();
-            yield return new WaitForSeconds(Random.Range(0.3f, 2f));
+            yield return new WaitForSeconds(Random.Range(0.1f, 2f));
             
             currentNavigate = Vector2.zero;
-            yield return new WaitForSeconds(Random.Range(0.2f, 1.5f));
+            yield return new WaitForSeconds(Random.Range(0.1f, 1.5f));
 
             if (Random.value < 0.2f) {
                 selectIsPressed = true;
@@ -27,6 +29,13 @@ public class AIShopInputHandler : MonoBehaviour, IDirectionalTwoButtonInputHandl
 
     private Vector2 GetRandomNavigationVector() {
         int randomDirection = Random.Range(0, 4);
+        if (randomDirection == 3 || randomDirection == 0) {
+            // AI should bet more because it's more interesting
+            // Random chance to reroll if decreasing bet
+            randomDirection = Random.Range(0, 4);
+            if (randomDirection < 2) return Vector2.right;
+            return Vector2.up;
+        }
         switch (randomDirection) {
             case 0: return Vector2.left;
             case 1: return Vector2.right;

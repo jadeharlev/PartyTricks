@@ -36,9 +36,9 @@ public class PlayerSlotManager {
         }
 
         playerInput.transform.SetParent(playerSlots[slotIndex].transform);
-        var shopHandler = playerInput.gameObject.AddComponent<PlayerShopInputHandler>();
+        var shopHandler = playerInput.gameObject.AddComponent<PlayerUITwoButtonInputHandler>();
         shopHandler.Initialize(playerInput);
-        playerSlots[slotIndex].ReplaceShopNavigator(shopHandler, false);
+        playerSlots[slotIndex].ReplaceDirectionalTwoButtonInputHandler(shopHandler, false);
     }
     
     private int FindFirstAI() {

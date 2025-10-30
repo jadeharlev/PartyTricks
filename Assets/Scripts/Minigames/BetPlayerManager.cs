@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -82,6 +83,13 @@ public class BetPlayerManager {
             selector.CanAct = true;
         }
         SubscribeToSelectorEvents();
+    }
+
+    public void LockAllSelectors() {
+        foreach (var selector in activeSelectors) {
+            HandleLockChanged(selector, true);
+        }
+        UnsubscribeFromSelectorEvents();
     }
     
     private void UnsubscribeFromSelectorEvents() {

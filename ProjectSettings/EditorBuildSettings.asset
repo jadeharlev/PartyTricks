@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TestMinigameScene.unity
     guid: 90df027c9af38424aa26cf3277a09fee
+  - enabled: 1
+    path: Assets/Scenes/Blackjack.unity
+    guid: ac5f7dbd2920a4096b94867afdd38bc7
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 22481e3f44b6c487fb19db70d54fe532, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

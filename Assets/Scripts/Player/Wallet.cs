@@ -3,9 +3,11 @@ using UnityEngine;
 
 public class Wallet {
     private int currentFunds;
+    private int startingFunds;
     public event Action<int> OnFundsChanged;
     public Wallet(int startingFunds) {
-        this.currentFunds = startingFunds;
+        this.startingFunds = startingFunds;
+        Reset();
     }
 
     public int GetCurrentFunds() {
@@ -33,5 +35,9 @@ public class Wallet {
     public void RemoveFunds(int amount) {
         currentFunds -= amount;
         OnFundsChanged?.Invoke(currentFunds);
+    }
+
+    public void Reset() {
+        this.currentFunds = startingFunds;
     }
 }

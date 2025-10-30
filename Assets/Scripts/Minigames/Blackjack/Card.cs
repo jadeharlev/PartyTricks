@@ -6,6 +6,8 @@ public struct Card {
     public bool IsReal => suit != CardSuits.Undefined;
 
     public bool IsFaceCard => (Value >= 11);
+    
+    public CardSuits Suit => suit;
 
     public Card(CardSuits suit, int value) {
         this.suit = suit;

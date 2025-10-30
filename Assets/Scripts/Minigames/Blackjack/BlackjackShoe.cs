@@ -17,22 +17,24 @@ public class BlackjackShoe {
     }
 
     public Card DrawCard() {
-        Card cardToReturn = new Card(CardSuits.Undefined, -1);
+        if(decks.Count == 0) Initialize();
+        Card cardToReturn;
         do {
+            if(decks.Count == 0) Initialize();
             var shoeIndex = GetRandomShoeIndex();
             cardToReturn = decks[shoeIndex].DrawCard();
             RemoveDeckIfEmpty(shoeIndex);
-        } while (!cardToReturn.IsReal && decks.Count >= 1);
+        } while (!cardToReturn.IsReal && decks.Count > 0);
         
         if (!cardToReturn.IsReal) {
-            this.Initialize();
+            Initialize();
             return DrawCard();
         }
         return cardToReturn;
     }
 
     private void RemoveDeckIfEmpty(int shoeIndex) {
-        if (decks[shoeIndex].IsEmpty) {
+        if (shoeIndex < decks.Count && decks[shoeIndex].IsEmpty) {
             decks.RemoveAt(shoeIndex);
         }
     }

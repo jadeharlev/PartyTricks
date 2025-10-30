@@ -28,10 +28,8 @@ public class CardDeck {
         int cardValue = 1;
         cards = new List<Card>();
         foreach (CardSuits suit in suits) {
-            cards.Add(new Card(suit, cardValue));
-            cardValue++;
-            if (cardValue > 13) {
-                cardValue = 1;
+            for (int i = 1; i <= 13; i++) {
+                cards.Add(new Card(suit, i));
             }
         }
         ShuffleList(ref cards);

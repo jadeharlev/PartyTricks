@@ -842,6 +842,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3309628350103444937, guid: 3087c8b7f08cc4fcd9f196fe2ed80af6, type: 3}
   m_PrefabInstance: {fileID: 792662030}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &792662032 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 387416800125152548, guid: 3087c8b7f08cc4fcd9f196fe2ed80af6, type: 3}
+  m_PrefabInstance: {fileID: 792662030}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ff2556b85a0434d883c67e5fd786ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Player::PlayerCornerDisplay
 --- !u!1 &815387783
 GameObject:
   m_ObjectHideFlags: 0
@@ -3781,6 +3792,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4998094088324539529, guid: e65312a6e032e4208ba0f6f80b4c41bb, type: 3}
   m_PrefabInstance: {fileID: 1318860388}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1318860390 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6747144258841913982, guid: e65312a6e032e4208ba0f6f80b4c41bb, type: 3}
+  m_PrefabInstance: {fileID: 1318860388}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ff2556b85a0434d883c67e5fd786ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Player::PlayerCornerDisplay
 --- !u!114 &1326283032 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7885078102427180896, guid: 44c8ddab5d93f4fb19047c89f705c354, type: 3}
@@ -3911,11 +3933,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::BlackjackMinigameManager
   isDoubleRound: 0
   dealerDrawThreshold: 17
+  blackjackPayoutMultiplier: 3
   winPayoutMultiplier: 2
   pushPayoutMultiplier: 1
   losePayoutMultiplier: 0
   aiDecisionDelayInSeconds: 1.5
-  resultsDisplayDurationInSeconds: 3
+  blackjackResultsDisplayDurationInSeconds: 3
+  gameResultsDisplayDurationInSeconds: 3
   playerDisplays:
   - {fileID: 892209492}
   - {fileID: 1229644787}
@@ -3943,6 +3967,11 @@ MonoBehaviour:
   - {fileID: 1054312295}
   AllowedBettingDurationInSeconds: 10
   CountdownTimer: {fileID: 1528560270}
+  playerCornerDisplays:
+  - {fileID: 1318860390}
+  - {fileID: 1659198244}
+  - {fileID: 792662032}
+  - {fileID: 1632172866}
 --- !u!1 &1370451439
 GameObject:
   m_ObjectHideFlags: 0
@@ -5303,6 +5332,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4799824249309943063, guid: 44738e0ad21aa46bcaa727334e1e51e3, type: 3}
   m_PrefabInstance: {fileID: 1632172864}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1632172866 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4368588483362260815, guid: 44738e0ad21aa46bcaa727334e1e51e3, type: 3}
+  m_PrefabInstance: {fileID: 1632172864}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ff2556b85a0434d883c67e5fd786ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Player::PlayerCornerDisplay
 --- !u!1001 &1659198242
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5453,6 +5493,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3393867878877119833, guid: 4aac48847c6af4514a75095d86d62465, type: 3}
   m_PrefabInstance: {fileID: 1659198242}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1659198244 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4535572936419025358, guid: 4aac48847c6af4514a75095d86d62465, type: 3}
+  m_PrefabInstance: {fileID: 1659198242}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ff2556b85a0434d883c67e5fd786ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Player::PlayerCornerDisplay
 --- !u!1001 &1681858298
 PrefabInstance:
   m_ObjectHideFlags: 0

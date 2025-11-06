@@ -22,27 +22,34 @@ public class BlackjackPlayerDisplay : MonoBehaviour {
         BetLabel.text = $"Bet: {bet} / {playerFunds}";
     }
 
-    public void UpdateForEndOfGame(int lowCardValue, int highCardValue, int dealerValue, int amountWonOrLost) {
+    public void UpdateForEndOfGame(int lowCardValue, int highCardValue, int dealerValue, int amountWonOrLost, bool gotBlackjack = false) {
         string result;
         
         int playerBest = highCardValue > 21 ? lowCardValue : highCardValue;
         bool playerBust = playerBest > 21;
         bool dealerBust = dealerValue > 21;
-        
-        switch (playerBust) {
-            case true when !dealerBust:
-                result = "Busted!";
-                break;
-            case false when dealerBust:
-                result = "Dealer Bust!";
-                break;
+
+        if (gotBlackjack) {
+            result = "Blackjack!";
+        } else switch (playerBust) {
             case true when dealerBust:
                 result = "Both Busted!";
                 break;
+            case true:
+                result = "Busted!";
+                break;
             default: {
-                if (playerBest > dealerValue) result = "Won!";
-                else if (playerBest < dealerValue) result = "Lost.";
-                else result = "Push.";
+                if (dealerBust) {
+                    result = "Dealer Bust!";
+                } else if (playerBest > dealerValue) {
+                    result = "Won!";
+                } else if (playerBest < dealerValue) {
+                    result = "Lost.";
+                }
+                else {
+                    result = "Push.";
+                }
+
                 break;
             }
         }

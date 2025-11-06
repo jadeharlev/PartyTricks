@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +9,8 @@ public class Bets : MonoBehaviour {
     public int AllowedBettingDurationInSeconds = 10;
     [SerializeField] 
     private CountdownTimer CountdownTimer;
+    [SerializeField]
+    private PlayerCornerDisplay[] playerCornerDisplays;
     private IGamblingMinigame gamblingMinigameManager;
 
     private void Awake() {
@@ -30,7 +31,7 @@ public class Bets : MonoBehaviour {
     }
 
     private void InitializeComponents() {
-        playerManager = new BetPlayerManager(betCards);
+        playerManager = new BetPlayerManager(betCards, playerCornerDisplays);
         CountdownTimer.OnTimerEnd += OnBetTimerEnd;
     }
 

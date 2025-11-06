@@ -38,8 +38,8 @@ public class EconomyService : MonoBehaviour {
             }
 
             int fundsEarned = 0;
-            bool WasGamblingMinigame = (result.AmountBet > 0);
-            if (WasGamblingMinigame) {
+            bool wasGamblingMinigame = (result.AmountBet > 0);
+            if (wasGamblingMinigame) {
                 fundsEarned = result.BaseFundsEarned;
                 int netFundsEarned = result.NetFundsEarned;
                 string resultText = netFundsEarned.ToString();

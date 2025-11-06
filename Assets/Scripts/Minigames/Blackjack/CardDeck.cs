@@ -25,7 +25,6 @@ public class CardDeck {
     }
 
     public CardDeck() {
-        int cardValue = 1;
         cards = new List<Card>();
         foreach (CardSuits suit in suits) {
             for (int i = 1; i <= 13; i++) {

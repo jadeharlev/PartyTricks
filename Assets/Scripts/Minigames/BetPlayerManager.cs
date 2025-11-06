@@ -7,15 +7,32 @@ public class BetPlayerManager {
     private BetCard[] betCards;
     private List<BetSelector> activeSelectors = new();
     private Dictionary<int, int> playerBets = new();
+    private PlayerCornerDisplay[] playerCornerDisplays;
     
-    public BetPlayerManager(BetCard[] betCards) {
+    public BetPlayerManager(BetCard[] betCards, PlayerCornerDisplay[] playerCornerDisplays) {
         this.betCards = betCards;
+        this.playerCornerDisplays = playerCornerDisplays;
     }
 
     public void InitializePlayers() {
         CreatePlayerSelectors();
         SubscribeToSelectorEvents();
         InitializePlayerBets();
+        InitializePlayerCornerDisplays();
+    }
+
+    private void InitializePlayerCornerDisplays() {
+        if (playerCornerDisplays == null || playerCornerDisplays.Length == 0) {
+            Debug.LogWarning("No PlayerCornerDisplays assigned in BetPlayerManager.");
+            return;
+        }
+
+        for (int i = 0; i < playerCornerDisplays.Length; i++) {
+            PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
+            if (slot?.Profile != null) {
+                playerCornerDisplays[i].Initialize(slot.Profile);
+            }
+        }
     }
 
     private void InitializePlayerBets() {

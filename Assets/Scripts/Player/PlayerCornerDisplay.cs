@@ -10,15 +10,35 @@ public class PlayerCornerDisplay : MonoBehaviour {
 
     private Wallet wallet;
     private Inventory inventory;
+    private bool isInitialized = false;
 
     public void Initialize(PlayerProfile profile) {
+        CleanupSubscriptions();
         wallet = profile.Wallet;
         inventory = profile.Inventory;
+        
         wallet.OnFundsChanged += UpdateFunds;
         inventory.OnItemAdded += AddItem;
-        UpdateFunds(wallet.GetCurrentFunds());
+        isInitialized = true;
+
+        RefreshDisplay();
+    }
+
+    private void RefreshDisplay() {
+        if (!isInitialized) {
+            return;
+        }
+
+        ClearItemsDisplay();
         foreach (var item in inventory.Items) {
             AddItem(item);
+        }
+        UpdateFunds(wallet.GetCurrentFunds());
+    }
+
+    private void ClearItemsDisplay() {
+        for (int i = PowerupLayoutGroup.transform.childCount - 1; i >= 0; i--) {
+            Destroy(PowerupLayoutGroup.transform.GetChild(i).gameObject);
         }
     }
 
@@ -35,8 +55,12 @@ public class PlayerCornerDisplay : MonoBehaviour {
         imageComponent.sprite = item.Image;
     }
 
-    private void OnDestroy() {
+    private void CleanupSubscriptions() {
         if (wallet != null) wallet.OnFundsChanged -= UpdateFunds;
         if (inventory != null) inventory.OnItemAdded -= AddItem;
+    }
+
+    private void OnDestroy() {
+        CleanupSubscriptions();
     }
 }

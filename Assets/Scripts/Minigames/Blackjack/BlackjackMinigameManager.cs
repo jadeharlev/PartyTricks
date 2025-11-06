@@ -13,7 +13,7 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     
     [Header("Blackjack Settings")]
     [SerializeField] private int dealerDrawThreshold = 17;
-
+    [SerializeField] private float blackjackPayoutMultiplier = 3f;
     [SerializeField] private float winPayoutMultiplier = 2f;
     [SerializeField] private float pushPayoutMultiplier = 1f;
     [SerializeField] private float losePayoutMultiplier = 0f;
@@ -58,9 +58,28 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
         Ended
     }
     
+    private enum OutcomeType {
+        Blackjack = 0,
+        Win = 1,
+        Push = 2,
+        Loss = 3,
+        Bust = 4
+    }
+    
     private GamePhase currentPhase = GamePhase.Betting;
 
     private void Awake() {
+        InitializeVariables();
+        HideBlackjackPanel();
+    }
+
+    private void HideBlackjackPanel() {
+        if (blackjackPanel != null) {
+            blackjackPanel.SetActive(false);
+        }
+    }
+
+    private void InitializeVariables() {
         shoe = new BlackjackShoe();
         dealer = new BlackjackPlayer();
         players = new List<BlackjackPlayer>();
@@ -68,10 +87,6 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
         
         for (int i = 0; i < 4; i++) {
             players.Add(new BlackjackPlayer());
-        }
-
-        if (blackjackPanel != null) {
-            blackjackPanel.SetActive(false);
         }
     }
 
@@ -111,17 +126,34 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
 
     private void OnBettingComplete(Dictionary<int, int> bets) {
         OnBetTimerEnd -= OnBettingComplete;
-        playerBets = new int[4];
-        for (int i = 0; i < 4; i++) {
-            playerBets[i] = bets.GetValueOrDefault(i, 50);
-        }
+        ProcessPlayerBets(bets);
+        
         DebugLogger.Log(LogChannel.Systems, $"Betting complete, starting game.");
+        
+        ShowBlackjackPanel();
+        StartCoroutine(StartGameSequence());
+    }
 
+    private void ShowBlackjackPanel() {
         if (blackjackPanel != null) {
             blackjackPanel.SetActive(true);
         }
+    }
 
-        StartCoroutine(StartGameSequence());
+    private void ProcessPlayerBets(Dictionary<int, int> bets) {
+        playerBets = new int[4];
+        for (int i = 0; i < 4; i++) {
+            playerBets[i] = bets.GetValueOrDefault(i, 50);
+            DeductPlayerBetFunds(i);
+        }
+    }
+
+    private void DeductPlayerBetFunds(int playerIndex) {
+        PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[playerIndex];
+        if (slot?.Profile != null) {
+            slot.Profile.Wallet.RemoveFunds(playerBets[playerIndex]);
+            DebugLogger.Log(LogChannel.Systems, $"Player {playerIndex} bet {playerBets[playerIndex]}. Remaining funds: {slot.Profile.Wallet.GetCurrentFunds()}");
+        }
     }
 
     private IEnumerator StartGameSequence() {
@@ -141,18 +173,26 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
 
         for (int i = 0; i < 4; i++) {
             PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
-            if (slot == null || slot.Navigator == null) continue;
-
-            GameObject controllerObject = new GameObject("Player_{i}_BlackjackController");
-            controllerObject.transform.SetParent(transform);
-            
-            BlackjackPlayerController controller = controllerObject.AddComponent<BlackjackPlayerController>();
-            controller.Initialize(i, slot.Navigator, slot.IsAI);
-            controller.OnHit += HandlePlayerHit;
-            controller.OnStand += HandlePlayerStand;
-            
-            playerControllers.Add(controller);
+            if (slot?.Navigator == null) continue;
+            SetUpBlackjackPlayerControllerObject(i, slot);
         }
+    }
+
+    private void SetUpBlackjackPlayerControllerObject(int playerIndex, PlayerSlot slot) {
+        GameObject controllerObject = new GameObject("Player_{i}_BlackjackController");
+        controllerObject.transform.SetParent(transform);
+        
+        var controller = SetUpBlackjackPlayerController(playerIndex, slot, controllerObject);
+
+        playerControllers.Add(controller);
+    }
+
+    private BlackjackPlayerController SetUpBlackjackPlayerController(int playerIndex, PlayerSlot slot, GameObject controllerObject) {
+        BlackjackPlayerController controller = controllerObject.AddComponent<BlackjackPlayerController>();
+        controller.Initialize(playerIndex, slot.Navigator, slot.IsAI);
+        controller.OnHit += HandlePlayerHit;
+        controller.OnStand += HandlePlayerStand;
+        return controller;
     }
 
     private void InitializePlayerDisplays() {
@@ -170,43 +210,65 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     }
     
     private IEnumerator DealInitialCards() {
-        Card card;
+
+        yield return DrawInitialCardsForPlayers();
+        DebugLogger.Log(LogChannel.Systems, "Initial cards dealt to all players.");
+
+        yield return DrawAndDisplayDealerCards();
+        DebugLogger.Log(LogChannel.Systems, "Initial cards dealt to dealer.");
+    }
+
+    private IEnumerator DrawAndDisplayDealerCards() {
+        Card secondCard = shoe.DrawCard();
+        Card card = shoe.DrawCard();
+        
+        EnsureNoDealerInstantBlackjack(ref card, ref secondCard);
+        
+        dealer.DrawCard(card);
+        dealerDisplay.AddCard(card);
+        yield return new WaitForSeconds(0.3f);
+        
+        dealer.DrawCard(secondCard);
+        dealerDisplay.AddCard(secondCard);
+        yield return new WaitForSeconds(0.3f);
+        
+        dealerDisplay.UpdateCardValueLabel(dealer.GetLowValue(), dealer.GetHighValue());
+    }
+
+    private IEnumerator DrawInitialCardsForPlayers() {
         for (var i = 0; i<players.Count; i++) {
             var player = players[i];
             var playerDisplay = playerDisplays[i];
             
-            card = shoe.DrawCard();
-            player.DrawCard(card);
-            playerDisplay.AddCard(card);
-            UpdatePlayerDisplay(i);
+            DrawAndDisplayCard(player, playerDisplay, i);
             yield return new WaitForSeconds(0.3f);
             
-            card = shoe.DrawCard();
-            player.DrawCard(card);
-            playerDisplay.AddCard(card);
+            DrawAndDisplayCard(player, playerDisplay, i);
             UpdatePlayerDisplay(i);
+            
             yield return new WaitForSeconds(0.3f);
         }
-        
-        DebugLogger.Log(LogChannel.Systems, "Initial cards dealt to all players.");
+    }
 
-        card = shoe.DrawCard();
-        dealer.DrawCard(card);
-        dealerDisplay.AddCard(card);
-        yield return new WaitForSeconds(0.3f);
-        
-        card = shoe.DrawCard();
-        dealer.DrawCard(card);
-        dealerDisplay.AddCard(card);
-        yield return new WaitForSeconds(0.3f);
-        
-        dealerDisplay.UpdateCardValueLabel(dealer.GetLowValue(), dealer.GetHighValue());
-        DebugLogger.Log(LogChannel.Systems, "Initial cards dealt to dealer.");
+    private void DrawAndDisplayCard(BlackjackPlayer player, BlackjackPlayerDisplay playerDisplay, int playerIndex) {
+        var card = shoe.DrawCard();
+        player.DrawCard(card);
+        playerDisplay.AddCard(card);
+        UpdatePlayerDisplay(playerIndex);
+    }
+
+    private void EnsureNoDealerInstantBlackjack(ref Card firstCard, ref Card secondCard) {
+        while ((secondCard.IsFaceCard && firstCard.Value == 1) || (firstCard.IsFaceCard && secondCard.Value == 1)) {
+            firstCard = shoe.DrawCard();
+            secondCard = shoe.DrawCard();
+        }
     }
 
     private void StartPlayerTurn(int playerIndex) {
         currentPlayerIndex = playerIndex;
-        if (currentPlayerIndex >= players.Count) {
+        
+        bool shouldTransitionToDealerTurn = currentPlayerIndex >= players.Count;
+        if (shouldTransitionToDealerTurn) {
             currentPhase = GamePhase.DealerTurn;
             StartCoroutine(PlayDealerTurn());
             return;
@@ -238,34 +300,43 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     private IEnumerator HandleAITurn(int playerIndex) {
         yield return new WaitForSeconds(aiDecisionDelayInSeconds);
         BlackjackPlayer player = players[playerIndex];
-        while(!player.HasBusted() && player.GetBestValue() < 17) {
-            DebugLogger.Log(LogChannel.Systems, $"AI Player {playerIndex} chose to hit.");
-            HandlePlayerHit(playerIndex);
-        }
+        HitIfAppropriateOnAI(playerIndex, player);
+        StandIfAppropriateOnAI(playerIndex, player);
+    }
 
+    private void StandIfAppropriateOnAI(int playerIndex, BlackjackPlayer player) {
         if (!player.HasBusted()) {
             DebugLogger.Log(LogChannel.Systems, $"AI Player {playerIndex} chose to stand.");
             HandlePlayerStand(playerIndex);
         }
     }
 
-    public void HandlePlayerHit(int playerIndex) {
+    private void HitIfAppropriateOnAI(int playerIndex, BlackjackPlayer player) {
+        while(!player.HasBusted() && player.GetBestValue() < 17) {
+            DebugLogger.Log(LogChannel.Systems, $"AI Player {playerIndex} chose to hit.");
+            HandlePlayerHit(playerIndex);
+        }
+    }
+
+    private void HandlePlayerHit(int playerIndex) {
         if (currentPhase != GamePhase.PlayerTurns || playerIndex != currentPlayerIndex) return;
-        BlackjackPlayer player = players[currentPlayerIndex];
-        Card newCard = shoe.DrawCard();
-        player.DrawCard(newCard);
         
-        playerDisplays[playerIndex].AddCard(newCard);
-        UpdatePlayerDisplay(playerIndex);
+        BlackjackPlayer player = players[playerIndex];
+        
+        DrawAndDisplayCard(player, playerDisplays[playerIndex], playerIndex);
         DebugLogger.Log(LogChannel.Systems, $"Player {playerIndex} hit. New value is {player.GetBestValue()}");
         
+        EndTurnIfBusted(playerIndex, player);
+    }
+
+    private void EndTurnIfBusted(int playerIndex, BlackjackPlayer player) {
         if (player.HasBusted()) {
             DebugLogger.Log(LogChannel.Systems, $"Player {playerIndex} busted!");
             EndPlayerTurn(playerIndex);
         }
     }
 
-    public void HandlePlayerStand(int playerIndex) {
+    private void HandlePlayerStand(int playerIndex) {
         if (currentPhase != GamePhase.PlayerTurns || playerIndex != currentPlayerIndex) return;
         DebugLogger.Log(LogChannel.Systems, $"Player {playerIndex} stands with a {players[playerIndex].GetBestValue()}");
         EndPlayerTurn(playerIndex);
@@ -291,12 +362,10 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     private IEnumerator PlayDealerTurn() {
         yield return new WaitForSeconds(0.5f);
         DebugLogger.Log(LogChannel.Systems, "Started dealer's turn.");
+        
         while (dealer.GetBestValue() < dealerDrawThreshold) {
-            Card newCard = shoe.DrawCard();
-            dealer.DrawCard(newCard);
-            dealerDisplay.AddCard(newCard);
-            dealerDisplay.UpdateCardValueLabel(dealer.GetLowValue(),dealer.GetHighValue());
-            
+            DrawAndDisplayDealerCard();
+
             DebugLogger.Log(LogChannel.Systems, $"Dealer drew. New value is {dealer.GetBestValue()}");
             yield return new WaitForSeconds(1f);
         }
@@ -310,63 +379,146 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
         EvaluateWinners();
     }
 
+    private void DrawAndDisplayDealerCard() {
+        Card card = shoe.DrawCard();
+        dealer.DrawCard(card);
+        dealerDisplay.AddCard(card);
+        dealerDisplay.UpdateCardValueLabel(dealer.GetLowValue(),dealer.GetHighValue());
+    }
+
 
     private void EvaluateWinners() {
         var results = new PlayerMinigameResult[4];
+        
         int dealerValue = dealer.GetBestValue();
         if (dealer.HasBusted()) dealerValue = 0;
+        
+        var playerOutcomes = CalculatePlayerOutcomes(dealerValue);
+        var rankedOutcomes = RankPlayerOutcomes(playerOutcomes);
 
-        for (int i = 0; i < players.Count; i++) {
-            var player = players[i];
-            int lowValue = player.GetLowValue();
-            int highValue = player.GetHighValue();
-            int playerValue = player.GetBestValue();
-            if (player.HasBusted()) playerValue = 0;
-            int bet = playerBets[i];
-
-            float payoutMultiplier;
-            int rank;
-            int amountWonOrLost;
-
-            CalculatePlayerResults(player, i, dealerValue, playerValue, out payoutMultiplier, out rank);
-            
-            int basePayout = Mathf.RoundToInt(bet * payoutMultiplier);
-            int finalPayout = basePayout;
-            if (isDoubleRound) {
-                finalPayout *= 2;
-                DebugLogger.Log(LogChannel.Systems, $"Double round: {basePayout} -> {finalPayout}");
-            }
-
-            amountWonOrLost = finalPayout - bet;
-            results[i] = new PlayerMinigameResult(i, rank, finalPayout, bet);
-            playerDisplays[i].UpdateForEndOfGame(lowValue, highValue, dealerValue, amountWonOrLost);
-            DebugLogger.Log(LogChannel.Systems, $"Player {i}: Bet {bet}, Payout {finalPayout}, Net {amountWonOrLost}");
-        }
+        ProcessPlayerOutcomes(playerOutcomes, rankedOutcomes, results, dealerValue);
+        
         DebugLogger.Log(LogChannel.Systems, "Blackjack game complete.");
+        
         dealerDisplay.UpdateCardValueLabel(dealer.GetLowValue(), dealer.GetHighValue(), "Final");
         OnMinigameFinished?.Invoke(results);
     }
 
-    private void CalculatePlayerResults(BlackjackPlayer player, int i, int dealerValue, int playerValue,
-        out float payoutMultiplier, out int rank) {
-        if (player.HasBusted()) {
+    private void ProcessPlayerOutcomes(
+        (int currentPlayerIndex, OutcomeType outcome, int playerValue, int payout)[] playerOutcomes, int[] rankedOutcomes,
+        PlayerMinigameResult[] results, int dealerValue) {
+        for (int i = 0; i < players.Count; i++) {
+            var (playerIndex, outcome, playerValue, finalPayout) = playerOutcomes[i];
+            var rank = UpdatePlayerMinigameResult(rankedOutcomes, playerIndex, finalPayout, results, out var bet, out var amountWonOrLost);
+            UpdatePlayerDisplayForEndOfGame(playerIndex, dealerValue, amountWonOrLost);
+            LogPlayerResult(amountWonOrLost, playerIndex, bet, finalPayout, rank);
+        }
+    }
+
+    private static void LogPlayerResult(int amountWonOrLost, int playerIndex, int bet, int finalPayout, int rank) {
+        string netText;
+        if (amountWonOrLost >= 0) {
+            netText = $"+{amountWonOrLost}";
+        }
+        else {
+            netText = amountWonOrLost.ToString();
+        }
+        DebugLogger.Log(LogChannel.Systems, $"Player {playerIndex}: Bet {bet}, Payout {finalPayout}, Net {netText}, Rank {rank+1}");
+    }
+
+    private void UpdatePlayerDisplayForEndOfGame(int playerIndex, int dealerValue, int amountWonOrLost) {
+        int lowValue = players[playerIndex].GetLowValue();
+        int highValue = players[playerIndex].GetHighValue();
+        playerDisplays[playerIndex].UpdateForEndOfGame(lowValue, highValue, dealerValue, amountWonOrLost);
+    }
+
+    private int UpdatePlayerMinigameResult(int[] rankedOutcomes, int playerIndex, int finalPayout,
+        PlayerMinigameResult[] results, out int bet, out int amountWonOrLost) {
+        int rank = rankedOutcomes[playerIndex];
+        bet = playerBets[playerIndex];
+        amountWonOrLost = finalPayout - bet;
+        results[playerIndex] = new PlayerMinigameResult(playerIndex, rank, finalPayout, bet);
+        return rank;
+    }
+
+    private (int currentPlayerIndex, OutcomeType outcome, int playerValue, int payout)[] CalculatePlayerOutcomes(int dealerValue) {
+        var playerOutcomes = new (int currentPlayerIndex, OutcomeType outcome, int playerValue, int payout)[4];
+        for (int i = 0; i < players.Count; i++) {
+            var player = players[i];
+            int playerValue = player.GetBestValue();
+            if (player.HasBusted()) playerValue = 0;
+            int bet = playerBets[i];
+
+            CalculatePlayerOutcome(player, i, dealerValue, playerValue, out var payoutMultiplier, out var outcome);
+            
+            var finalPayout = CalculateFinalPayout(bet, payoutMultiplier);
+            playerOutcomes[i] = (i, outcome, playerValue, finalPayout);
+        }
+
+        return playerOutcomes;
+    }
+
+    private int CalculateFinalPayout(int bet, float payoutMultiplier) {
+        int basePayout = Mathf.RoundToInt(bet * payoutMultiplier);
+        int finalPayout = basePayout;
+        if (isDoubleRound) {
+            finalPayout *= 2;
+        }
+
+        return finalPayout;
+    }
+
+    private int[] RankPlayerOutcomes((int playerIndex, OutcomeType outcome, int playerValue, int payout)[] outcomes) {
+        var ranks = new int[4];
+        var sortedPlayers = new List<(int index, OutcomeType outcome, int playerValue)>();
+
+        for (int i = 0; i < outcomes.Length; i++) {
+            sortedPlayers.Add((outcomes[i].playerIndex, outcomes[i].outcome, outcomes[i].playerValue));
+        }
+        
+        DeterminePlayerOutcomeOrder(sortedPlayers);
+
+        for (int i = 0; i < sortedPlayers.Count; i++) {
+            ranks[sortedPlayers[i].index] = i;
+        }
+
+        return ranks;
+    }
+
+    private static void DeterminePlayerOutcomeOrder(List<(int index, OutcomeType outcome, int playerValue)> sortedPlayers) {
+        sortedPlayers.Sort((a, b) =>
+        {
+            int outcomeCompare = a.playerValue.CompareTo(b.playerValue);
+            if (outcomeCompare != 0) return outcomeCompare;
+            return b.playerValue.CompareTo(a.playerValue);
+        });
+    }
+
+    private void CalculatePlayerOutcome(BlackjackPlayer player, int i, int dealerValue, int playerValue,
+        out float payoutMultiplier, out OutcomeType outcome) {
+        if (player.GotBlackjack && dealer.GetBestValue() != 21) {
+            payoutMultiplier = blackjackPayoutMultiplier;
+            outcome = OutcomeType.Blackjack;
+            DebugLogger.Log(LogChannel.Systems, $"Player {i}: Blackjack ({playerValue} vs dealer {dealerValue})");
+        }
+        else if (player.HasBusted()) {
             payoutMultiplier = losePayoutMultiplier;
-            rank = 3;
+            outcome = OutcomeType.Bust;
             DebugLogger.Log(LogChannel.Systems,
                 $"Player {i}: Busted ({player.GetBestValue()} vs dealer {dealerValue})");
         }
         else if (dealer.HasBusted() || playerValue > dealerValue) {
             payoutMultiplier = winPayoutMultiplier;
-            rank = 0;
+            outcome = OutcomeType.Win;
             DebugLogger.Log(LogChannel.Systems, $"Player {i}: Won ({playerValue} vs dealer {dealerValue})");
         }
         else if (playerValue == dealerValue) {
             payoutMultiplier = pushPayoutMultiplier;
-            rank = 1;
+            outcome = OutcomeType.Push;
             DebugLogger.Log(LogChannel.Systems, $"Player {i}: Pushed ({playerValue} vs dealer {dealerValue})");
         } else {
             payoutMultiplier = losePayoutMultiplier;
-            rank = 2;
+            outcome = OutcomeType.Loss;
             DebugLogger.Log(LogChannel.Systems, $"Player {i}: Lost ({playerValue} vs dealer {dealerValue})");
         }
     }

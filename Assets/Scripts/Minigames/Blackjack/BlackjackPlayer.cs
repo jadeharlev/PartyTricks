@@ -3,7 +3,8 @@ using System.Collections.Generic;
 public class BlackjackPlayer {
     public List<Card> cards;
     private bool hasAce = false;
-
+    public bool GotBlackjack { get; private set; }
+    
     public BlackjackPlayer() {
         cards = new List<Card>();
     }
@@ -12,6 +13,10 @@ public class BlackjackPlayer {
         cards.Add(card);
         if (card.Value == 1) {
             hasAce = true;
+        }
+
+        if (cards.Count == 2) {
+            if (GetBestValue() == 21) GotBlackjack = true;
         }
     }
 

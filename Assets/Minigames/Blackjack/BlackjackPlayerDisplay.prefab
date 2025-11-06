@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Card Value: 00 (00)'
+  m_text: 'Card Value:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 41b22375f2f0244b09486fa52e64e118, type: 2}
   m_sharedMaterial: {fileID: 4515579008341610873, guid: 41b22375f2f0244b09486fa52e64e118, type: 2}
@@ -431,7 +431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Bet: 0/0'
+  m_text: 'Bet:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 41b22375f2f0244b09486fa52e64e118, type: 2}
   m_sharedMaterial: {fileID: 4515579008341610873, guid: 41b22375f2f0244b09486fa52e64e118, type: 2}

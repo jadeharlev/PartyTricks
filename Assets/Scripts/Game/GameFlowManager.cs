@@ -13,7 +13,7 @@ public class GameFlowManager : MonoBehaviour {
     private int currentRoundIndex = -1;
     private List<(MinigameType minigameType, bool IsDouble)> gameBoard;
     private void Awake() {
-        if (Instance != null) {
+        if (Instance != null && Instance != this) {
             Destroy(gameObject);
         }
 
@@ -99,12 +99,16 @@ public class GameFlowManager : MonoBehaviour {
         if (minigameManager != null) {
             minigameManager.OnMinigameFinished += ProcessMinigameResults;
             var currentRoundDefinition = GetCurrentRoundDefinition();
-            if (minigameManager is TestMinigameManager testManager) {
-                testManager.Initialize(currentRoundDefinition.IsDouble);
-            }
-
-            if (minigameManager is BlackjackMinigameManager blackjackManager) {
-                blackjackManager.Initialize(currentRoundDefinition.IsDouble);
+            switch (minigameManager) {
+                case TestMinigameManager testManager:
+                    testManager.Initialize(currentRoundDefinition.IsDouble);
+                    break;
+                case BlackjackMinigameManager blackjackManager:
+                    blackjackManager.Initialize(currentRoundDefinition.IsDouble);
+                    break;
+                case CoinTiltMinigameManager coinTiltMinigameManager:
+                    coinTiltMinigameManager.Initialize(currentRoundDefinition.IsDouble);
+                    break;
             }
         }
         else {

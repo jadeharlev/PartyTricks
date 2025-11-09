@@ -43,8 +43,8 @@ public class DebugMenu : MonoBehaviour {
 
         GUILayout.Space(10);
         
-        if (GUILayout.Button("Load Test Minigame", GUILayout.Height(40))) {
-            LoadTestMinigame();
+        if (GUILayout.Button("Load Coin Tilt Minigame", GUILayout.Height(40))) {
+            LoadCoinTiltMinigame();
         }
 
         GUILayout.Space(10);
@@ -122,23 +122,23 @@ public class DebugMenu : MonoBehaviour {
         }
     }
 
-    private void LoadTestMinigame() {
-        DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Loading Test Minigame. Double: {isDoubleRound}");
-        SceneManager.LoadScene("TestMinigameScene");
-        SceneManager.sceneLoaded += OnTestMinigameSceneLoaded;
+    private void LoadCoinTiltMinigame() {
+        DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Loading Coin Tilt Minigame. Double: {isDoubleRound}");
+        SceneManager.LoadScene("CoinTiltGame");
+        SceneManager.sceneLoaded += OnCoinTiltMinigameSceneLoaded;
     }
 
-    private void OnTestMinigameSceneLoaded(Scene scene, LoadSceneMode mode) {
-        if (scene.name != "TestMinigame") return;
+    private void OnCoinTiltMinigameSceneLoaded(Scene scene, LoadSceneMode mode) {
+        if (scene.name != "CoinTiltGame") return;
         
-        SceneManager.sceneLoaded -= OnTestMinigameSceneLoaded;
+        SceneManager.sceneLoaded -= OnCoinTiltMinigameSceneLoaded;
         
-        TestMinigameManager manager = FindAnyObjectByType<TestMinigameManager>();
+        CoinTiltMinigameManager manager = FindAnyObjectByType<CoinTiltMinigameManager>();
         if (manager != null) {
             manager.Initialize(isDoubleRound);
-            DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Test minigame manager initialized. Double: {isDoubleRound}");
+            DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Coin tilt minigame manager initialized. Double: {isDoubleRound}");
         } else {
-            Debug.LogError("Debug Menu: Could not find TestMinigameManager in scene!");
+            Debug.LogError("Debug Menu: Could not find CoinTiltMinigameManager in scene!");
         }
     }
 

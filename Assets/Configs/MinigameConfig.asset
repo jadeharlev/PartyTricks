@@ -21,7 +21,8 @@ MonoBehaviour:
     - Blackjack
   - Type: 2
     SceneNames:
-    - TestMinigameScene
+    - CoinTiltGame
   - Type: 3
     SceneNames:
-    - TestMinigameScene
+    - Blackjack
+    - CoinTiltGame

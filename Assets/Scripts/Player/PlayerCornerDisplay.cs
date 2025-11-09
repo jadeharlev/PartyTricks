@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,13 +10,21 @@ public class PlayerCornerDisplay : MonoBehaviour {
     private Wallet wallet;
     private Inventory inventory;
     private bool isInitialized = false;
+    private DisplayMode displayMode;
 
-    public void Initialize(PlayerProfile profile) {
+    public void Initialize(PlayerProfile profile, DisplayMode mode = DisplayMode.Funds) {
         CleanupSubscriptions();
         wallet = profile.Wallet;
         inventory = profile.Inventory;
+
+        displayMode = mode;
         
-        wallet.OnFundsChanged += UpdateFunds;
+        if (mode == DisplayMode.Funds) {
+            wallet.OnFundsChanged += UpdateFunds;
+        }
+        else {
+            UpdateScore(0);
+        }
         inventory.OnItemAdded += AddItem;
         isInitialized = true;
 
@@ -33,7 +40,7 @@ public class PlayerCornerDisplay : MonoBehaviour {
         foreach (var item in inventory.Items) {
             AddItem(item);
         }
-        UpdateFunds(wallet.GetCurrentFunds());
+        if(displayMode == DisplayMode.Funds) UpdateFunds(wallet.GetCurrentFunds());
     }
 
     private void ClearItemsDisplay() {
@@ -46,6 +53,10 @@ public class PlayerCornerDisplay : MonoBehaviour {
         FundsLabel.text = "funds: " + funds;
     }
 
+    public void UpdateScore(int score) {
+        FundsLabel.text = "score: " + score;
+    }
+
     private void AddItem(ItemDefinition item) {
         if (item.Id == "emptyItem") return;
         GameObject newItem = Instantiate(MiniPowerupPrefab);
@@ -56,11 +67,16 @@ public class PlayerCornerDisplay : MonoBehaviour {
     }
 
     private void CleanupSubscriptions() {
-        if (wallet != null) wallet.OnFundsChanged -= UpdateFunds;
+        if (wallet != null && displayMode == DisplayMode.Funds) wallet.OnFundsChanged -= UpdateFunds;
         if (inventory != null) inventory.OnItemAdded -= AddItem;
     }
 
     private void OnDestroy() {
         CleanupSubscriptions();
+    }
+
+    public enum DisplayMode {
+        Funds,
+        Score
     }
 }

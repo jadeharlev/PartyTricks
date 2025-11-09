@@ -4,7 +4,6 @@ public class Coin : MonoBehaviour {
     [SerializeField] private CoinTypeSO coinType;
     private int pointValue;
     private bool hasBeenCollected;
-    public int PointValue => pointValue;
 
     private void Awake() {
         if (coinType != null) {
@@ -29,9 +28,4 @@ public class Coin : MonoBehaviour {
             pointValue = coinType.PointValue;
         }
     }
-
-    public void SetPointValue(int value) {
-        pointValue = value;
-    }
-
 }

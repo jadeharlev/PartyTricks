@@ -53,12 +53,10 @@ public class CoinTiltPlayer : MonoBehaviour {
         }
     }
 
-    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI,
-        CoinTiltMinigameManager minigameManager) {
+    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI) {
         this.playerIndex = index;
         this.navigator = inputHandler;
         this.isAI = isAI;
-        this.manager = minigameManager;
         this.inputEnabled = false;
         this.coinCount = 0;
         this.isFalling = false;
@@ -116,20 +114,28 @@ public class CoinTiltPlayer : MonoBehaviour {
 
     private void ApplyGroundMovement(Vector3 inputDirection) {
         if (inputDirection.magnitude > 0.1f) {
-            Vector3 targetVelocity = inputDirection.normalized * moveSpeed;
-            currentVelocity = Vector3.MoveTowards(
-                currentVelocity,
-                new Vector3(targetVelocity.x, targetVelocity.y, targetVelocity.z),
-                acceleration * Time.deltaTime
-            );
+            ApplyMovementTowardsInputDirection(inputDirection);
         }
         else {
-            float deceleration = acceleration * slipFactor;
-            currentVelocity = Vector3.MoveTowards(
-                currentVelocity,
-                new Vector3(0, currentVelocity.y, 0),
-                deceleration * Time.deltaTime);
+            ApplyDeceleration();
         }
+    }
+
+    private void ApplyDeceleration() {
+        float deceleration = acceleration * slipFactor;
+        currentVelocity = Vector3.MoveTowards(
+            currentVelocity,
+            new Vector3(0, currentVelocity.y, 0),
+            deceleration * Time.deltaTime);
+    }
+
+    private void ApplyMovementTowardsInputDirection(Vector3 inputDirection) {
+        Vector3 targetVelocity = inputDirection.normalized * moveSpeed;
+        currentVelocity = Vector3.MoveTowards(
+            currentVelocity,
+            new Vector3(targetVelocity.x, targetVelocity.y, targetVelocity.z),
+            acceleration * Time.deltaTime
+        );
     }
 
     private void ApplyAirMovement(Vector3 inputDirection) {
@@ -140,50 +146,66 @@ public class CoinTiltPlayer : MonoBehaviour {
     }
 
     private void Jump() {
+        ApplyMomentumCancellationForJump();
+        currentVelocity.y = jumpForce;
+        isGrounded = false;
+        DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} jumped.", LogLevel.Verbose);
+    }
+
+    private void ApplyMomentumCancellationForJump() {
+        var momentumCancelPercentage = CalculateMomentumCancellation();
+        float retainedMomentum = Mathf.Max(1f-momentumCancelPercentage, 0.1f);
+        currentVelocity.x *= retainedMomentum;
+        currentVelocity.z *= retainedMomentum;
+    }
+
+    private float CalculateMomentumCancellation() {
         float momentumCancelPercentage = 0.5f;
 
         if (inputEnabled && navigator != null && navigator.IsActive()) {
             Vector2 input = navigator.GetNavigate();
             Vector3 inputDirection = new Vector3(input.x, 0, input.y);
+            
+            CancelMoreMomentumWhenMovingOppositeDirection(inputDirection, ref momentumCancelPercentage);
+        }
 
-            if (inputDirection.magnitude > 0.1f) {
-                Vector3 horizontalVelocity = new Vector3(inputDirection.x, 0, inputDirection.z);
-                float dotProduct = Vector3.Dot(inputDirection.normalized, horizontalVelocity.normalized);
+        return momentumCancelPercentage;
+    }
 
-                // if moving opposite direction, cancel more momentum
-                if (dotProduct < 0) {
-                    momentumCancelPercentage = 0.75f;
-                }
+    private static void CancelMoreMomentumWhenMovingOppositeDirection(Vector3 inputDirection,
+        ref float momentumCancelPercentage) {
+        if (inputDirection.magnitude > 0.1f) {
+            Vector3 horizontalVelocity = new Vector3(inputDirection.x, 0, inputDirection.z);
+            float dotProduct = Vector3.Dot(inputDirection.normalized, horizontalVelocity.normalized);
+            if (dotProduct < 0) {
+                momentumCancelPercentage = 0.75f;
             }
         }
-        
-        float retainedMomentum = Mathf.Max(1f-momentumCancelPercentage, 0.1f);
-        currentVelocity.x *= retainedMomentum;
-        currentVelocity.z *= retainedMomentum;
-        
-        currentVelocity.y = jumpForce;
-        isGrounded = false;
-        DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} jumped.", LogLevel.Verbose);
     }
 
     private void ApplyMovement() {
         if (!isGrounded) {
             currentVelocity.y += Physics.gravity.y * gravityScale * Time.deltaTime;
         }
-        
-        CollisionFlags collisionFlags = characterController.Move(currentVelocity * Time.deltaTime);
-        bool wasGrounded = isGrounded;
-        isGrounded = (collisionFlags & CollisionFlags.Below) != 0;
 
+        if (characterController.enabled) {
+            CollisionFlags collisionFlags = characterController.Move(currentVelocity * Time.deltaTime);
+            isGrounded = (collisionFlags & CollisionFlags.Below) != 0;
+        }
+
+        UpdateGroundedTime();
+        
+        if (isGrounded && currentVelocity.y < 0) {
+            currentVelocity.y = -2f;
+        }
+    }
+
+    private void UpdateGroundedTime() {
         if (isGrounded) {
             timeSinceGrounded = 0f;
         }
         else {
             timeSinceGrounded += Time.deltaTime;
-        }
-        
-        if (isGrounded && currentVelocity.y < 0) {
-            currentVelocity.y = -2f;
         }
     }
 
@@ -230,9 +252,5 @@ public class CoinTiltPlayer : MonoBehaviour {
         isGrounded = false;
         
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} respawned.", LogLevel.Verbose);
-    }
-
-    public void SetRespawnPosition(Vector3 position) {
-        respawnPosition = position;
     }
 }

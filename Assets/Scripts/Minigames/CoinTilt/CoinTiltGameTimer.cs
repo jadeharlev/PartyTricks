@@ -7,7 +7,7 @@ public class CoinTiltGameTimer : MonoBehaviour {
     [SerializeField] private GameObject TimerPanel;
     [SerializeField] private TMP_Text TimerText;
     public event Action OnTimerEnd;
-    public int RemainingTimeInSeconds { get; private set; }
+    private int RemainingTimeInSeconds { get; set; }
 
     public void Initialize(int gameLengthInSeconds) {
         RemainingTimeInSeconds = gameLengthInSeconds;

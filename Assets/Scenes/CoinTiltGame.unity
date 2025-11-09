@@ -1952,6 +1952,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::CoinSpawner
   availableCoinTypes:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
+  - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
   finalSpawnRate: 1
   lateGamePhaseStartTimeFromEndInSeconds: 7
@@ -1959,7 +1960,7 @@ MonoBehaviour:
   coinLifetimeInSeconds: 15
   spawnRadiusMin: 2
   spawnRadiusMax: 7.5
-  playerAvoidanceRadius: 2
+  playerAvoidanceRadius: 3.5
   spawnHeight: 3.5
   platformTransform: {fileID: 1398242012}
   assignedPlayer: {fileID: 629062079}
@@ -2045,6 +2046,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::CoinSpawner
   availableCoinTypes:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
+  - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
   finalSpawnRate: 1
   lateGamePhaseStartTimeFromEndInSeconds: 7
@@ -2052,7 +2054,7 @@ MonoBehaviour:
   coinLifetimeInSeconds: 15
   spawnRadiusMin: 2
   spawnRadiusMax: 7.5
-  playerAvoidanceRadius: 2
+  playerAvoidanceRadius: 3.5
   spawnHeight: 3.5
   platformTransform: {fileID: 332885522}
   assignedPlayer: {fileID: 165266142}
@@ -3048,6 +3050,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::CoinSpawner
   availableCoinTypes:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
+  - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
   finalSpawnRate: 1
   lateGamePhaseStartTimeFromEndInSeconds: 7
@@ -3055,7 +3058,7 @@ MonoBehaviour:
   coinLifetimeInSeconds: 15
   spawnRadiusMin: 2
   spawnRadiusMax: 7.5
-  playerAvoidanceRadius: 2
+  playerAvoidanceRadius: 3.5
   spawnHeight: 3.5
   platformTransform: {fileID: 543981615}
   assignedPlayer: {fileID: 1683248331}
@@ -3874,6 +3877,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::CoinSpawner
   availableCoinTypes:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
+  - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
   finalSpawnRate: 1
   lateGamePhaseStartTimeFromEndInSeconds: 7
@@ -3881,7 +3885,7 @@ MonoBehaviour:
   coinLifetimeInSeconds: 15
   spawnRadiusMin: 2
   spawnRadiusMax: 7.5
-  playerAvoidanceRadius: 2
+  playerAvoidanceRadius: 3.5
   spawnHeight: 3.5
   platformTransform: {fileID: 1446979166}
   assignedPlayer: {fileID: 1547170144}

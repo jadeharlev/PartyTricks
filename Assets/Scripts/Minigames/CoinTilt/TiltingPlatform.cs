@@ -52,20 +52,6 @@ public class TiltingPlatform : MonoBehaviour {
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, tiltSpeed * Time.deltaTime);
     }
 
-    public Vector3 GetPlatformCenter() {
-        return platformCenter;
-    }
-
-    public float GetPlatformRadius() {
-        return platformRadius;
-    }
-
-    public bool PositionIsOnPlatform(Vector3 position) {
-        Vector3 relativePosition = position - GetPlatformCenter();
-        FlattenToXYPlane(ref relativePosition);
-        return relativePosition.magnitude <= platformRadius;
-    }
-
     private static void FlattenToXYPlane(ref Vector3 position) {
         position.y = 0;
     }

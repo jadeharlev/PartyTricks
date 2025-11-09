@@ -8,17 +8,17 @@ public class CoinSpawner : MonoBehaviour {
 
     [Header("Spawn Settings")]
     [Tooltip("Coins per second")]
-    [SerializeField] private float initialSpawnRate = 0.5f;
-    [SerializeField] private float finalSpawnRate = 2f;
-    [SerializeField] private float lateGamePhaseStartTimeFromEndInSeconds = 5f;
-    [SerializeField] private int maxCoinsOnPlatform = 20;
-    [SerializeField] private float coinLifetimeInSeconds = 10f;
+    [SerializeField] private float initialSpawnRate = 0.45f;
+    [SerializeField] private float finalSpawnRate = 1f;
+    [SerializeField] private float lateGamePhaseStartTimeFromEndInSeconds = 7f;
+    [SerializeField] private int maxCoinsOnPlatform = 10;
+    [SerializeField] private float coinLifetimeInSeconds = 15f;
 
     [Header("Spawn Area")] 
     [SerializeField] private float spawnRadiusMin = 2f;
-    [SerializeField] private float spawnRadiusMax = 7f;
-    [SerializeField] private float playerAvoidanceRadius = 2f;
-    [SerializeField] private float spawnHeight = 1f;
+    [SerializeField] private float spawnRadiusMax = 7.5f;
+    [SerializeField] private float playerAvoidanceRadius = 3.5f;
+    [SerializeField] private float spawnHeight = 3.5f;
 
     [Header("References")] 
     [SerializeField] private Transform platformTransform;
@@ -30,13 +30,14 @@ public class CoinSpawner : MonoBehaviour {
     private float gameDuration;
     private float elapsedTime;
     private List<GameObject> activeCoins = new();
+    
     private void Update() {
         if (!isSpawning) return;
         
         elapsedTime += Time.deltaTime;
+        spawnTimer += Time.deltaTime;
         UpdateSpawnRate();
         
-        spawnTimer += Time.deltaTime;
         if (spawnTimer >= currentSpawnInterval) {
             spawnTimer = 0;
             TryToSpawnCoin();
@@ -72,43 +73,73 @@ public class CoinSpawner : MonoBehaviour {
     private void UpdateSpawnRate() {
         float timeRemaining = gameDuration - elapsedTime;
         float spawnRate;
-        if (timeRemaining <= lateGamePhaseStartTimeFromEndInSeconds) {
+        bool endGameTimeThresholdReached = timeRemaining <= lateGamePhaseStartTimeFromEndInSeconds;
+        
+        if (endGameTimeThresholdReached) {
             spawnRate = finalSpawnRate;
         }
         else {
-            float progress = elapsedTime / (gameDuration - lateGamePhaseStartTimeFromEndInSeconds);
-            float midGameRate = (initialSpawnRate + finalSpawnRate) / 2f;
-            spawnRate = Mathf.Lerp(initialSpawnRate, midGameRate, progress);
+            spawnRate = GetSpawnRateBasedOnTime();
         }
 
         currentSpawnInterval = 1f / spawnRate;
     }
 
+    private float GetSpawnRateBasedOnTime() {
+        float progress = elapsedTime / (gameDuration - lateGamePhaseStartTimeFromEndInSeconds);
+        float midGameRate = (initialSpawnRate + finalSpawnRate) / 2f;
+        var spawnRate = Mathf.Lerp(initialSpawnRate, midGameRate, progress);
+        return spawnRate;
+    }
+
     private void TryToSpawnCoin() {
-        if (maxCoinsOnPlatform > 0 && activeCoins.Count >= maxCoinsOnPlatform) {
+        bool tooManyCoinsAlreadyExist = maxCoinsOnPlatform > 0 && activeCoins.Count >= maxCoinsOnPlatform;
+        if (tooManyCoinsAlreadyExist) {
             return;
         }
-
+        
         CoinTypeSO coinType = SelectRandomCoinType();
+        
         if (!coinType || !coinType.CoinPrefab) {
             Debug.LogWarning("No valid coin type/prefab available.");
             return;
         }
+        
+        var spawnPosition = TryToFindValidSpawnLocation(out var maxAttempts, out var attempts);
+        
+        if (attempts >= maxAttempts) {
+            Debug.LogWarning("Could not find valid coin spawn location.");
+            return;
+        }
+        
+        var coinObject = CreateCoinInstance(coinType, spawnPosition);
+        InitializeAndTrackCoin(coinObject, coinType);
+    }
 
+    private void InitializeAndTrackCoin(GameObject coinObject, CoinTypeSO coinType) {
+        Coin coin = coinObject.GetComponent<Coin>();
+        if(!coin) coin.InitializeWithType(coinType);
+        activeCoins.Add(coinObject);
+        
+        if (coinLifetimeInSeconds > 0) {
+            Destroy(coinObject, coinLifetimeInSeconds);
+        }
+    }
+
+    private Vector3 TryToFindValidSpawnLocation(out int maxAttempts, out int attempts) {
         Vector3 spawnPosition;
-        int maxAttempts = 10;
-        int attempts = 0;
+        maxAttempts = 10;
+        attempts = 0;
         do {
             spawnPosition = GetRandomSpawnPosition();
             attempts++;
         }
         while(attempts < maxAttempts && !IsValidSpawnPosition(spawnPosition));
 
-        if (attempts >= maxAttempts) {
-            Debug.LogWarning("Could not find valid coin spawn location.");
-            return;
-        }
-        
+        return spawnPosition;
+    }
+
+    private GameObject CreateCoinInstance(CoinTypeSO coinType, Vector3 spawnPosition) {
         GameObject coinObject = Instantiate(coinType.CoinPrefab, spawnPosition, Quaternion.identity);
         coinObject.transform.SetParent(platformTransform, true);
         coinObject.transform.rotation = Quaternion.identity;
@@ -124,38 +155,42 @@ public class CoinSpawner : MonoBehaviour {
             desiredWorldScale.x / parentScale.x,
             desiredWorldScale.y / parentScale.y,
             desiredWorldScale.z / parentScale.z);
-        
-        Coin coin = coinObject.GetComponent<Coin>();
-        if(!coin) coin.InitializeWithType(coinType);
-        
-        activeCoins.Add(coinObject);
-
-        if (coinLifetimeInSeconds > 0) {
-            Destroy(coinObject, coinLifetimeInSeconds);
-        }
+        return coinObject;
     }
 
     private CoinTypeSO SelectRandomCoinType() {
         if (availableCoinTypes == null || availableCoinTypes.Length == 0) return null;
 
         float totalWeight = 0f;
-        foreach (var coinType in availableCoinTypes) {
-            if (coinType != null) {
-                totalWeight += coinType.SpawnWeight;
-            }
-        }
+        totalWeight = CalculateTotalSpawnWeight(totalWeight);
 
         float randomValue = Random.Range(0f, totalWeight);
         float cumulativeWeight = 0f;
+        
+        return GetRandomCoinType(cumulativeWeight, randomValue);
+    }
+
+    private CoinTypeSO GetRandomCoinType(float cumulativeWeight, float randomValue) {
         foreach (var coinType in availableCoinTypes) {
-            if (coinType != null) {
+            if (coinType) {
                 cumulativeWeight += coinType.SpawnWeight;
                 if (randomValue <= cumulativeWeight) {
                     return coinType;
                 }
             }
         }
+
         return availableCoinTypes[0];
+    }
+
+    private float CalculateTotalSpawnWeight(float totalWeight) {
+        foreach (var coinType in availableCoinTypes) {
+            if (coinType) {
+                totalWeight += coinType.SpawnWeight;
+            }
+        }
+
+        return totalWeight;
     }
 
     private Vector3 GetRandomSpawnPosition() {
@@ -167,9 +202,13 @@ public class CoinSpawner : MonoBehaviour {
         return platformTransform.position + offset;
     }
 
-    private bool IsValidSpawnPosition(Vector3 position) {
-        if (assignedPlayer != null) {
-            float distanceToPlayer = Vector3.Distance(position, assignedPlayer.Position);
+    private bool IsValidSpawnPosition(Vector3 worldPosition) {
+        Vector3 localPosition = platformTransform.InverseTransformPoint(worldPosition);
+        localPosition.y = spawnHeight;
+        Vector3 finalWorldPosition = platformTransform.TransformPoint(localPosition);
+        
+        if (assignedPlayer) {
+            float distanceToPlayer = Vector3.Distance(finalWorldPosition, assignedPlayer.Position);
             if (distanceToPlayer < playerAvoidanceRadius) {
                 return false;
             }
@@ -177,7 +216,7 @@ public class CoinSpawner : MonoBehaviour {
 
         foreach (var coin in activeCoins) {
             if (coin) {
-                float distanceToCoin = Vector3.Distance(position, coin.transform.position);
+                float distanceToCoin = Vector3.Distance(finalWorldPosition, coin.transform.position);
                 if (distanceToCoin < 1f) {
                     return false;
                 }

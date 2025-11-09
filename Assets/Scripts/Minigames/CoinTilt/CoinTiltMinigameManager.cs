@@ -22,14 +22,8 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private PlayerCornerDisplay[] playerCornerDisplays = new PlayerCornerDisplay[4];
     [SerializeField] private CoinTiltMinigameCountdown countdown;
     [SerializeField] private CoinTiltGameTimer gameTimer;
-
-    private GamePhase currentPhase = GamePhase.Countdown;
     private bool hasBeenInitialized;
     private readonly int[] playerScores = new int[4];
-
-    private void Awake() {
-        // InitializeVariables();
-    }
 
     private void Start() {
         StartCoroutine(WaitForInitialization());
@@ -37,40 +31,21 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
 
     public void Initialize(bool isDoubleRound) {
         this.IsDoubleRound = isDoubleRound;
+        AdjustGameDurationForDoubleRound();
+        CheckForGameObjectAssignments();
         InitializeVariables();
+        
         hasBeenInitialized = true;
         DebugLogger.Log(LogChannel.Systems, $"CoinTiltMinigame initialized. Double round: {isDoubleRound}");
     }
 
     private void InitializeVariables() {
+        InitializePlayerScores();
+        InitializeCountdown();
+        InitializeGameTimer();
+    }
 
-        if (IsDoubleRound) {
-            gameDurationInSeconds *= 2;
-        }
-        
-        if (players == null || players.Length != 4) {
-            Debug.LogError("CoinTiltMinigameManager does not have 4 players assigned!");
-        }
-
-        if (tiltingPlatforms == null || tiltingPlatforms.Length != 4) {
-            Debug.LogError("CoinTiltMinigameManager does not have 4 Tilting Platforms assigned!");
-        }
-
-        if (coinSpawners == null || coinSpawners.Length != 4) {
-            Debug.LogError("CoinTiltMinigameManager does not have 4 Coin Spawners assigned!");
-        }
-
-        for (int i = 0; i < 4; i++) {
-            playerScores[i] = 0;
-        }
-
-        if (countdown == null) {
-            Debug.LogError("CoinTiltMinigameManager does not have a Coin Tilt Minigame Countdown assigned!");
-        }
-        else {
-            countdown.Initialize(countdownDurationInSeconds);
-        }
-
+    private void InitializeGameTimer() {
         if (gameTimer == null) {
             Debug.LogError("CoinTiltMinigameManager does not have a Coin Tilt Minigame Timer assigned!");
         }
@@ -78,7 +53,51 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
             gameTimer.Initialize(gameDurationInSeconds);
             gameTimer.OnTimerEnd += EndGame;
         }
-        
+    }
+
+    private void InitializeCountdown() {
+        if (countdown == null) {
+            Debug.LogError("CoinTiltMinigameManager does not have a Coin Tilt Minigame Countdown assigned!");
+        }
+        else {
+            countdown.Initialize(countdownDurationInSeconds);
+        }
+    }
+
+    private void CheckForGameObjectAssignments() {
+        CheckForPlayerAssignments();
+        CheckForTiltingPlatformAssignments();
+        CheckForCoinSpawnerAssignments();
+    }
+
+    private void AdjustGameDurationForDoubleRound() {
+        if (IsDoubleRound) {
+            gameDurationInSeconds *= 2;
+        }
+    }
+
+    private void InitializePlayerScores() {
+        for (int i = 0; i < 4; i++) {
+            playerScores[i] = 0;
+        }
+    }
+
+    private void CheckForCoinSpawnerAssignments() {
+        if (coinSpawners == null || coinSpawners.Length != 4) {
+            Debug.LogError("CoinTiltMinigameManager does not have 4 Coin Spawners assigned!");
+        }
+    }
+
+    private void CheckForTiltingPlatformAssignments() {
+        if (tiltingPlatforms == null || tiltingPlatforms.Length != 4) {
+            Debug.LogError("CoinTiltMinigameManager does not have 4 Tilting Platforms assigned!");
+        }
+    }
+
+    private void CheckForPlayerAssignments() {
+        if (players == null || players.Length != 4) {
+            Debug.LogError("CoinTiltMinigameManager does not have 4 players assigned!");
+        }
     }
 
     private IEnumerator WaitForInitialization() {
@@ -90,7 +109,6 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     }
 
     private void StartCountdownPhase() {
-        currentPhase = GamePhase.Countdown;
         InitializePlayers();
         InitializePlayerDisplays();
         
@@ -101,25 +119,32 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
 
     private void InitializePlayers() {
         for (int i = 0; i < players.Length; i++) {
-            if (players[i] == null) {
+            if (!players[i]) {
                 Debug.LogError($"CoinTiltMinigameManager does not have a player in slot {i}!");
                 continue;
             }
 
             var slot = GameSessionManager.Instance.PlayerSlots[i];
-            if (slot == null) {
+            if (!slot) {
                 Debug.LogError($"PlayerSlot {i} not found!");
                 continue;
             }
             
-            players[i].Initialize(i, slot.Navigator, slot.IsAI, this);
-            players[i].OnCoinCollected += HandleCoinCollected;
-            players[i].OnFallOff += HandlePlayerFall;
-
-            if (tiltingPlatforms[i] != null) {
-                tiltingPlatforms[i].Initialize(players[i]);
-            }
+            InitializePlayerWithEvents(i, slot);
+            InitializeTiltingPlatformForPlayer(i);
         }
+    }
+
+    private void InitializeTiltingPlatformForPlayer(int playerIndex) {
+        if (tiltingPlatforms[playerIndex] != null) {
+            tiltingPlatforms[playerIndex].Initialize(players[playerIndex]);
+        }
+    }
+
+    private void InitializePlayerWithEvents(int playerIndex, PlayerSlot slot) {
+        players[playerIndex].Initialize(playerIndex, slot.Navigator, slot.IsAI);
+        players[playerIndex].OnCoinCollected += HandleCoinCollected;
+        players[playerIndex].OnFallOff += HandlePlayerFall;
     }
 
     private void InitializePlayerDisplays() {
@@ -138,26 +163,30 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
 
     private void StartPlayingPhase() {
         countdown.OnTimerEnd -= StartPlayingPhase;
-        currentPhase = GamePhase.Playing;
         gameTimer.StartTimer();
 
-        foreach (var player in players) {
-            if (player) {
-                player.EnableInput();
-            }
-        }
-        
+        EnablePlayerInput();
         DebugLogger.Log(LogChannel.Systems, "Movement enabled.");
+        StartCoinSpawning();
+        DebugLogger.Log(LogChannel.Systems, "Game started!");
+    }
 
+    private void StartCoinSpawning() {
         for (int i = 0; i < coinSpawners.Length; i++) {
             if (coinSpawners[i]) {
                 coinSpawners[i].StartSpawning(gameDurationInSeconds);
             }
         }
-        
-        DebugLogger.Log(LogChannel.Systems, "Game started!");
     }
     
+    private void EnablePlayerInput() {
+        foreach (var player in players) {
+            if (player) {
+                player.EnableInput();
+            }
+        }
+    }
+
 
     private void HandleCoinCollected(int playerIndex, int coinValue) {
         playerScores[playerIndex] += coinValue;
@@ -171,25 +200,29 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
 
     private void EndGame() {
         gameTimer.OnTimerEnd -= EndGame;
-        currentPhase = GamePhase.Results;
+        DisablePlayerControlsAndMovement();
+        FinalizeCoinSpawnerOperations();
+        
+        DebugLogger.Log(LogChannel.Systems, "Game ended. Calculating results.");
+        StartCoroutine(DisplayResultsAndFinish());
+    }
 
+    private void DisablePlayerControlsAndMovement() {
         foreach (var player in players) {
             if (player) {
                 player.DisableInput();
                 player.Freeze();
             }
         }
-        
-        
+    }
+
+    private void FinalizeCoinSpawnerOperations() {
         for (int i = 0; i < coinSpawners.Length; i++) {
             if (coinSpawners[i]) {
                 coinSpawners[i].StopSpawning();
                 coinSpawners[i].DestroyAll();
             }
         }
-        
-        DebugLogger.Log(LogChannel.Systems, "Game ended. Calculating results.");
-        StartCoroutine(DisplayResultsAndFinish());
     }
 
     private IEnumerator DisplayResultsAndFinish() {
@@ -198,7 +231,6 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
             DebugLogger.Log(LogChannel.Systems, $"Player {i}: Score {playerScores[i]}, Rank {results[i].PlayerPlace}");
         }
         yield return new WaitForSeconds(resultsDisplayDurationInSeconds);
-        currentPhase = GamePhase.Ended;
         OnMinigameFinished?.Invoke(results);
     }
 
@@ -237,12 +269,5 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
             player.OnCoinCollected -= HandleCoinCollected;
             player.OnFallOff -= HandlePlayerFall;
         }
-    }
-
-    private enum GamePhase {
-        Countdown,
-        Playing,
-        Results,
-        Ended
     }
 }

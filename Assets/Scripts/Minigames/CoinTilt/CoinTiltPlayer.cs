@@ -20,6 +20,8 @@ public class CoinTiltPlayer : MonoBehaviour {
     private float airControlMultiplier = 1;
     private float gravityScale = 3f;
     private float coyoteTime = 0.15f;
+    private float momentumCancelPercentageRegular = 0.5f;
+    private float momentumCancelPercentageBoosted = 0.75f;
     
     private float fallThresholdY = -10f;
     private float respawnDelayInSeconds = 0.75f;
@@ -84,6 +86,8 @@ public class CoinTiltPlayer : MonoBehaviour {
         airControlMultiplier = baseStats.AirControlMultiplier;
         gravityScale = baseStats.GravityScale;
         coyoteTime = baseStats.CoyoteTimeInSeconds;
+        momentumCancelPercentageRegular = baseStats.MomentumCancelPercentageRegular;
+        momentumCancelPercentageBoosted = baseStats.MomentumCancelPercentageBoosted;
         fallThresholdY = baseStats.FallThresholdY;
         respawnDelayInSeconds = baseStats.RespawnDelayInSeconds;
     }
@@ -180,7 +184,7 @@ public class CoinTiltPlayer : MonoBehaviour {
     private void ApplyAirMovement(Vector3 inputDirection) {
         if (inputDirection.magnitude > 0.1f) {
             Vector3 airInfluence = inputDirection.normalized * moveSpeed * airControlMultiplier * Time.deltaTime;
-            currentVelocity += new Vector3(airInfluence.x, 0, airInfluence.y);
+            currentVelocity += new Vector3(airInfluence.x, 0, airInfluence.z);
         }
     }
 
@@ -199,7 +203,7 @@ public class CoinTiltPlayer : MonoBehaviour {
     }
 
     private float CalculateMomentumCancellation() {
-        float momentumCancelPercentage = 0.5f;
+        float momentumCancelPercentage = momentumCancelPercentageRegular;
 
         if (inputEnabled && navigator != null && navigator.IsActive()) {
             Vector2 input = navigator.GetNavigate();
@@ -211,13 +215,13 @@ public class CoinTiltPlayer : MonoBehaviour {
         return momentumCancelPercentage;
     }
 
-    private static void CancelMoreMomentumWhenMovingOppositeDirection(Vector3 inputDirection,
+    private void CancelMoreMomentumWhenMovingOppositeDirection(Vector3 inputDirection,
         ref float momentumCancelPercentage) {
         if (inputDirection.magnitude > 0.1f) {
             Vector3 horizontalVelocity = new Vector3(inputDirection.x, 0, inputDirection.z);
             float dotProduct = Vector3.Dot(inputDirection.normalized, horizontalVelocity.normalized);
             if (dotProduct < 0) {
-                momentumCancelPercentage = 0.75f;
+                momentumCancelPercentage = momentumCancelPercentageBoosted;
             }
         }
     }

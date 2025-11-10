@@ -549,16 +549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game::CoinTiltPlayer
   meshRenderer: {fileID: 165266140}
-  moveSpeed: 15
-  acceleration: 7
-  slipFactor: 1.7
-  jumpForce: 8
-  airControlMultiplier: 1
-  gravityScale: 3
-  coyoteTime: 0.15
-  fallThresholdY: -10
-  respawnDelayInSeconds: 0.75
-  respawnPosition: {x: 0, y: 0, z: 0}
+  baseStats: {fileID: 11400000, guid: 26f2af22c9c744b51935fbb5db0d3cc6, type: 2}
 --- !u!1 &332885521
 GameObject:
   m_ObjectHideFlags: 0
@@ -1331,16 +1322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game::CoinTiltPlayer
   meshRenderer: {fileID: 629062077}
-  moveSpeed: 15
-  acceleration: 7
-  slipFactor: 1.7
-  jumpForce: 8
-  airControlMultiplier: 1
-  gravityScale: 3
-  coyoteTime: 0.15
-  fallThresholdY: -10
-  respawnDelayInSeconds: 0.75
-  respawnPosition: {x: 0, y: 0, z: 0}
+  baseStats: {fileID: 11400000, guid: 26f2af22c9c744b51935fbb5db0d3cc6, type: 2}
 --- !u!1 &669229576
 GameObject:
   m_ObjectHideFlags: 0
@@ -3655,16 +3637,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game::CoinTiltPlayer
   meshRenderer: {fileID: 1547170142}
-  moveSpeed: 15
-  acceleration: 7
-  slipFactor: 1.7
-  jumpForce: 8
-  airControlMultiplier: 1
-  gravityScale: 3
-  coyoteTime: 0.15
-  fallThresholdY: -10
-  respawnDelayInSeconds: 0.75
-  respawnPosition: {x: 0, y: 0, z: 0}
+  baseStats: {fileID: 11400000, guid: 26f2af22c9c744b51935fbb5db0d3cc6, type: 2}
 --- !u!1 &1587139718
 GameObject:
   m_ObjectHideFlags: 0
@@ -4161,16 +4134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game::CoinTiltPlayer
   meshRenderer: {fileID: 1683248329}
-  moveSpeed: 15
-  acceleration: 7
-  slipFactor: 1.7
-  jumpForce: 8
-  airControlMultiplier: 1
-  gravityScale: 3
-  coyoteTime: 0.15
-  fallThresholdY: -10
-  respawnDelayInSeconds: 0.75
-  respawnPosition: {x: 0, y: 0, z: 0}
+  baseStats: {fileID: 11400000, guid: 26f2af22c9c744b51935fbb5db0d3cc6, type: 2}
 --- !u!1 &1753127685
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,22 +9,21 @@ public class CoinTiltPlayer : MonoBehaviour {
 
     [Header("References")]
     [SerializeField] private MeshRenderer meshRenderer;
-    
-    [Header("Movement Settings")] 
-    [SerializeField] private float moveSpeed = 15f;
-    [SerializeField] private float acceleration = 7f;
-    [SerializeField] private float slipFactor = 1.7f;
-    
-    [Header("Jump Settings")]
-    [SerializeField] private float jumpForce = 8f;
-    [SerializeField] private float airControlMultiplier = 1;
-    [SerializeField] private float gravityScale = 3f;
-    [SerializeField] private float coyoteTime = 0.15f;
 
-    [Header("Fall Settings")] 
-    [SerializeField] private float fallThresholdY = -10f;
-    [SerializeField] private float respawnDelayInSeconds = 0.75f;
-    [SerializeField] private Vector3 respawnPosition = Vector3.zero;
+    [SerializeField] private CoinTiltPlayerStatsSO baseStats;
+    
+    private float moveSpeed = 15f;
+    private float acceleration = 7f;
+    private float slipFactor = 1.7f;
+    
+    private float jumpForce = 8f;
+    private float airControlMultiplier = 1;
+    private float gravityScale = 3f;
+    private float coyoteTime = 0.15f;
+    
+    private float fallThresholdY = -10f;
+    private float respawnDelayInSeconds = 0.75f;
+    private Vector3 respawnPosition = Vector3.zero;
 
     private int playerIndex;
     private IDirectionalTwoButtonInputHandler navigator;
@@ -57,6 +56,7 @@ public class CoinTiltPlayer : MonoBehaviour {
     }
 
     public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfMagnetPowerups) {
+        ApplyBaseStats();
         this.playerIndex = index;
         this.navigator = inputHandler;
         this.isAI = isAI;
@@ -74,6 +74,18 @@ public class CoinTiltPlayer : MonoBehaviour {
         respawnPosition = transform.position;
         
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} initialized. IsAI: {isAI}");
+    }
+
+    private void ApplyBaseStats() {
+        moveSpeed = baseStats.MoveSpeed;
+        acceleration = baseStats.Acceleration;
+        slipFactor = baseStats.SlipFactor;
+        jumpForce = baseStats.JumpForce;
+        airControlMultiplier = baseStats.AirControlMultiplier;
+        gravityScale = baseStats.GravityScale;
+        coyoteTime = baseStats.CoyoteTimeInSeconds;
+        fallThresholdY = baseStats.FallThresholdY;
+        respawnDelayInSeconds = baseStats.RespawnDelayInSeconds;
     }
 
     public void EnableInput() {

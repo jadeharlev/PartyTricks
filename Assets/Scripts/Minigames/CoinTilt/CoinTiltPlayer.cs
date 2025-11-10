@@ -211,6 +211,7 @@ public class CoinTiltPlayer : MonoBehaviour {
     }
 
     private void ApplyMovement() {
+        if (isFrozen) return;
         if (!isGrounded) {
             currentVelocity.y += Physics.gravity.y * gravityScale * Time.deltaTime;
         }

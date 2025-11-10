@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: CoinTiltPlayerStatsSO
   m_EditorClassIdentifier: Game::CoinTiltPlayerStatsSO
   MoveSpeed: 15
-  Acceleration: 7
-  SlipFactor: 1.4
+  Acceleration: 6.5
+  SlipFactor: 0.3
   JumpForce: 8
-  AirControlMultiplier: 0.25
+  AirControlMultiplier: 0.1
   GravityScale: 3
   CoyoteTimeInSeconds: 0.15
+  MomentumCancelPercentageRegular: 0.5
+  MomentumCancelPercentageBoosted: 0.75
   FallThresholdY: -10
   RespawnDelayInSeconds: 0.75

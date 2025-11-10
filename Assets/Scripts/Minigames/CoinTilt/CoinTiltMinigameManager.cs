@@ -15,6 +15,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private int gameDurationInSeconds = 30;
     [SerializeField] private int countdownDurationInSeconds = 5;
     [SerializeField] private float resultsDisplayDurationInSeconds = 5f;
+    [SerializeField] private int[] fundsPerRank = new[] { 100, 80, 60, 50 };
 
     [Header("References")] 
     [SerializeField] private CoinTiltPlayer[] players = new CoinTiltPlayer[4];
@@ -23,6 +24,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private PlayerCornerDisplay[] playerCornerDisplays = new PlayerCornerDisplay[4];
     [SerializeField] private CoinTiltMinigameCountdown countdown;
     [SerializeField] private CoinTiltGameTimer gameTimer;
+    [SerializeField] private CoinTiltPlacesDisplay placesDisplay;
     private bool hasBeenInitialized;
     private readonly int[] playerScores = new int[4];
 
@@ -44,6 +46,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
         InitializePlayerScores();
         InitializeCountdown();
         InitializeGameTimer();
+        InitializePlacesDisplay();
     }
 
     private void InitializeGameTimer() {
@@ -62,6 +65,15 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
         }
         else {
             countdown.Initialize(countdownDurationInSeconds);
+        }
+    }
+
+    private void InitializePlacesDisplay() {
+        if (placesDisplay == null) {
+            Debug.LogError("CoinTiltMinigameManager does not have a Coin Tilt Places Display assigned!");
+        }
+        else {
+            placesDisplay.Hide();
         }
     }
 
@@ -235,11 +247,38 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
 
     private IEnumerator DisplayResultsAndFinish() {
         var results = CalculateResults();
+        
+        // short delay so that the players have a moment to breathe
+        yield return new WaitForSeconds(0.75f);
+        
+        string[] resultsText = new string[4];
         for (int i = 0; i < results.Length; i++) {
-            DebugLogger.Log(LogChannel.Systems, $"Player {i}: Score {playerScores[i]}, Rank {results[i].PlayerPlace}");
+            int fundsEarned = results[i].BaseFundsEarned;
+            int currentFunds = GameSessionManager.Instance.PlayerSlots[i].Profile.Wallet.GetCurrentFunds();
+            int newFunds = currentFunds + fundsEarned;
+            int place = results[i].PlayerPlace;
+            DebugLogger.Log(LogChannel.Systems, $"Player {i}: Score {playerScores[i]}, Rank {place}");
+            resultsText[i] += GetPlaceText(place);
+            resultsText[i] += "\n";
+            resultsText[i] += "<size=50>+" + fundsEarned + " funds</size>";
+            resultsText[i] += "\n";
+            resultsText[i] += "<size=30>New funds: " + newFunds + "</size>";
         }
+        placesDisplay.UpdateTextObjects(resultsText);
+        placesDisplay.Show();
         yield return new WaitForSeconds(resultsDisplayDurationInSeconds);
         OnMinigameFinished?.Invoke(results);
+    }
+
+    private string GetPlaceText(int place) {
+        return place switch
+        {
+            1 => "1st",
+            2 => "2nd",
+            3 => "3rd",
+            4 => "4th",
+            _ => "ERR"
+        };
     }
 
     private PlayerMinigameResult[] CalculateResults() {
@@ -264,8 +303,6 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
             }
 
         }
-
-        int[] fundsPerRank = new[] { 100, 80, 60, 50 };
 
         if (IsDoubleRound) {
             for (int i = 0; i < fundsPerRank.Length; i++) {

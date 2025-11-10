@@ -33,7 +33,7 @@ public class GameSessionManager : MonoBehaviour
       DontDestroyOnLoad(gameObject);
       playerSlotManager = new PlayerSlotManager(PlayerSlots);
       foreach (var playerSlot in PlayerSlots) {
-         var profile = new PlayerProfile(200);
+         var profile = new PlayerProfile(300);
          playerSlot.AssignProfile(profile);
       }
       deviceDisconnectService = new DeviceDisconnectService();

@@ -253,8 +253,16 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
         playerRankings.Sort((a, b) => b.score.CompareTo(a.score));
 
         int[] ranks = new int[4];
+        int currentRank = 0;
         for (int i = 0; i < playerRankings.Count; i++) {
-            ranks[playerRankings[i].index] = i;
+            if (i > 0 && playerRankings[i].score == playerRankings[i - 1].score) {
+                ranks[playerRankings[i].index] = ranks[playerRankings[i-1].index];
+            }
+            else {
+                ranks[playerRankings[i].index] = currentRank;
+                currentRank++;
+            }
+
         }
 
         int[] fundsPerRank = new[] { 100, 80, 60, 50 };

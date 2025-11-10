@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::CoinTiltPlayerStatsSO
   MoveSpeed: 15
   Acceleration: 7
-  SlipFactor: 1.7
+  SlipFactor: 1.4
   JumpForce: 8
-  AirControlMultiplier: 1
+  AirControlMultiplier: 0.25
   GravityScale: 3
   CoyoteTimeInSeconds: 0.15
   FallThresholdY: -10

@@ -38,6 +38,9 @@ public class CoinTiltPlayer : MonoBehaviour {
     private bool isGrounded;
     private bool isFalling;
     private bool inputEnabled;
+    private bool magnetEnabled = false;
+    private float magnetRadius = 3f;
+    private float magnetPullSpeed = 5f;
     private int coinCount;
     private float timeSinceGrounded;
 
@@ -53,13 +56,21 @@ public class CoinTiltPlayer : MonoBehaviour {
         }
     }
 
-    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI) {
+    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfMagnetPowerups) {
         this.playerIndex = index;
         this.navigator = inputHandler;
         this.isAI = isAI;
         this.inputEnabled = false;
         this.coinCount = 0;
         this.isFalling = false;
+
+        if (numberOfMagnetPowerups > 0) {
+            this.magnetEnabled = true;
+            if (numberOfMagnetPowerups > 1) {
+                magnetRadius += numberOfMagnetPowerups * 0.4f;
+                magnetPullSpeed += numberOfMagnetPowerups * 0.5f;
+            }
+        }
         respawnPosition = transform.position;
         
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} initialized. IsAI: {isAI}");
@@ -87,6 +98,22 @@ public class CoinTiltPlayer : MonoBehaviour {
         CheckForFall();
         HandleInput();
         ApplyMovement();
+
+        if (magnetEnabled && inputEnabled) {
+            PullNearbyCoins();
+        }
+    }
+
+    private void PullNearbyCoins() {
+        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, magnetRadius);
+        foreach (Collider nearbyCollider in nearbyColliders) {
+            if (nearbyCollider.CompareTag("Coin")) {
+                Coin coin = nearbyCollider.GetComponent<Coin>();
+                if (coin) {
+                    coin.StartPull(transform, magnetPullSpeed);
+                }
+            }
+        }
     }
 
     private void CheckForFall() {

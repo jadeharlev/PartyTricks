@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // TODO configure to userankfallback with economyservice
@@ -142,7 +143,14 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     }
 
     private void InitializePlayerWithEvents(int playerIndex, PlayerSlot slot) {
-        players[playerIndex].Initialize(playerIndex, slot.Navigator, slot.IsAI);
+        PlayerProfile profile = GameSessionManager.Instance.PlayerSlots[playerIndex].Profile;
+        int numberOfMagnetPowerups = 0;
+        foreach (var itemDefinition in profile.Inventory.Items) {
+            if (itemDefinition.Id == "magnet") {
+                numberOfMagnetPowerups++;
+            }
+        }
+        players[playerIndex].Initialize(playerIndex, slot.Navigator, slot.IsAI, numberOfMagnetPowerups);
         players[playerIndex].OnCoinCollected += HandleCoinCollected;
         players[playerIndex].OnFallOff += HandlePlayerFall;
     }

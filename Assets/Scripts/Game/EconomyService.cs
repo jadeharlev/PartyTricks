@@ -17,8 +17,9 @@ public class EconomyService : MonoBehaviour {
     [SerializeField] private bool useRankFallback = true;
 
     private void Awake() {
-        if (Instance != null) {
+        if (Instance != null && Instance != this) {
             Destroy(gameObject);
+            return;
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);

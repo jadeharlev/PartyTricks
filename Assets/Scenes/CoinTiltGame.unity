@@ -2441,7 +2441,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
   - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
-  finalSpawnRate: 1
+  finalSpawnRate: 1.3
   lateGamePhaseStartTimeFromEndInSeconds: 7
   maxCoinsOnPlatform: 10
   coinLifetimeInSeconds: 15
@@ -2671,7 +2671,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
   - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
-  finalSpawnRate: 1
+  finalSpawnRate: 1.3
   lateGamePhaseStartTimeFromEndInSeconds: 7
   maxCoinsOnPlatform: 10
   coinLifetimeInSeconds: 15
@@ -3686,7 +3686,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
   - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
-  finalSpawnRate: 1
+  finalSpawnRate: 1.3
   lateGamePhaseStartTimeFromEndInSeconds: 7
   maxCoinsOnPlatform: 10
   coinLifetimeInSeconds: 15
@@ -4582,7 +4582,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 342bc063dfc26413fb08b9623fe8e152, type: 2}
   - {fileID: 11400000, guid: 9b44c30e4263948c58bda4eaf19f7970, type: 2}
   initialSpawnRate: 0.45
-  finalSpawnRate: 1
+  finalSpawnRate: 1.3
   lateGamePhaseStartTimeFromEndInSeconds: 7
   maxCoinsOnPlatform: 10
   coinLifetimeInSeconds: 15

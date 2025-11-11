@@ -16,7 +16,7 @@ MonoBehaviour:
   Acceleration: 6.5
   SlipFactor: 0.3
   JumpForce: 8
-  AirControlMultiplier: 0.1
+  AirControlMultiplier: 0.01
   GravityScale: 3
   CoyoteTimeInSeconds: 0.15
   MomentumCancelPercentageRegular: 0.5

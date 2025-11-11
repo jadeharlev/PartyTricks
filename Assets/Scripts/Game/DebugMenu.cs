@@ -3,19 +3,19 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class DebugMenu : MonoBehaviour {
-    private static DebugMenu Instance;
+    private static DebugMenu instance;
     private bool shouldShowMenu = false;
     private InputAction toggleDebugMenuAction;
-    private Rect windowRect = new Rect(20, 20, 300, 400);
+    private Rect windowRect = new Rect(20, 20, 300, 800);
     private bool isDoubleRound = false;
 
     private void Awake() {
-        if (Instance != null && Instance != this) {
+        if (instance != null && instance != this) {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        instance = this;
         DontDestroyOnLoad(gameObject);
         toggleDebugMenuAction = InputSystem.actions.FindAction("UI/ToggleDebugMenu");
         
@@ -176,6 +176,6 @@ public class DebugMenu : MonoBehaviour {
             }
         }
         
-        DebugLogger.Log(LogChannel.Systems, "Debug Menu: Reset all player funds to 200.");
+        DebugLogger.Log(LogChannel.Systems, "Debug Menu: Reset all player funds.");
     }
 }

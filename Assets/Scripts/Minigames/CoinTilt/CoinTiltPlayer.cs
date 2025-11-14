@@ -42,13 +42,10 @@ public class CoinTiltPlayer : MonoBehaviour {
     private bool magnetEnabled = false;
     private float magnetRadius = 3f;
     private float magnetPullSpeed = 5f;
-    private int coinCount;
     private float timeSinceGrounded;
 
     public int PlayerIndex => playerIndex;
-    public bool IsGrounded => isGrounded;
     public Vector3 Position => transform.position;
-    public int CoinCount => coinCount;
 
     private void Awake() {
         characterController = GetComponent<CharacterController>();
@@ -63,7 +60,6 @@ public class CoinTiltPlayer : MonoBehaviour {
         this.navigator = inputHandler;
         this.isAI = isAI;
         this.inputEnabled = false;
-        this.coinCount = 0;
         this.isFalling = false;
 
         if (numberOfMagnetPowerups > 0) {
@@ -258,7 +254,6 @@ public class CoinTiltPlayer : MonoBehaviour {
             Coin coin = other.GetComponent<Coin>();
             if (coin != null) {
                 int coinValue = coin.Collect();
-                coinCount += coinValue;
                 OnCoinCollected?.Invoke(playerIndex, coinValue);
             }
         }

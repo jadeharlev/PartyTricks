@@ -2,17 +2,18 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class CoinTiltMinigameCountdown : MonoBehaviour
+public class MinigameStartCountdown : MonoBehaviour
 {
-    public TMP_Text countdownText;
+    [FormerlySerializedAs("countdownText")] [SerializeField] private TMP_Text CountdownText;
     public event Action OnTimerEnd;
     private int timeRemaining;
 
     public void Initialize(int numberOfSeconds) {
         DebugLogger.Log(LogChannel.Systems, "Initialized countdown timer", LogLevel.Verbose);
         timeRemaining = numberOfSeconds;
-        countdownText.text = numberOfSeconds.ToString();
+        CountdownText.text = numberOfSeconds.ToString();
     }
 
     public void StartTimer() {
@@ -32,6 +33,6 @@ public class CoinTiltMinigameCountdown : MonoBehaviour
     }
 
     private void OnTick(int timeRemaining) {
-        countdownText.text = timeRemaining.ToString();
+        CountdownText.text = timeRemaining.ToString();
     }
 }

@@ -15,7 +15,7 @@ MonoBehaviour:
   configurations:
   - Type: 0
     SceneNames:
-    - TestMinigameScene
+    - DireDodging
   - Type: 1
     SceneNames:
     - Blackjack
@@ -26,3 +26,4 @@ MonoBehaviour:
     SceneNames:
     - Blackjack
     - CoinTiltGame
+    - DireDodging

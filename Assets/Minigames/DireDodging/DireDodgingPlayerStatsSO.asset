@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd6e1f7930356446ea2526cc99b7e5ad, type: 3}
+  m_Name: DireDodgingPlayerStatsSO
+  m_EditorClassIdentifier: Game::DireDodgingPlayerStatsSO
+  MoveSpeed: 10
+  ProjectileScale: 1
+  ProjectileSpeed: 2
+  ProjectileShootRate: 0.75
+  BaseDamage: 1
+  BaseHealth: 3
+  ProjectilePrefab: {fileID: 2569180199352633758, guid: df49fc508e2a540d4bcc7ea375c65880, type: 3}

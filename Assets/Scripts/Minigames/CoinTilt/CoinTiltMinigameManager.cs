@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 // TODO configure to userankfallback with economyservice
 
@@ -22,7 +22,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private TiltingPlatform[] tiltingPlatforms = new TiltingPlatform[4];
     [SerializeField] private CoinSpawner[] coinSpawners = new CoinSpawner[4];
     [SerializeField] private PlayerCornerDisplay[] playerCornerDisplays = new PlayerCornerDisplay[4];
-    [SerializeField] private CoinTiltMinigameCountdown countdown;
+    [FormerlySerializedAs("countdown")] [SerializeField] private MinigameStartCountdown StartCountdown;
     [SerializeField] private CoinTiltGameTimer gameTimer;
     [SerializeField] private CoinTiltPlacesDisplay placesDisplay;
     private bool hasBeenInitialized;
@@ -60,11 +60,11 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     }
 
     private void InitializeCountdown() {
-        if (countdown == null) {
+        if (StartCountdown == null) {
             Debug.LogError("CoinTiltMinigameManager does not have a Coin Tilt Minigame Countdown assigned!");
         }
         else {
-            countdown.Initialize(countdownDurationInSeconds);
+            StartCountdown.Initialize(countdownDurationInSeconds);
         }
     }
 
@@ -126,8 +126,8 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
         InitializePlayerDisplays();
         
         DebugLogger.Log(LogChannel.Systems, "Starting countdown phase...");
-        countdown.StartTimer();
-        countdown.OnTimerEnd += StartPlayingPhase;
+        StartCountdown.StartTimer();
+        StartCountdown.OnTimerEnd += StartPlayingPhase;
     }
 
     private void InitializePlayers() {
@@ -182,7 +182,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     }
 
     private void StartPlayingPhase() {
-        countdown.OnTimerEnd -= StartPlayingPhase;
+        StartCountdown.OnTimerEnd -= StartPlayingPhase;
         gameTimer.StartTimer();
 
         EnablePlayerInput();

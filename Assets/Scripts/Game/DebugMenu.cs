@@ -53,6 +53,12 @@ public class DebugMenu : MonoBehaviour {
         if (GUILayout.Button("Load Coin Tilt Minigame", GUILayout.Height(40))) {
             LoadCoinTiltMinigame();
         }
+        
+        GUILayout.Space(10);
+        
+        if (GUILayout.Button("Load Dire Dodging", GUILayout.Height(40))) {
+            LoadDireDodging();
+        }
 
         GUILayout.Space(10);
         
@@ -92,6 +98,12 @@ public class DebugMenu : MonoBehaviour {
         GUILayout.EndVertical();
         
         GUI.DragWindow();
+    }
+
+    private void LoadDireDodging() {
+        DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Loading Dire Dodging scene. Double: {isDoubleRound}");
+        SceneManager.LoadScene("DireDodging");
+        SceneManager.sceneLoaded += OnDireDodgingSceneLoaded;
     }
 
     private static void DisplayPlayerFunds() {
@@ -146,6 +158,21 @@ public class DebugMenu : MonoBehaviour {
             DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Coin tilt minigame manager initialized. Double: {isDoubleRound}");
         } else {
             Debug.LogError("Debug Menu: Could not find CoinTiltMinigameManager in scene!");
+        }
+    }
+    
+    private void OnDireDodgingSceneLoaded(Scene scene, LoadSceneMode mode) {
+        if (scene.name != "DireDodging") return;
+        
+        SceneManager.sceneLoaded -= OnDireDodgingSceneLoaded;
+        
+        // Find and initialize the dire dodging manager
+        DireDodgingMinigameManager manager = FindAnyObjectByType<DireDodgingMinigameManager>();
+        if (manager != null) {
+            manager.Initialize(isDoubleRound);
+            DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Dire Dodging manager initialized. Double: {isDoubleRound}");
+        } else {
+            Debug.LogError("Debug Menu: Could not find DireDodgingMinigameManager in scene!");
         }
     }
 

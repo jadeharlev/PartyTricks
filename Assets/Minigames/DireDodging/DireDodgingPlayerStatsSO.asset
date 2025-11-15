@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game::DireDodgingPlayerStatsSO
   MoveSpeed: 10
   ProjectileScale: 1
-  ProjectileSpeed: 2
-  ProjectileShootRate: 0.75
+  ProjectileSpeed: 6
+  ProjectileShootRate: 1
   BaseDamage: 1
   BaseHealth: 3
-  ProjectilePrefab: {fileID: 2569180199352633758, guid: df49fc508e2a540d4bcc7ea375c65880, type: 3}

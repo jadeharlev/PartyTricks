@@ -28,7 +28,6 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
         }
 
         Instance = this;
-        DontDestroyOnLoad(this);
     }
 
     private void Start() {
@@ -115,5 +114,15 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     private void Update() {
         if (!hasBeenInitialized) return;
         currentState?.OnUpdate();
+    }
+
+    private void OnDestroy() {
+        Instance = null;
+    }
+
+    public void ReturnAllProjectiles() {
+        foreach (var player in Players) {
+            player.DestroyVisibleProjectiles();
+        }
     }
 }

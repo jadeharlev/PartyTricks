@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class DireDodgingPlayer : MonoBehaviour {
     private float maxMoveSpeed;
@@ -10,22 +11,30 @@ public class DireDodgingPlayer : MonoBehaviour {
     private float maxHealth;
     private float currentHealth;
     private float projectileShootRate;
+    private float spriteHalfWidth;
+    private float spriteHalfHeight;
 
     [SerializeField] private DireDodgingPlayerStatsSO PlayerStatsSO;
     [SerializeField] private SpriteRenderer SpriteRenderer;
     [SerializeField] private Collider2D Collider2D;
     [SerializeField] private Rigidbody2D Rigidbody2D;
     [SerializeField] private Color PlayerColor;
+    [SerializeField] private GameObject ProjectilePrefab;
+    [SerializeField] private Transform PoolParent;
     
     private int playerIndex;
     private IDirectionalTwoButtonInputHandler navigator;
     private bool isAI;
     private bool inputEnabled;
     private bool isAlive = true;
+    private ObjectPool<DireDodgingProjectile>[] projectilePools;
+    private List<DireDodgingProjectile> activeProjectiles = new();
 
     private Coroutine damageCoroutineInstance = null;
     private Camera mainCamera;
-    
+    private Quaternion leftRotation = Quaternion.Euler(0, 0, 90);
+    private Quaternion rightRotation = Quaternion.Euler(0, 0, 270);
+
     public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI) {
         mainCamera = Camera.main;
         ApplyBaseStats();
@@ -34,7 +43,49 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.isAI = isAI;
         this.inputEnabled = false;
         
+        spriteHalfWidth = SpriteRenderer.bounds.size.x;
+        spriteHalfHeight = SpriteRenderer.bounds.extents.y;
+        
+        InitializePools();
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} initialized. IsAI: {isAI}");
+    }
+
+    private void InitializePools() {
+        projectilePools = new ObjectPool<DireDodgingProjectile>[2];
+        projectilePools[0] = new ObjectPool<DireDodgingProjectile>(
+            () => CreateProjectile(projectilePools[0]),
+            OnGetProjectile,
+            OnReleaseProjectile,
+            OnDestroyProjectile
+        );
+        projectilePools[1] = new ObjectPool<DireDodgingProjectile>(
+            () => CreateProjectile(projectilePools[1]),
+            OnGetProjectile,
+            OnReleaseProjectile,
+            OnDestroyProjectile
+        );
+    }
+    private DireDodgingProjectile CreateProjectile(IObjectPool<DireDodgingProjectile> projectilePool) {
+        GameObject projectileObject = Instantiate(ProjectilePrefab, PoolParent);
+        projectileObject.SetActive(false);
+        DireDodgingProjectile projectile = projectileObject.GetComponent<DireDodgingProjectile>();
+        projectile.SetPool(projectilePool);
+        projectile.SetColor(PlayerColor);
+        return projectile;
+    }
+
+    private void OnGetProjectile(DireDodgingProjectile projectile) {
+        projectile.gameObject.SetActive(true);
+        activeProjectiles.Add(projectile);
+    }
+
+    private void OnReleaseProjectile(DireDodgingProjectile projectile) {
+        projectile.gameObject.SetActive(false);
+        activeProjectiles.Remove(projectile);
+    }
+
+    private void OnDestroyProjectile(DireDodgingProjectile projectile) {
+        Destroy(projectile.gameObject);
     }
 
     public void EnableInput() {
@@ -101,36 +152,32 @@ public class DireDodgingPlayer : MonoBehaviour {
     private void Shoot() {
         ShootRight();
         ShootLeft();
-        // TODO make this object pooled
     }
     
     private float ClampYPosition(float yPosition) {
-        float spriteHalfHeight = SpriteRenderer.bounds.extents.y;
         float screenBottom = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, 0)).y;
         float screenTop = mainCamera.ScreenToWorldPoint(new Vector3(0, Screen.height, 0)).y;
         return Mathf.Clamp(yPosition, screenBottom + spriteHalfHeight, screenTop - spriteHalfHeight);
     }
 
     private void ShootRight() {
+        var projectile = projectilePools[1].Get();
         Vector2 position = transform.position;
-        position.x += SpriteRenderer.bounds.size.x;
-        Quaternion rotation = Quaternion.Euler(0, 0, 270);
-        var gameObject = Instantiate(PlayerStatsSO.ProjectilePrefab, position, rotation);
-        DireDodgingProjectile projectileComponent = gameObject.GetComponent<DireDodgingProjectile>();
-        if (projectileComponent != null) {
-            projectileComponent.Initialize(playerIndex, baseDamage, projectileSpeed,PlayerColor, true);
-        }
+        position.x += spriteHalfWidth;
+        projectile.transform.position = position;
+        projectile.transform.rotation = rightRotation;
+        
+        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, true);
     }
 
     private void ShootLeft() {
+        var projectile = projectilePools[0].Get();
         Vector2 position = transform.position;
-        position.x -= SpriteRenderer.bounds.size.x;
-        Quaternion rotation = Quaternion.Euler(0, 0, 90);
-        var gameObject = Instantiate(PlayerStatsSO.ProjectilePrefab, position, rotation);
-        DireDodgingProjectile projectileComponent = gameObject.GetComponent<DireDodgingProjectile>();
-        if (projectileComponent != null) {
-            projectileComponent.Initialize(playerIndex, baseDamage, projectileSpeed, PlayerColor, false);
-        }
+        position.x -= spriteHalfWidth;
+        projectile.transform.position = position;
+        projectile.transform.rotation = leftRotation;
+        
+        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, false);
     }
 
     public void Freeze() {
@@ -141,10 +188,10 @@ public class DireDodgingPlayer : MonoBehaviour {
         GameObject other = collision.gameObject;
         if(PlayerIsDead) return;
         DireDodgingProjectile projectile = other.GetComponent<DireDodgingProjectile>();
-        if (projectile.OwnerIndex == playerIndex) return;
         if (projectile != null) {
+            if (projectile.OwnerIndex == playerIndex) return;
             TakeDamage(projectile);
-            Destroy(other);
+            projectile.ReturnToPool();
         }
     }
 
@@ -182,4 +229,11 @@ public class DireDodgingPlayer : MonoBehaviour {
     }
 
     private bool PlayerIsDead => currentHealth <= 0;
+
+    public void DestroyVisibleProjectiles() {
+        var projectilesToDestroy = new List<DireDodgingProjectile>(activeProjectiles);
+        foreach (var projectile in projectilesToDestroy) {
+            Destroy(projectile.gameObject);
+        }
+    }
 }

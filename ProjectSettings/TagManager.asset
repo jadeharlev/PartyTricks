@@ -6,6 +6,7 @@ TagManager:
   tags:
   - FallZone
   - Coin
+  - ProjectileDespawnBounds
   layers:
   - Default
   - TransparentFX

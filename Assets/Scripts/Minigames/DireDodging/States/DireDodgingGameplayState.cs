@@ -29,6 +29,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
 
     private void OnGameplayEnd() {
         DireDodgingMinigameManager.Instance.FreezeAllPlayers();
+        DireDodgingMinigameManager.Instance.ReturnAllProjectiles();
         DireDodgingMinigameManager.Instance.TransitionToResults(playerPlaces, playerKills);
     }
 

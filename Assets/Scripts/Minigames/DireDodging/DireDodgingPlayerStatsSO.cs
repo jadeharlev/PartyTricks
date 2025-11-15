@@ -9,5 +9,4 @@ public class DireDodgingPlayerStatsSO : ScriptableObject {
     public float ProjectileShootRate = 1f;
     public float BaseDamage = 1f;
     public float BaseHealth = 15f;
-    public GameObject ProjectilePrefab;
 }

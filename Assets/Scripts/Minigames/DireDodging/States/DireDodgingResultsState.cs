@@ -7,9 +7,7 @@ public class DireDodgingResultsState : IDireDodgingState {
     private int[] playerKills;
     private int[] baseFundsPerRank;
     private int fundsPerKill;
-    public DireDodgingResultsState(int[] playerPlaces, int[] playerKills,
-        Action<PlayerMinigameResult[]> OnMinigameFinished, int[] baseFundsPerRank, int fundsPerKill) {
-        this.OnMinigameFinished = OnMinigameFinished;
+    public DireDodgingResultsState(int[] playerPlaces, int[] playerKills, int[] baseFundsPerRank, int fundsPerKill) {
         this.playerPlaces = playerPlaces;
         this.playerKills = playerKills;
         this.baseFundsPerRank = baseFundsPerRank;
@@ -18,20 +16,21 @@ public class DireDodgingResultsState : IDireDodgingState {
 
     public void Enter() {
         DebugLogger.Log(LogChannel.Systems, "Dire Dodging: Entered Results State.", LogLevel.Verbose);
-        CalculateMinigameResults();
+        PlayerMinigameResult[] results = CalculateMinigameResults();
+        DireDodgingMinigameManager.Instance.OnGameEnd(results);
     }
 
-    private void CalculateMinigameResults() {
+    private PlayerMinigameResult[] CalculateMinigameResults() {
         PlayerMinigameResult[] playerResults = new PlayerMinigameResult[4];
-        for (int i = 0; i < playerResults.Length; i++) {
-            Debug.Log("Calculating results for player " + (i + 1) +":");
-            int playerRank = playerPlaces[i]-1;
+        for (int playerIndex = 0; playerIndex < playerResults.Length; playerIndex++) {
+            int playerRank = playerPlaces[playerIndex]-1;
             int baseFundsEarned = baseFundsPerRank[playerRank];
-            Debug.Log("Rank was " + (playerPlaces[i]+1) +" and base funds earned were " + baseFundsEarned);
-            baseFundsEarned += playerKills[i] * fundsPerKill;
-            Debug.Log("Final funds earned were " + baseFundsEarned);
-            playerResults[i] = new PlayerMinigameResult(i, playerRank, baseFundsEarned);
+            int eliminationMoney = playerKills[playerIndex] * fundsPerKill;
+            baseFundsEarned += eliminationMoney;
+            if (DireDodgingMinigameManager.Instance.IsDoubleRound) baseFundsEarned *= 2;
+            playerResults[playerIndex] = new PlayerMinigameResult(playerIndex, playerRank, baseFundsEarned);
         }
+        return playerResults;
     }
 
     public void OnUpdate() {

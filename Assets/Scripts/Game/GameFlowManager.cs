@@ -109,6 +109,9 @@ public class GameFlowManager : MonoBehaviour {
                 case CoinTiltMinigameManager coinTiltMinigameManager:
                     coinTiltMinigameManager.Initialize(currentRoundDefinition.IsDouble);
                     break;
+                case DireDodgingMinigameManager direDodgingMinigameManager:
+                    direDodgingMinigameManager.Initialize(currentRoundDefinition.IsDouble);
+                    break;
             }
         }
         else {

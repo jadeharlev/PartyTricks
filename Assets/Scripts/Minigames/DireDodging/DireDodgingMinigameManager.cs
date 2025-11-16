@@ -10,14 +10,17 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     public static DireDodgingMinigameManager Instance { get; private set; }
 
     [Header("Minigame Settings")] 
-    [SerializeField] private int GameTimeoutDurationInSeconds = 45;
+    [SerializeField] private int GameTimeoutDurationInSeconds = 25;
     [SerializeField] private int CountdownDurationInSeconds = 5;
     [SerializeField] private int ResultsDisplayDurationInSeconds = 5;
     [SerializeField] private int[] BaseFundsPerRank = new[] { 100, 80, 60, 50 };
+    [SerializeField] private int FundsPerKill = 30;
 
     [Header("References")] 
     [SerializeField] private DireDodgingPlayer[] Players = new DireDodgingPlayer[4];
     [SerializeField] private MinigameStartCountdown StartCountdown;
+    [SerializeField] private MinigameTimer MinigameTimer;
+    [SerializeField] private PlayerCornerDisplay[] PlayerCornerDisplays = new PlayerCornerDisplay[4];
     
     private bool hasBeenInitialized = false;
 
@@ -36,11 +39,22 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     }
 
     private void SetUpVariables() {
+        InitializePlayerDisplays();
         StartCountdown.Initialize(CountdownDurationInSeconds);
+        MinigameTimer.Initialize(GameTimeoutDurationInSeconds);
         for (int i = 0; i < Players.Length; i++) {
             if (Players[i] == null) continue;
             PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
             Players[i].Initialize(i, slot.Navigator, slot.IsAI);
+        }
+    }
+
+    private void InitializePlayerDisplays() {
+        for (int i = 0; i < 4; i++) {
+            var slot = GameSessionManager.Instance.PlayerSlots[i];
+            if (slot?.Profile != null) {
+                PlayerCornerDisplays[i].Initialize(slot.Profile, PlayerCornerDisplay.DisplayMode.Eliminations);
+            }
         }
     }
 
@@ -72,12 +86,13 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     }
     
     public void TransitionToGameplay() {
-        ChangeState(new DireDodgingGameplayState());
+        ChangeState(new DireDodgingGameplayState(MinigameTimer, PlayerCornerDisplays));
     }
 
     public void TransitionToResults(int[] playerPlaces, int[] playerKills) {
         Debug.Log("Game ended. Places: " + string.Join(", ", playerPlaces) + ", kills: " + string.Join(", ", playerKills));
-        ChangeState(new DireDodgingResultsState());
+        DireDodgingResultsState resultsState = new DireDodgingResultsState(playerPlaces, playerKills, OnMinigameFinished, BaseFundsPerRank, FundsPerKill);
+        ChangeState(resultsState);
     }
 
     private IEnumerator WaitForInitialization() {
@@ -123,6 +138,12 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     public void ReturnAllProjectiles() {
         foreach (var player in Players) {
             player.DestroyVisibleProjectiles();
+        }
+    }
+
+    public void StartIncreasingIntensity(int remainingTimeInSeconds) {
+        foreach (var player in Players) {
+            player.StartIncreasingIntensity(remainingTimeInSeconds);
         }
     }
 }

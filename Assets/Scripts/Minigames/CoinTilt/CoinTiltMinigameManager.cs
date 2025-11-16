@@ -23,7 +23,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private CoinSpawner[] coinSpawners = new CoinSpawner[4];
     [SerializeField] private PlayerCornerDisplay[] playerCornerDisplays = new PlayerCornerDisplay[4];
     [FormerlySerializedAs("countdown")] [SerializeField] private MinigameStartCountdown StartCountdown;
-    [SerializeField] private CoinTiltGameTimer gameTimer;
+    [SerializeField] private MinigameTimer gameTimer;
     [SerializeField] private CoinTiltPlacesDisplay placesDisplay;
     private bool hasBeenInitialized;
     private readonly int[] playerScores = new int[4];

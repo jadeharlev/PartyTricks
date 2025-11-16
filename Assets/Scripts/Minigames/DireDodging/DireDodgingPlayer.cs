@@ -31,9 +31,10 @@ public class DireDodgingPlayer : MonoBehaviour {
     private List<DireDodgingProjectile> activeProjectiles = new();
 
     private Coroutine damageCoroutineInstance = null;
+    private Coroutine intensityCoroutineInstance = null;
     private Camera mainCamera;
-    private Quaternion leftRotation = Quaternion.Euler(0, 0, 90);
-    private Quaternion rightRotation = Quaternion.Euler(0, 0, 270);
+    private readonly Quaternion leftRotation = Quaternion.Euler(0, 0, 90);
+    private readonly Quaternion rightRotation = Quaternion.Euler(0, 0, 270);
 
     public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI) {
         mainCamera = Camera.main;
@@ -134,7 +135,7 @@ public class DireDodgingPlayer : MonoBehaviour {
 
     private void ApplyBaseStats() {
         this.maxMoveSpeed = PlayerStatsSO.MoveSpeed;
-        this.projectileScale = PlayerStatsSO.ProjectileScale;
+        this.projectileScale = PlayerStatsSO.ProjectileScale * 0.36f; // scale to prefab size
         this.projectileSpeed = PlayerStatsSO.ProjectileSpeed;
         this.baseDamage = PlayerStatsSO.BaseDamage;
         this.maxHealth = PlayerStatsSO.BaseHealth;
@@ -143,9 +144,14 @@ public class DireDodgingPlayer : MonoBehaviour {
     }
 
     private IEnumerator ShootingCoroutine() {
+        float nextShootTime = 0f;
         while (inputEnabled && isAlive) {
-            Shoot();
-            yield return new WaitForSeconds(projectileShootRate);
+            if (Time.time >= nextShootTime) {
+                Shoot();
+                nextShootTime = Time.time + projectileShootRate;
+            }
+
+            yield return null;
         }
     }
 
@@ -166,6 +172,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         position.x += spriteHalfWidth;
         projectile.transform.position = position;
         projectile.transform.rotation = rightRotation;
+        projectile.transform.localScale = Vector3.one * projectileScale;
         
         projectile.Initialize(playerIndex, baseDamage, projectileSpeed, true);
     }
@@ -176,6 +183,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         position.x -= spriteHalfWidth;
         projectile.transform.position = position;
         projectile.transform.rotation = leftRotation;
+        projectile.transform.localScale = Vector3.one * projectileScale;
         
         projectile.Initialize(playerIndex, baseDamage, projectileSpeed, false);
     }
@@ -218,6 +226,10 @@ public class DireDodgingPlayer : MonoBehaviour {
     private void Die() {
         inputEnabled = false;
         isAlive = false;
+        if (intensityCoroutineInstance != null) {
+            StopCoroutine(intensityCoroutineInstance);
+            intensityCoroutineInstance = null;
+        }
         DisableColliderComponent();
         var color = SpriteRenderer.color;
         color.a = 0.1f;
@@ -235,5 +247,37 @@ public class DireDodgingPlayer : MonoBehaviour {
         foreach (var projectile in projectilesToDestroy) {
             Destroy(projectile.gameObject);
         }
+    }
+
+    public void StartIncreasingIntensity(int remainingTimeInSeconds) {
+        intensityCoroutineInstance = StartCoroutine(IntensityCoroutine(remainingTimeInSeconds));
+    }
+
+    private IEnumerator IntensityCoroutine(int remainingTimeInSeconds) {
+        float startTime = Time.time;
+        float timeAtFullyRampedUpSpeed = 5f;
+        float duration = remainingTimeInSeconds - timeAtFullyRampedUpSpeed;
+        float initialProjectileSpeed = projectileSpeed;
+        float initialShootRate = projectileShootRate;
+        float initialProjectileScale = projectileScale;
+
+        float targetProjectileSpeed = initialProjectileSpeed * 2.5f;
+        float targetShootRate = initialShootRate * 0.3f;
+        float targetProjectileScale = projectileScale * 2f;
+
+        while (Time.time - startTime < duration) {
+            float elapsed = Time.time - startTime;
+            float t = elapsed / duration;
+            float easedT = t * t; // quadratic easing
+            projectileSpeed = Mathf.Lerp(initialProjectileSpeed, targetProjectileSpeed, easedT);
+            projectileShootRate = Mathf.Lerp(initialShootRate, targetShootRate, easedT);
+            projectileScale = Mathf.Lerp(initialProjectileScale, targetProjectileScale, easedT);
+            yield return null;
+        }
+
+        projectileSpeed = targetProjectileSpeed;
+        projectileShootRate = targetShootRate;
+        projectileScale = targetProjectileScale;
+        intensityCoroutineInstance = null;
     }
 }

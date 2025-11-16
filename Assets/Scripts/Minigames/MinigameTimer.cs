@@ -3,13 +3,17 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-public class CoinTiltGameTimer : MonoBehaviour {
+public class MinigameTimer : MonoBehaviour {
     [SerializeField] private GameObject TimerPanel;
     [SerializeField] private TMP_Text TimerText;
     public event Action OnTimerEnd;
+    public event Action<int> OnHalfwayPointReached;
     private int RemainingTimeInSeconds { get; set; }
+    private int originalTimerDuration;
+    private Coroutine timerCoroutine = null;
 
     public void Initialize(int gameLengthInSeconds) {
+        originalTimerDuration = gameLengthInSeconds;
         RemainingTimeInSeconds = gameLengthInSeconds;
         HidePanel();
     }
@@ -24,7 +28,7 @@ public class CoinTiltGameTimer : MonoBehaviour {
 
     public void StartTimer() {
         ShowPanel();
-        StartCoroutine(Timer());
+        timerCoroutine = StartCoroutine(Timer());
     }
 
     private IEnumerator Timer() {
@@ -32,10 +36,14 @@ public class CoinTiltGameTimer : MonoBehaviour {
             OnTick(RemainingTimeInSeconds);
             RemainingTimeInSeconds--;
             DebugLogger.Log(LogChannel.Systems, "Game timer ticked: " + RemainingTimeInSeconds  + " seconds remaining.");
+            if (RemainingTimeInSeconds == (originalTimerDuration / 2)) {
+                OnHalfwayPointReached?.Invoke(RemainingTimeInSeconds);
+            }
             yield return new WaitForSeconds(1f);
         }
         OnTimeUp();
         OnTimerEnd?.Invoke();
+        timerCoroutine = null;
     }
 
     private void OnTimeUp() {
@@ -47,5 +55,13 @@ public class CoinTiltGameTimer : MonoBehaviour {
         string timeInMinutes = timeSpan.Minutes.ToString("00");
         string timeInSeconds = timeSpan.Seconds.ToString("00");
         TimerText.text = timeInMinutes + ":" + timeInSeconds;
+    }
+
+    public void StopIfRunning() {
+        if (timerCoroutine != null) {
+            StopCoroutine(this.timerCoroutine);
+            TimerText.text = "Game!";
+            timerCoroutine = null;
+        }
     }
 }

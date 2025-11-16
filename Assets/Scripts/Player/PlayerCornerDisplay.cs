@@ -22,13 +22,35 @@ public class PlayerCornerDisplay : MonoBehaviour {
         if (mode == DisplayMode.Funds) {
             wallet.OnFundsChanged += UpdateFunds;
         }
-        else {
+        else if(mode == DisplayMode.Score) {
             UpdateScore(0);
+        } else if (mode == DisplayMode.Eliminations) {
+            UpdateEliminations(0);
         }
         inventory.OnItemAdded += AddItem;
         isInitialized = true;
 
         RefreshDisplay();
+    }
+
+    public void UpdateEliminations(int eliminations, int outPlace = -1) {
+        if (outPlace == -1) {
+            FundsLabel.text = "eliminations: " + eliminations;
+        }
+        else {
+            FundsLabel.text = GetPlaceString(outPlace) + " | eliminations: " + eliminations;
+        }
+    }
+
+    private string GetPlaceString(int outPlace) {
+        return outPlace switch
+        {
+            1 => "1st place",
+            2 => "2nd place",
+            3 => "3rd place",
+            4 => "4th place",
+            _ => "ERR place"
+        };
     }
 
     private void RefreshDisplay() {
@@ -77,6 +99,7 @@ public class PlayerCornerDisplay : MonoBehaviour {
 
     public enum DisplayMode {
         Funds,
-        Score
+        Score,
+        Eliminations
     }
 }

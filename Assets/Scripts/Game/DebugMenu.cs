@@ -71,6 +71,12 @@ public class DebugMenu : MonoBehaviour {
         if (GUILayout.Button("Load Main Menu", GUILayout.Height(40))) {
             SceneManager.LoadScene("MainMenu");
         }
+        
+        GUILayout.Space(10);
+        
+        if (GUILayout.Button("Load Results Screen", GUILayout.Height(40))) {
+            SceneManager.LoadScene("Results");
+        }
 
         GUILayout.Space(20);
 
@@ -88,6 +94,12 @@ public class DebugMenu : MonoBehaviour {
         if (GUILayout.Button("Add 100 to All Players", GUILayout.Height(30))) {
             AddFundsToAllPlayers(100);
         }
+        
+        GUILayout.Space(10);
+        
+        if (GUILayout.Button("Randomize all player funds", GUILayout.Height(30))) {
+            RandomizeAllPlayerFunds();
+        }
 
         GUILayout.Space(10);
         
@@ -98,6 +110,22 @@ public class DebugMenu : MonoBehaviour {
         GUILayout.EndVertical();
         
         GUI.DragWindow();
+    }
+
+    private void RandomizeAllPlayerFunds() {
+        if (GameSessionManager.Instance == null) {
+            Debug.LogWarning("Debug Menu: GameSessionManager not found.");
+            return;
+        }
+
+        foreach (var slot in GameSessionManager.Instance.PlayerSlots) {
+            if (slot?.Profile != null) {
+                Wallet wallet = slot.Profile.Wallet;
+                int currentFunds = wallet.GetCurrentFunds();
+                if(currentFunds > 0) wallet.RemoveFunds(currentFunds);
+                wallet.AddFunds(Random.Range(1, 100)*10);
+            }
+        }
     }
 
     private void LoadDireDodging() {

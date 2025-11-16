@@ -12,6 +12,7 @@ public class GameFlowManager : MonoBehaviour {
     private GameBoardDisplay currentBoardDisplay;
     private int currentRoundIndex = -1;
     private List<(MinigameType minigameType, bool IsDouble)> gameBoard;
+    private bool GameIsOver => currentRoundIndex >= gameBoard.Count;
     private void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
@@ -67,7 +68,7 @@ public class GameFlowManager : MonoBehaviour {
 
     private void StartNextRound() {
         currentRoundIndex++;
-        if (currentRoundIndex >= gameBoard.Count) {
+        if (GameIsOver) {
             EndGame();
             return;
         }
@@ -140,12 +141,14 @@ public class GameFlowManager : MonoBehaviour {
         
         DebugLogger.Log(LogChannel.Systems, "Minigame finished, results processed. Transitioning back to shop.");
 
-        TransitionToShop();
+        if (GameIsOver) {
+            EndGame();
+        } else TransitionToShop();
     }
 
     private void EndGame() {
         DebugLogger.Log(LogChannel.Systems, "Ending game.");
-        // todo implement end screen
+        SceneManager.LoadScene("Results");
     }
 
     public (MinigameType minigameType, bool IsDouble) GetCurrentRoundDefinition() {

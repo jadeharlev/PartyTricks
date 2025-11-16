@@ -8,4 +8,9 @@ public class PlayerProfile {
         this.Wallet = new Wallet(startingFunds);
         this.Inventory = new Inventory();
     }
+
+    public void Reset() {
+        Wallet.Reset();
+        Inventory.Reset();
+    }
 }

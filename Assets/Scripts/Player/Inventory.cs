@@ -14,4 +14,8 @@ public class Inventory {
     }
 
     public IReadOnlyList<ItemDefinition> Items => items;
+
+    public void Reset() {
+        items.Clear();
+    }
 }

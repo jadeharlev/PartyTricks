@@ -21,6 +21,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private MinigameStartCountdown StartCountdown;
     [SerializeField] private MinigameTimer MinigameTimer;
     [SerializeField] private PlayerCornerDisplay[] PlayerCornerDisplays = new PlayerCornerDisplay[4];
+    [SerializeField] private PlacesDisplay PlacesDisplay;
     
     private bool hasBeenInitialized = false;
 
@@ -40,6 +41,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
 
     private void SetUpVariables() {
         InitializePlayerDisplays();
+        PlacesDisplay.Hide();
         StartCountdown.Initialize(CountdownDurationInSeconds);
         if (IsDoubleRound) GameTimeoutDurationInSeconds *= 2;
         MinigameTimer.Initialize(GameTimeoutDurationInSeconds);
@@ -92,7 +94,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
 
     public void TransitionToResults(int[] playerPlaces, int[] playerKills) {
         Debug.Log("Game ended. Places: " + string.Join(", ", playerPlaces) + ", kills: " + string.Join(", ", playerKills));
-        DireDodgingResultsState resultsState = new DireDodgingResultsState(playerPlaces, playerKills, BaseFundsPerRank, FundsPerKill);
+        DireDodgingResultsState resultsState = new DireDodgingResultsState(playerPlaces, playerKills, BaseFundsPerRank, FundsPerKill, PlacesDisplay);
         ChangeState(resultsState);
     }
 
@@ -154,7 +156,6 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
 
     private IEnumerator WaitAndEndMinigame(PlayerMinigameResult[] playerResults) {
         yield return new WaitForSeconds(ResultsDisplayDurationInSeconds);
-        Debug.LogWarning("TODO implement results display");
         OnMinigameFinished?.Invoke(playerResults);
     }
 }

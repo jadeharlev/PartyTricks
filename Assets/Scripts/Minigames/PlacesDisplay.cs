@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class CoinTiltPlacesDisplay : MonoBehaviour {
+public class PlacesDisplay : MonoBehaviour {
     [SerializeField] private TMP_Text[] playerPlaceTextObjects;
     [SerializeField] private GameObject placesPanel;
 

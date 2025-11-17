@@ -7,11 +7,13 @@ public struct PlayerMinigameResult {
     public readonly int BaseFundsEarned;
     // applicable only in gambling minigames
     public int AmountBet { get; }
-    public PlayerMinigameResult(int playerIndex, int playerRank, int baseFundsEarned, int amountBet = 0) {
+    public int Eliminations { get; }
+    public PlayerMinigameResult(int playerIndex, int playerRank, int baseFundsEarned, int amountBet = 0, int eliminations = 0) {
         PlayerIndex = playerIndex;
         this.playerRank = playerRank;
         BaseFundsEarned = baseFundsEarned;
         this.AmountBet = amountBet;
+        this.Eliminations = eliminations;
     }
 
     public bool PlayerWon => this.playerRank == 0;

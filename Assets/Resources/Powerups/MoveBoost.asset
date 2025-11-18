@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 951cdfe52dcf4e2fb705eebb9841980b, type: 3}
-  m_Name: SpeedBoost
+  m_Name: MoveBoost
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
   Icon: {fileID: 6962496110692253193, guid: 0d4c497a67816409a830642b03445267, type: 3}
-  Id: speedBoost
-  DisplayName: Speed Boost
+  Id: betterHandling
+  DisplayName: Running Shoes
   Cost: 50
   Category: 0
-  Description: Simple stat boost.\nMove faster!
+  Description: Simple stat boost.\nMove more precisely!
   IsTemporary: 0
   NumberOfUsesIfApplicable: 0
-  PowerUpEffectId: speedBoost
+  PowerUpEffectId: betterHandling

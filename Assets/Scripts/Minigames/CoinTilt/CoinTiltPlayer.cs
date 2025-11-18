@@ -54,8 +54,9 @@ public class CoinTiltPlayer : MonoBehaviour {
         }
     }
 
-    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfMagnetPowerups) {
+    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfMagnetPowerups, int numberOfMoveBoosts) {
         ApplyBaseStats();
+        ApplyMoveBoosts(numberOfMoveBoosts);
         this.playerIndex = index;
         this.navigator = inputHandler;
         this.isAI = isAI;
@@ -72,6 +73,13 @@ public class CoinTiltPlayer : MonoBehaviour {
         respawnPosition = transform.position;
         
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} initialized. IsAI: {isAI}");
+    }
+
+    private void ApplyMoveBoosts(int numberOfMoveBoosts) {
+        for (int i = 0; i < numberOfMoveBoosts; i++) {
+            slipFactor += 1.2f;
+            airControlMultiplier = Mathf.Clamp01(airControlMultiplier + 0.2f);
+        }
     }
 
     private void ApplyBaseStats() {

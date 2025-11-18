@@ -157,12 +157,15 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     private void InitializePlayerWithEvents(int playerIndex, PlayerSlot slot) {
         PlayerProfile profile = GameSessionManager.Instance.PlayerSlots[playerIndex].Profile;
         int numberOfMagnetPowerups = 0;
+        int numberOfMoveBoosts = 0;
         foreach (var itemDefinition in profile.Inventory.Items) {
             if (itemDefinition.Id == "magnet") {
                 numberOfMagnetPowerups++;
+            } else if (itemDefinition.Id == "moveBoost") {
+                numberOfMoveBoosts++;
             }
         }
-        players[playerIndex].Initialize(playerIndex, slot.Navigator, slot.IsAI, numberOfMagnetPowerups);
+        players[playerIndex].Initialize(playerIndex, slot.Navigator, slot.IsAI, numberOfMagnetPowerups, numberOfMoveBoosts);
         players[playerIndex].OnCoinCollected += HandleCoinCollected;
         players[playerIndex].OnFallOff += HandlePlayerFall;
     }

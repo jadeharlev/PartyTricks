@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: MoveBoost
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
   Icon: {fileID: 6962496110692253193, guid: 0d4c497a67816409a830642b03445267, type: 3}
-  Id: betterHandling
+  Id: moveBoost
   DisplayName: Running Shoes
   Cost: 50
   Category: 0
   Description: Simple stat boost.\nMove more precisely!
   IsTemporary: 0
   NumberOfUsesIfApplicable: 0
-  PowerUpEffectId: betterHandling
+  PowerUpEffectId: moveBoost
+  IsImplemented: 1

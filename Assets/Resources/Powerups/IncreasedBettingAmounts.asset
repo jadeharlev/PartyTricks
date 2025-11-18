@@ -21,3 +21,4 @@ MonoBehaviour:
   IsTemporary: 0
   NumberOfUsesIfApplicable: 0
   PowerUpEffectId: increaseBettingAmounts
+  IsImplemented: 1

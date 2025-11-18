@@ -67,7 +67,13 @@ public class BetPlayerManager {
 
     private int GetMaxBet(PlayerProfile profile) {
         int currentFunds = profile.Wallet.GetCurrentFunds();
-        return Mathf.Max(currentFunds, 50);
+        int maxFundsToBet = currentFunds;
+        foreach (var itemDefinition in profile.Inventory.Items) {
+            if (itemDefinition.Id == "increaseBettingAmounts") {
+                maxFundsToBet = Mathf.RoundToInt(1.5f*maxFundsToBet);
+            }
+        }
+        return Mathf.Max(maxFundsToBet, 50);
     }
 
     private void CreatePlayerSelectors() {

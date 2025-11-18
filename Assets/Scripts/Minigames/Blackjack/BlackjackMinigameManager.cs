@@ -87,7 +87,16 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
         players = new List<BlackjackPlayer>();
         playerControllers = new List<BlackjackPlayerController>();
 
-        for (var i = 0; i < 4; i++) players.Add(new BlackjackPlayer());
+        for (var i = 0; i < 4; i++) {
+            PlayerProfile playerProfile = GameSessionManager.Instance.PlayerSlots[i].Profile;
+            int numOfOddsPowerups = 0;
+            foreach (var itemDefinition in playerProfile.Inventory.Items) {
+                if (itemDefinition.Id == "increaseBettingOdds") {
+                    numOfOddsPowerups++;
+                }
+            }
+            players.Add(new BlackjackPlayer(numOfOddsPowerups));
+        }
     }
 
     private IEnumerator WaitForInitialization() {
@@ -242,9 +251,33 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
 
     private void DrawAndDisplayCard(BlackjackPlayer player, BlackjackPlayerDisplay playerDisplay, int playerIndex) {
         var card = shoe.DrawCard();
+        var cardValue = CalculateCardValue(card);
+        bool willBust = player.GetLowValue() + cardValue > 21;
+        if (willBust) {
+            if (player.TryToProtect() == true) {
+                Debug.Log("Drew a " + cardValue + ", which would've caused a bust. Protection succeeded.");
+                DrawAndDisplayCard(player, playerDisplay, playerIndex);
+                return;
+            }
+        }
         player.DrawCard(card);
         playerDisplay.AddCard(card);
         UpdatePlayerDisplay(playerIndex);
+    }
+
+    private int CalculateCardValue(Card card) {
+        int cardValue = 0;
+        if (card.Value == 1) {
+            cardValue++;
+        }
+        else if (card.IsFaceCard) {
+            cardValue += 10;
+        }
+        else {
+            cardValue += card.Value;
+        }
+
+        return cardValue;
     }
 
     private void EnsureNoDealerInstantBlackjack(ref Card firstCard, ref Card secondCard) {

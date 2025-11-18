@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class BlackjackPlayer {
-    public List<Card> cards;
+    private readonly List<Card> cards;
+    private int numberOfOddsPowerups;
     public bool GotBlackjack { get; private set; }
     
-    public BlackjackPlayer() {
+    public BlackjackPlayer(int numberOfOddsPowerups = 0) {
         cards = new List<Card>();
+        this.numberOfOddsPowerups = numberOfOddsPowerups;
     }
 
     public void DrawCard(Card card) {
@@ -56,5 +59,21 @@ public class BlackjackPlayer {
 
     public bool HasBusted() {
         return GetLowValue() > 21;
+    }
+
+    public bool TryToProtect() {
+        if (numberOfOddsPowerups > 0) {
+            numberOfOddsPowerups--;
+        }
+        else {
+            return false;
+        }
+
+        if (Random.Range(1, 11) <= 5) {
+            Debug.Log("Odds powerup activated and saved player.");
+            return true;
+        }
+        Debug.Log("Odds powerup did not activate.");
+        return false;
     }
 }

@@ -1,9 +1,9 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInputManager : MonoBehaviour {
     public Mode mode = Mode.UI;
+    private static bool initialized = false;
 
     public enum Mode {
         Gameplay,
@@ -11,6 +11,8 @@ public class PlayerInputManager : MonoBehaviour {
     }
     
     private void Awake() {
+        if (initialized) return;
+        initialized = true;
         DontDestroyOnLoad(this);
         if (this.mode == Mode.UI) {
             InputSystem.actions.FindActionMap("Player").Disable();

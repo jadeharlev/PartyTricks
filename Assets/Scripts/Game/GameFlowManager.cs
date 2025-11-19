@@ -26,7 +26,7 @@ public class GameFlowManager : MonoBehaviour {
     public void StartGame() {
         boardGenerator.GenerateRandomBoard();
         gameBoard = boardGenerator.GameBoard;
-        currentRoundIndex = -1;
+        currentRoundIndex = 0;
         DebugLogger.Log(LogChannel.Systems, $"Game started. Board generated with {gameBoard.Count} rounds.");
         Debug.Log("Displaying game board:");
         foreach (var valueTuple in gameBoard) {
@@ -67,12 +67,6 @@ public class GameFlowManager : MonoBehaviour {
     }
 
     private void StartNextRound() {
-        currentRoundIndex++;
-        if (GameIsOver) {
-            EndGame();
-            return;
-        }
-
         TransitionToMinigame();
     }
 
@@ -140,7 +134,7 @@ public class GameFlowManager : MonoBehaviour {
         }
         
         DebugLogger.Log(LogChannel.Systems, "Minigame finished, results processed. Transitioning back to shop.");
-
+        currentRoundIndex++;
         if (GameIsOver) {
             EndGame();
         } else TransitionToShop();
@@ -161,7 +155,7 @@ public class GameFlowManager : MonoBehaviour {
 
     public List<(MinigameType minigameType, bool isDouble)> GetCompletedMinigameList() {
         List<(MinigameType, bool)> completedMinigames = new();
-        for (int i = 0; i <= currentRoundIndex; i++) {
+        for (int i = 0; i < currentRoundIndex; i++) {
             completedMinigames.Add(gameBoard[i]);
         }
         return completedMinigames;
@@ -169,7 +163,7 @@ public class GameFlowManager : MonoBehaviour {
 
     public List<(MinigameType minigameType, bool isDouble)> GetUpcomingMinigameList() {
         List<(MinigameType, bool)> upcomingMinigames = new();
-        for (int i = currentRoundIndex+1; i < gameBoard.Count; i++) {
+        for (int i = currentRoundIndex; i < gameBoard.Count; i++) {
             if (i == -1) continue;
             upcomingMinigames.Add(gameBoard[i]);
         }

@@ -24,14 +24,14 @@ public class BoardProgressDisplay : MonoBehaviour {
     private void AddUpcomingMinigames() {
         List<(MinigameType minigameType, bool isDouble)> upcomingMinigames = GameFlowManager.Instance.GetUpcomingMinigameList();
         foreach (var minigame in upcomingMinigames) {
-            minigameList.Add((IconMapping.GetIcon(minigame.minigameType, minigame.isDouble, false), minigame.Item2));
+            minigameList.Add((IconMapping.GetIcon(minigame.minigameType, minigame.isDouble, false), minigame.isDouble));
         }
     }
 
     private void AddCompletedMinigames() {
         List<(MinigameType minigameType, bool isDouble)> completedMinigames = GameFlowManager.Instance.GetCompletedMinigameList();
         foreach (var minigame in completedMinigames) {
-            minigameList.Add((IconMapping.GetIcon(minigame.minigameType, minigame.isDouble, true), minigame.Item2));
+            minigameList.Add((IconMapping.GetIcon(minigame.minigameType, minigame.isDouble, true), minigame.isDouble));
         }
     }
 

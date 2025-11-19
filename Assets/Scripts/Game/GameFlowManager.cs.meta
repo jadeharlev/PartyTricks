@@ -1,3 +1,13 @@
 fileFormatVersion: 2
 guid: d5fddcb59eff4e1097d0e2b07b169381
-timeCreated: 1760380572
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - config: {fileID: 11400000, guid: 34ab9c2c23dec4ad4b9d0d3c4baca2eb, type: 2}
+  - gameBoardDisplayPrefab: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

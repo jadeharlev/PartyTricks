@@ -158,4 +158,21 @@ public class GameFlowManager : MonoBehaviour {
 
         return (MinigameType.Unknown, false);
     }
+
+    public List<(MinigameType minigameType, bool isDouble)> GetCompletedMinigameList() {
+        List<(MinigameType, bool)> completedMinigames = new();
+        for (int i = 0; i <= currentRoundIndex; i++) {
+            completedMinigames.Add(gameBoard[i]);
+        }
+        return completedMinigames;
+    }
+
+    public List<(MinigameType minigameType, bool isDouble)> GetUpcomingMinigameList() {
+        List<(MinigameType, bool)> upcomingMinigames = new();
+        for (int i = currentRoundIndex+1; i < gameBoard.Count; i++) {
+            if (i == -1) continue;
+            upcomingMinigames.Add(gameBoard[i]);
+        }
+        return upcomingMinigames;
+    }
 }

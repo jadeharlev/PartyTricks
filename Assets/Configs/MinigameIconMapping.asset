@@ -16,12 +16,20 @@ MonoBehaviour:
   - Type: 0
     NormalIcon: {fileID: 2800000, guid: 0a0e7f327c3ef4a6f8f2ccc81e5467d6, type: 3}
     DoubleIcon: {fileID: 2800000, guid: e4cd0e5f2fadf4132ab15d3c1d7698f5, type: 3}
+    CompleteIcon: {fileID: 2800000, guid: dd286837ddc7d4d4f9d6c93c02f15f12, type: 3}
+    CompleteDoubleIcon: {fileID: 2800000, guid: ffaabad66b2f9473bb5b9ae791652a1a, type: 3}
   - Type: 1
     NormalIcon: {fileID: 2800000, guid: 7e36fd39527a44cf5bf9550181b8c1fc, type: 3}
     DoubleIcon: {fileID: 2800000, guid: 76764381310974009806dc9a6cd6bdc3, type: 3}
+    CompleteIcon: {fileID: 2800000, guid: 3f0dd0a5508ed42739b205ab9e397f85, type: 3}
+    CompleteDoubleIcon: {fileID: 2800000, guid: 940246a20c7754b3aa629339e05a41a4, type: 3}
   - Type: 2
     NormalIcon: {fileID: 2800000, guid: bfd18fc6f2d6744beaad9a559da0f7c3, type: 3}
     DoubleIcon: {fileID: 2800000, guid: 4d561d6c6a8d142ca8d3792b1c8a89f9, type: 3}
+    CompleteIcon: {fileID: 2800000, guid: 1a7d4217c1abc441291026d08ffa1387, type: 3}
+    CompleteDoubleIcon: {fileID: 2800000, guid: cbcd327158662496a9eb291668cbb3cc, type: 3}
   - Type: 3
     NormalIcon: {fileID: 2800000, guid: e237099e0269e4cae8b6b8e0cae32f52, type: 3}
     DoubleIcon: {fileID: 0}
+    CompleteIcon: {fileID: 0}
+    CompleteDoubleIcon: {fileID: 0}

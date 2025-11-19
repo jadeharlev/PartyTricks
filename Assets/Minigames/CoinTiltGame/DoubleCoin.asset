@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: DoubleCoin
   m_EditorClassIdentifier: Game::CoinTypeSO
   PointValue: 3
-  SpawnWeight: 0.1
+  SpawnWeight: 0.2
   CoinPrefab: {fileID: 106878366476334893, guid: 33c50abacd2724706af14b49dff0bc43, type: 3}
+  IsSpecialCoin: 1

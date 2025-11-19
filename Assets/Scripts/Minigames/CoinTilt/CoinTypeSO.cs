@@ -7,4 +7,6 @@ public class CoinTypeSO : ScriptableObject {
     [Range(0f, 1f)]
     public float SpawnWeight;
     public GameObject CoinPrefab;
+    [Tooltip("Worth more than base coins?")]
+    public bool IsSpecialCoin;
 }

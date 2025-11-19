@@ -200,7 +200,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     private void StartCoinSpawning() {
         for (int i = 0; i < coinSpawners.Length; i++) {
             if (coinSpawners[i]) {
-                coinSpawners[i].StartSpawning(gameDurationInSeconds, numberOfCoinSpawnPowerups);
+                coinSpawners[i].StartSpawning(gameDurationInSeconds, numberOfCoinSpawnPowerups, GameSessionManager.Instance.PlayerSlots[i].Profile.Inventory.Items);
             }
         }
     }

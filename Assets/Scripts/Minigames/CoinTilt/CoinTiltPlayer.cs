@@ -219,11 +219,12 @@ public class CoinTiltPlayer : MonoBehaviour {
         return momentumCancelPercentage;
     }
 
+    // TODO fix logic
     private void CancelMoreMomentumWhenMovingOppositeDirection(Vector3 inputDirection,
         ref float momentumCancelPercentage) {
         if (inputDirection.magnitude > 0.1f) {
-            Vector3 horizontalVelocity = new Vector3(inputDirection.x, 0, inputDirection.z);
-            float dotProduct = Vector3.Dot(inputDirection.normalized, horizontalVelocity.normalized);
+            Vector3 nonverticalVelocity = new Vector3(inputDirection.x, 0, inputDirection.z);
+            float dotProduct = Vector3.Dot(inputDirection.normalized, nonverticalVelocity.normalized);
             if (dotProduct < 0) {
                 momentumCancelPercentage = momentumCancelPercentageBoosted;
             }

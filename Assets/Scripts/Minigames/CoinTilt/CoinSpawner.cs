@@ -30,7 +30,8 @@ public class CoinSpawner : MonoBehaviour {
     private float gameDuration;
     private float elapsedTime;
     private bool powerupsHaveBeenApplied = false;
-    private List<GameObject> activeCoins = new();
+    private float increasedSpecialCoinRateModifier = 1;
+    private readonly List<GameObject> activeCoins = new();
     
     private void Update() {
         if (!isSpawning) return;
@@ -47,7 +48,13 @@ public class CoinSpawner : MonoBehaviour {
         activeCoins.RemoveAll(coin => coin == null);
     }
 
-    public void StartSpawning(float durationInSeconds, int numberOfCoinSpawnPowerups) {
+    public void StartSpawning(float durationInSeconds, int numberOfCoinSpawnPowerups,
+        IReadOnlyList<ItemDefinition> inventoryItems) {
+        foreach (var itemDefinition in inventoryItems) {
+            if (itemDefinition.Id == "increasedSpecialCoinRate") {
+                increasedSpecialCoinRateModifier++;
+            }
+        }
         if (!powerupsHaveBeenApplied) {
             float spawnRateMultiplier = 1;
             for (int i = 0; i < numberOfCoinSpawnPowerups; i++) {
@@ -183,7 +190,11 @@ public class CoinSpawner : MonoBehaviour {
     private CoinTypeSO GetRandomCoinType(float cumulativeWeight, float randomValue) {
         foreach (var coinType in availableCoinTypes) {
             if (coinType) {
-                cumulativeWeight += coinType.SpawnWeight;
+                if (coinType.IsSpecialCoin) {
+                    cumulativeWeight += coinType.SpawnWeight * increasedSpecialCoinRateModifier;
+                } else {
+                    cumulativeWeight += coinType.SpawnWeight;
+                }
                 if (randomValue <= cumulativeWeight) {
                     return coinType;
                 }
@@ -196,7 +207,9 @@ public class CoinSpawner : MonoBehaviour {
     private float CalculateTotalSpawnWeight(float totalWeight) {
         foreach (var coinType in availableCoinTypes) {
             if (coinType) {
-                totalWeight += coinType.SpawnWeight;
+                if (coinType.IsSpecialCoin) {
+                    totalWeight += coinType.SpawnWeight * increasedSpecialCoinRateModifier;
+                } else totalWeight += coinType.SpawnWeight;
             }
         }
 

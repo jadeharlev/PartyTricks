@@ -36,19 +36,27 @@ public class DireDodgingPlayer : MonoBehaviour {
     private readonly Quaternion leftRotation = Quaternion.Euler(0, 0, 90);
     private readonly Quaternion rightRotation = Quaternion.Euler(0, 0, 270);
 
-    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI) {
+    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfIncreasedHPPowerups, int numberOfIncreasedAttackSpeedPowerups) {
         mainCamera = Camera.main;
         ApplyBaseStats();
+        ApplyStatBuffs(numberOfIncreasedHPPowerups, numberOfIncreasedAttackSpeedPowerups);
         this.playerIndex = index;
         this.navigator = inputHandler;
         this.isAI = isAI;
         this.inputEnabled = false;
-        
         spriteHalfWidth = SpriteRenderer.bounds.size.x;
         spriteHalfHeight = SpriteRenderer.bounds.extents.y;
         
         InitializePools();
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} initialized. IsAI: {isAI}");
+    }
+
+    private void ApplyStatBuffs(int numberOfIncreasedHpPowerups, int numberOfIncreasedAttackSpeedPowerups) {
+        this.maxHealth += numberOfIncreasedHpPowerups;
+        this.currentHealth = this.maxHealth;
+        for (int i = 0; i < numberOfIncreasedAttackSpeedPowerups; i++) {
+            this.projectileShootRate *= 0.75f;
+        }
     }
 
     private void InitializePools() {

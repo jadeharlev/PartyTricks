@@ -48,7 +48,18 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
         for (int i = 0; i < Players.Length; i++) {
             if (Players[i] == null) continue;
             PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
-            Players[i].Initialize(i, slot.Navigator, slot.IsAI);
+            int increasedHPPowerupCount = 0;
+            int increasedAttackSpeedPowerupCount = 0;
+            foreach (var itemDefinition in slot.Profile.Inventory.Items) {
+                if (itemDefinition.Id == "increasedHP") {
+                    increasedHPPowerupCount++;
+                }
+
+                if (itemDefinition.Id == "increasedAttackSpeed") {
+                    increasedAttackSpeedPowerupCount++;
+                }
+            }
+            Players[i].Initialize(i, slot.Navigator, slot.IsAI, increasedHPPowerupCount, increasedAttackSpeedPowerupCount);
         }
     }
 

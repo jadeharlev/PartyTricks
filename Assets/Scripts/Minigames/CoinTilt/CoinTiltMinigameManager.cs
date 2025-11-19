@@ -28,6 +28,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     private bool hasBeenInitialized;
     private readonly int[] playerScores = new int[4];
 
+    private int numberOfCoinSpawnPowerups = 0;
     private void Start() {
         StartCoroutine(WaitForInitialization());
     }
@@ -163,6 +164,8 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
                 numberOfMagnetPowerups++;
             } else if (itemDefinition.Id == "moveBoost") {
                 numberOfMoveBoosts++;
+            } else if (itemDefinition.Id == "increasedCoinSpawns") {
+                numberOfCoinSpawnPowerups++;
             }
         }
         players[playerIndex].Initialize(playerIndex, slot.Navigator, slot.IsAI, numberOfMagnetPowerups, numberOfMoveBoosts);
@@ -197,7 +200,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     private void StartCoinSpawning() {
         for (int i = 0; i < coinSpawners.Length; i++) {
             if (coinSpawners[i]) {
-                coinSpawners[i].StartSpawning(gameDurationInSeconds);
+                coinSpawners[i].StartSpawning(gameDurationInSeconds, numberOfCoinSpawnPowerups);
             }
         }
     }

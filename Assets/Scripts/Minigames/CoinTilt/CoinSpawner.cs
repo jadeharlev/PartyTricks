@@ -29,6 +29,7 @@ public class CoinSpawner : MonoBehaviour {
     private float currentSpawnInterval;
     private float gameDuration;
     private float elapsedTime;
+    private bool powerupsHaveBeenApplied = false;
     private List<GameObject> activeCoins = new();
     
     private void Update() {
@@ -46,7 +47,16 @@ public class CoinSpawner : MonoBehaviour {
         activeCoins.RemoveAll(coin => coin == null);
     }
 
-    public void StartSpawning(float durationInSeconds) {
+    public void StartSpawning(float durationInSeconds, int numberOfCoinSpawnPowerups) {
+        if (!powerupsHaveBeenApplied) {
+            float spawnRateMultiplier = 1;
+            for (int i = 0; i < numberOfCoinSpawnPowerups; i++) {
+                spawnRateMultiplier *= 1.25f;
+            }
+            initialSpawnRate *= spawnRateMultiplier;
+            finalSpawnRate *= spawnRateMultiplier;
+            powerupsHaveBeenApplied = true;
+        }
         isSpawning = true;
         gameDuration = durationInSeconds;
         elapsedTime = 0;

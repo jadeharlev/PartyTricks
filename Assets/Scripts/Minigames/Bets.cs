@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Bets : MonoBehaviour {
     [SerializeField] 
@@ -8,9 +9,9 @@ public class Bets : MonoBehaviour {
     private BetPlayerManager playerManager;
     public int AllowedBettingDurationInSeconds = 10;
     [SerializeField] 
-    private CountdownTimer CountdownTimer;
-    [SerializeField]
-    private PlayerCornerDisplay[] playerCornerDisplays;
+    private MinigameTimer MinigameTimer;
+    [FormerlySerializedAs("playerCornerDisplays")] [SerializeField]
+    private PlayerCornerDisplay[] PlayerCornerDisplays;
     private IGamblingMinigame gamblingMinigameManager;
 
     private void Awake() {
@@ -18,6 +19,11 @@ public class Bets : MonoBehaviour {
         if (gamblingMinigameManager == null) {
             Debug.LogError("Error: IGamblingMinigame not found on Bets GameObject");
         }
+
+        if (MinigameTimer == null) {
+            Debug.LogError("Error: MinigameTimer not found on Bets GameObject");
+        }
+        MinigameTimer.Initialize(AllowedBettingDurationInSeconds);
     }
 
     private void Start() {
@@ -31,13 +37,13 @@ public class Bets : MonoBehaviour {
     }
 
     private void InitializeComponents() {
-        playerManager = new BetPlayerManager(betCards, playerCornerDisplays);
-        CountdownTimer.OnTimerEnd += OnBetTimerEnd;
+        playerManager = new BetPlayerManager(betCards, PlayerCornerDisplays);
+        MinigameTimer.OnTimerEnd += OnBetTimerEnd;
     }
 
     private void StartBets() {
         playerManager.InitializePlayers();
-        CountdownTimer.StartTimer(AllowedBettingDurationInSeconds);
+        MinigameTimer.StartTimer();
     }
 
     private void OnBetTimerEnd() {
@@ -46,6 +52,11 @@ public class Bets : MonoBehaviour {
 
         Dictionary<int, int> bets = playerManager.GetPlayerBets();
 
+        StartCoroutine(WaitAndContinue(bets));
+    }
+
+    private IEnumerator WaitAndContinue(Dictionary<int, int> bets) {
+        yield return new WaitForSeconds(3);
         if (gamblingMinigameManager != null && gamblingMinigameManager.OnBetTimerEnd != null) {
             gamblingMinigameManager.OnBetTimerEnd?.Invoke(bets);
         }
@@ -55,8 +66,8 @@ public class Bets : MonoBehaviour {
     }
 
     public void Reset() {
-        CountdownTimer.Reset();
-        CountdownTimer.StartTimer(AllowedBettingDurationInSeconds);
+        MinigameTimer.StopIfRunning();
+        MinigameTimer.StartTimer();
         playerManager.EnableAllSelectors();
     }
     
@@ -66,8 +77,8 @@ public class Bets : MonoBehaviour {
     
 
     private void OnDestroy() {
-        if (CountdownTimer != null) {
-            CountdownTimer.OnTimerEnd -= OnBetTimerEnd;
+        if (MinigameTimer != null) {
+            MinigameTimer.OnTimerEnd -= OnBetTimerEnd;
         }
         playerManager?.Cleanup();
     }

@@ -1054,22 +1054,22 @@
                 },
                 {
                     "name": "",
-                    "id": "eb66b3b1-c668-4c93-98d5-c0d70941e3b5",
-                    "path": "<Gamepad>/start",
+                    "id": "5c8f672e-c05c-4535-8639-7504f9914e3b",
+                    "path": "<Keyboard>/p",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Keyboard&Mouse",
                     "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "5c8f672e-c05c-4535-8639-7504f9914e3b",
-                    "path": "<Keyboard>/p",
+                    "id": "239068c9-e7e7-48b1-be15-8ec504cae4a0",
+                    "path": "*/{Menu}",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Keyboard&Mouse",
+                    "groups": ";Gamepad",
                     "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false

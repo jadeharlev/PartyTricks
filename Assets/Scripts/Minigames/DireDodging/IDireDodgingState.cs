@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public interface IDireDodgingState
 {
     public void Enter();

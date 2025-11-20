@@ -1,6 +1,3 @@
-using System;
-using UnityEngine;
-
 public class PlayerProfile {
     public Inventory Inventory;
     public Wallet Wallet;

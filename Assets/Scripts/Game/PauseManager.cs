@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class PauseManager : MonoBehaviour
 {
@@ -62,10 +61,6 @@ public class PauseManager : MonoBehaviour
 
     private void Update() {
         if (!pauseIsEnabled) return;
-        if (pauseAction != null && pauseAction.WasPressedThisFrame()) {
-            TogglePause();
-            return;
-        }
         foreach (var action in playerPauseActions) {
             if (action != null && action.WasPressedThisFrame()) {
                 TogglePause();

@@ -16,7 +16,7 @@ MonoBehaviour:
   Id: increasedAttackSpeed
   DisplayName: Attack Faster
   Cost: 50
-  Category: 0
+  Category: 2
   Description: Simple stat boost.\nAttack faster!
   IsTemporary: 0
   NumberOfUsesIfApplicable: 0

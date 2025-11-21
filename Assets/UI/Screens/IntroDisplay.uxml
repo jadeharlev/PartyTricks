@@ -10,7 +10,7 @@
                 </ui:VisualElement>
                 <ui:VisualElement name="InThisVersion" style="flex-grow: 1;">
                     <ui:Label text="Available In This Version" style="-unity-text-align: upper-left; -unity-font-definition: url(&quot;project://database/Assets/Fonts/DM_Sans/static/DMSans-Black.ttf?fileID=12800000&amp;guid=e9e9ba64716a24509a9fce80ef9e0826&amp;type=3#DMSans-Black&quot;); font-size: 30px;" />
-                    <ui:Label text="This version includes the main menu and shop and board generation, along with controller support. This version &lt;u&gt;does not&lt;/u&gt; include any minigames. The options button is also not implemented." style="-unity-text-align: upper-left; -unity-font-definition: url(&quot;project://database/Assets/Fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf?fileID=12800000&amp;guid=621a05a21302949faae6799298818d73&amp;type=3#DMSans-VariableFont_opsz,wght&quot;); font-size: 30px; white-space: normal; width: 841px;" />
+                    <ui:Label text="This version includes the main menu and shop and board generation, along with controller support and three minigames. The options button is not implemented." style="-unity-text-align: upper-left; -unity-font-definition: url(&quot;project://database/Assets/Fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf?fileID=12800000&amp;guid=621a05a21302949faae6799298818d73&amp;type=3#DMSans-VariableFont_opsz,wght&quot;); font-size: 30px; white-space: normal; width: 841px;" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="RightHalf" style="flex-grow: 0; width: 50%; align-items: center;">

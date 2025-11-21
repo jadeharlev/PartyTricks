@@ -62,6 +62,9 @@ public class PauseMenu : MonoBehaviour {
     
 
     private void OnReturnToMenuClicked() {
+        foreach (var slot in GameSessionManager.Instance.PlayerSlots) {
+            slot.Profile.Reset();
+        }
         SceneManager.LoadScene("MainMenu");
         Time.timeScale = 1f;
         pauseManager.Resume();

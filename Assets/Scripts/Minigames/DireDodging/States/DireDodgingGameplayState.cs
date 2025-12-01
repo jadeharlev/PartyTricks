@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class DireDodgingGameplayState : IDireDodgingState {
-    private int alivePlayers;
+    private int numberOfAlivePlayers;
     private int[] playerPlaces;
     private int[] playerKills;
     private int[] deadPlayers;
@@ -25,7 +25,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
         DireDodgingMinigameManager.Instance.EnableAllPlayerInput();
         DireDodgingMinigameManager.Instance.StartPlayerShooting();
         timer.StartTimer();
-        alivePlayers = 4;
+        numberOfAlivePlayers = 4;
         playerPlaces = new[] { 1, 1, 1, 1 };
         playerKills = new[] { 0, 0, 0, 0 };
         deadPlayers = new[] { 0, 0, 0, 0 };
@@ -51,11 +51,11 @@ public class DireDodgingGameplayState : IDireDodgingState {
     }
 
     public void HandlePlayerDeath(int playerIndex) {
-        playerPlaces[playerIndex] = alivePlayers;
+        playerPlaces[playerIndex] = numberOfAlivePlayers;
         deadPlayers[playerIndex] = 1;
-        alivePlayers--;
+        numberOfAlivePlayers--;
         playerCornerDisplays[playerIndex].UpdateEliminations(playerKills[playerIndex], playerPlaces[playerIndex]);
-        if (alivePlayers == 1) {
+        if (numberOfAlivePlayers == 1) {
             OnGameplayEnd();
         }
     }

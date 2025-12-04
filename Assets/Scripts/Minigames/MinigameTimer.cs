@@ -8,14 +8,20 @@ public class MinigameTimer : MonoBehaviour {
     [SerializeField] private TMP_Text TimerText;
     public event Action OnTimerEnd;
     public event Action<int> OnHalfwayPointReached;
+    private string endOfGameText;
     private int RemainingTimeInSeconds { get; set; }
     private int originalTimerDuration;
     private Coroutine timerCoroutine = null;
 
-    public void Initialize(int gameLengthInSeconds) {
+    public void Initialize(int gameLengthInSeconds, string endOfGameText = "Game!") {
         originalTimerDuration = gameLengthInSeconds;
         RemainingTimeInSeconds = gameLengthInSeconds;
+        this.endOfGameText = endOfGameText;
         HidePanel();
+    }
+
+    public void OverrideText(string text) {
+        TimerText.text = text;
     }
 
     private void ShowPanel() {
@@ -60,7 +66,9 @@ public class MinigameTimer : MonoBehaviour {
     public void StopIfRunning() {
         if (timerCoroutine != null) {
             StopCoroutine(this.timerCoroutine);
-            TimerText.text = "Game!";
+            if (!string.IsNullOrEmpty(endOfGameText)) {
+                TimerText.text = endOfGameText;
+            }
             timerCoroutine = null;
         }
     }

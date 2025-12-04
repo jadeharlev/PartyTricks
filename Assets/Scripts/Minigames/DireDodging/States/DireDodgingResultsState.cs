@@ -1,5 +1,6 @@
 using System;
 
+
 public class DireDodgingResultsState : IDireDodgingState {
     private Action<PlayerMinigameResult[]> OnMinigameFinished;
     private int[] playerPlaces;
@@ -7,13 +8,15 @@ public class DireDodgingResultsState : IDireDodgingState {
     private int[] baseFundsPerRank;
     private int fundsPerKill;
     private PlacesDisplay placesDisplay;
+    private MinigameTimer minigameTimer;
     public DireDodgingResultsState(int[] playerPlaces, int[] playerKills, int[] baseFundsPerRank, int fundsPerKill,
-        PlacesDisplay placesDisplay) {
+        PlacesDisplay placesDisplay, MinigameTimer minigameTimer) {
         this.playerPlaces = playerPlaces;
         this.playerKills = playerKills;
         this.baseFundsPerRank = baseFundsPerRank;
         this.fundsPerKill = fundsPerKill;
         this.placesDisplay = placesDisplay;
+        this.minigameTimer = minigameTimer;
     }
 
     public void Enter() {
@@ -21,6 +24,9 @@ public class DireDodgingResultsState : IDireDodgingState {
         PlayerMinigameResult[] results = CalculateMinigameResults();
         UpdatePlaceDisplays(results);
         placesDisplay.Show();
+        
+        // wait to show this until results show because of freeze effect
+        minigameTimer.OverrideText("Game!");
         DireDodgingMinigameManager.Instance.OnGameEnd(results);
     }
 

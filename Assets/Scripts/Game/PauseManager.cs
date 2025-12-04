@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -89,6 +90,20 @@ public class PauseManager : MonoBehaviour
             Resume();
         }
         DebugLogger.Log(LogChannel.Systems, "Pause disabled.");
+    }
+
+    public void DoTimedPause(float lengthInSeconds, Action onComplete) {
+        StartCoroutine(Hitstop(lengthInSeconds, onComplete));
+    }
+
+    private IEnumerator Hitstop(float lengthInSeconds, Action onComplete) {
+        Time.timeScale = 0f;
+        float startTime = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup < startTime + lengthInSeconds) {
+            yield return null;
+        }
+        Time.timeScale = 1f;
+        onComplete?.Invoke();
     }
 
     public void Pause() {

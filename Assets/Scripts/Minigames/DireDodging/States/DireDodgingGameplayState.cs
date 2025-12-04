@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class DireDodgingGameplayState : IDireDodgingState {
@@ -7,8 +10,11 @@ public class DireDodgingGameplayState : IDireDodgingState {
     private int[] deadPlayers;
     private MinigameTimer timer;
     private PlayerCornerDisplay[] playerCornerDisplays;
-    public DireDodgingGameplayState(MinigameTimer timer, PlayerCornerDisplay[] playerCornerDisplays) {
+    private Camera gameCamera;
+    private bool gameShouldEnd => (numberOfAlivePlayers == 1);
+    public DireDodgingGameplayState(MinigameTimer timer, PlayerCornerDisplay[] playerCornerDisplays, Camera camera) {
         this.timer = timer;
+        gameCamera = camera;
         timer.OnTimerEnd += OnGameplayEnd;
         timer.OnHalfwayPointReached += OnHalfwayPointReached;
         this.playerCornerDisplays = playerCornerDisplays;
@@ -54,8 +60,17 @@ public class DireDodgingGameplayState : IDireDodgingState {
         playerPlaces[playerIndex] = numberOfAlivePlayers;
         deadPlayers[playerIndex] = 1;
         numberOfAlivePlayers--;
+        UpdateEliminations(playerIndex);
+        gameCamera.DOShakePosition(duration: 0.1f, strength: 0.4f, vibrato: 1, randomness: 90f, fadeOut: false).SetUpdate(true);
+        PauseManager.Instance.DoTimedPause(0.3f, CheckForEndOfGame);
+    }
+
+    private void UpdateEliminations(int playerIndex) {
         playerCornerDisplays[playerIndex].UpdateEliminations(playerKills[playerIndex], playerPlaces[playerIndex]);
-        if (numberOfAlivePlayers == 1) {
+    }
+
+    private void CheckForEndOfGame() {
+        if (gameShouldEnd) {
             OnGameplayEnd();
         }
     }
@@ -66,7 +81,10 @@ public class DireDodgingGameplayState : IDireDodgingState {
         UpdateAllDisplays();
         DireDodgingMinigameManager.Instance.FreezeAllPlayers();
         DireDodgingMinigameManager.Instance.ReturnAllProjectiles();
-        DireDodgingMinigameManager.Instance.TransitionToResults(playerPlaces, playerKills);
+        PauseManager.Instance.DoTimedPause(1f, () =>
+        {
+            DireDodgingMinigameManager.Instance.TransitionToResults(playerPlaces, playerKills); 
+        });
     }
 
     private void UpdateAllDisplays() {

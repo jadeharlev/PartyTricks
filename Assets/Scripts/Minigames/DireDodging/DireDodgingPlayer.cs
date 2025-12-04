@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -13,6 +15,7 @@ public class DireDodgingPlayer : MonoBehaviour {
     private float projectileShootRate;
     private float spriteHalfWidth;
     private float spriteHalfHeight;
+    private float damageAnimationTimeInSeconds;
 
     [SerializeField] private DireDodgingPlayerStatsSO PlayerStatsSO;
     [SerializeField] private SpriteRenderer SpriteRenderer;
@@ -21,8 +24,10 @@ public class DireDodgingPlayer : MonoBehaviour {
     [SerializeField] private Color PlayerColor;
     [SerializeField] private GameObject ProjectilePrefab;
     [SerializeField] private Transform PoolParent;
+    [SerializeField] private DireDodgingHealthBar HealthBar;
     
     private int playerIndex;
+    private Color baseColor;
     private IDirectionalTwoButtonInputHandler navigator;
     private bool isAI;
     private bool inputEnabled;
@@ -35,6 +40,10 @@ public class DireDodgingPlayer : MonoBehaviour {
     private Camera mainCamera;
     private readonly Quaternion leftRotation = Quaternion.Euler(0, 0, 90);
     private readonly Quaternion rightRotation = Quaternion.Euler(0, 0, 270);
+
+    private void Awake() {
+        baseColor = SpriteRenderer.color;
+    }
 
     public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfIncreasedHPPowerups, int numberOfIncreasedAttackSpeedPowerups) {
         mainCamera = Camera.main;
@@ -148,6 +157,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.baseDamage = PlayerStatsSO.BaseDamage;
         this.maxHealth = PlayerStatsSO.BaseHealth;
         this.projectileShootRate = PlayerStatsSO.ProjectileShootRate;
+        this.damageAnimationTimeInSeconds = PlayerStatsSO.DamageAnimationTimeInSeconds;
         currentHealth = maxHealth;
     }
 
@@ -213,10 +223,13 @@ public class DireDodgingPlayer : MonoBehaviour {
 
     private void TakeDamage(DireDodgingProjectile projectile) {
         currentHealth -= projectile.Damage;
+        HealthBar.UpdateDisplay(currentHealth, maxHealth);
         if (PlayerIsDead) {
             DireDodgingMinigameManager.Instance.RegisterDeath(projectile.OwnerIndex, playerIndex);
             Die();
             return;
+        } else {
+            mainCamera.DOShakePosition(duration: 0.05f, strength: 0.2f, vibrato: 1, randomness: 90f, fadeOut: false).SetUpdate(true);
         }
         if (damageCoroutineInstance != null) {
             StopCoroutine(damageCoroutineInstance);
@@ -226,9 +239,13 @@ public class DireDodgingPlayer : MonoBehaviour {
 
     private IEnumerator DamageCoroutine() {
         Debug.Log($"P{playerIndex+1} took damage!");
-        // TODO change color, probably with dotween
+        SpriteRenderer.DOColor(Color.white, damageAnimationTimeInSeconds/2f).onComplete = ResetColor;
         yield return null;
         damageCoroutineInstance = null;
+    }
+
+    private void ResetColor() {
+        SpriteRenderer.DOColor(baseColor, damageAnimationTimeInSeconds/2f);
     }
 
     private void Die() {

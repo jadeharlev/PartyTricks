@@ -18,3 +18,4 @@ MonoBehaviour:
   ProjectileShootRate: 1
   BaseDamage: 1
   BaseHealth: 3
+  DamageAnimationTimeInSeconds: 0.2

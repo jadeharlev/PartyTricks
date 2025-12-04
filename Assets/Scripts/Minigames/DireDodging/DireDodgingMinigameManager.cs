@@ -22,6 +22,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private MinigameTimer MinigameTimer;
     [SerializeField] private PlayerCornerDisplay[] PlayerCornerDisplays = new PlayerCornerDisplay[4];
     [SerializeField] private PlacesDisplay PlacesDisplay;
+    [SerializeField] private Camera MainCamera;
     
     private bool hasBeenInitialized = false;
 
@@ -44,7 +45,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
         PlacesDisplay.Hide();
         StartCountdown.Initialize(CountdownDurationInSeconds);
         if (IsDoubleRound) GameTimeoutDurationInSeconds *= 2;
-        MinigameTimer.Initialize(GameTimeoutDurationInSeconds);
+        MinigameTimer.Initialize(GameTimeoutDurationInSeconds, null);
         for (int i = 0; i < Players.Length; i++) {
             if (Players[i] == null) continue;
             PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
@@ -100,12 +101,12 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     }
     
     public void TransitionToGameplay() {
-        ChangeState(new DireDodgingGameplayState(MinigameTimer, PlayerCornerDisplays));
+        ChangeState(new DireDodgingGameplayState(MinigameTimer, PlayerCornerDisplays, MainCamera));
     }
 
     public void TransitionToResults(int[] playerPlaces, int[] playerKills) {
         Debug.Log("Game ended. Places: " + string.Join(", ", playerPlaces) + ", kills: " + string.Join(", ", playerKills));
-        DireDodgingResultsState resultsState = new DireDodgingResultsState(playerPlaces, playerKills, BaseFundsPerRank, FundsPerKill, PlacesDisplay);
+        DireDodgingResultsState resultsState = new DireDodgingResultsState(playerPlaces, playerKills, BaseFundsPerRank, FundsPerKill, PlacesDisplay, MinigameTimer);
         ChangeState(resultsState);
     }
 

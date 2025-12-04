@@ -11,7 +11,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
     private MinigameTimer timer;
     private PlayerCornerDisplay[] playerCornerDisplays;
     private Camera gameCamera;
-    private bool gameShouldEnd => (numberOfAlivePlayers == 1);
+    private bool gameShouldEnd => (numberOfAlivePlayers <= 1);
     public DireDodgingGameplayState(MinigameTimer timer, PlayerCornerDisplay[] playerCornerDisplays, Camera camera) {
         this.timer = timer;
         gameCamera = camera;

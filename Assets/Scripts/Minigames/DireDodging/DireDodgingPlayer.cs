@@ -256,7 +256,7 @@ public class DireDodgingPlayer : MonoBehaviour {
             intensityCoroutineInstance = null;
         }
         DisableColliderComponent();
-        var color = SpriteRenderer.color;
+        var color = baseColor;
         color.a = 0.1f;
         SpriteRenderer.color = color;
     }

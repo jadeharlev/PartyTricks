@@ -19,3 +19,4 @@ MonoBehaviour:
   BaseDamage: 1
   BaseHealth: 3
   DamageAnimationTimeInSeconds: 0.2
+  DeathAnimationTimeInSeconds: 0.25

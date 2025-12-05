@@ -15,6 +15,7 @@ public class DireDodgingPlayer : MonoBehaviour {
     private float spriteHalfWidth;
     private float spriteHalfHeight;
     private float damageAnimationTimeInSeconds;
+    private float deathAnimationTimeInSeconds;
 
     [SerializeField] private DireDodgingPlayerStatsSO PlayerStatsSO;
     [SerializeField] private SpriteRenderer SpriteRenderer;
@@ -54,7 +55,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.isAI = isAI;
         this.inputEnabled = false;
         spriteHalfWidth = SpriteRenderer.bounds.size.x;
-        spriteHalfHeight = SpriteRenderer.bounds.extents.y;
+        spriteHalfHeight = SpriteRenderer.bounds.extents.y + 0.2f; // offset added for health bar
         
         InitializePools();
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} initialized. IsAI: {isAI}");
@@ -158,6 +159,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.maxHealth = PlayerStatsSO.BaseHealth;
         this.projectileShootRate = PlayerStatsSO.ProjectileShootRate;
         this.damageAnimationTimeInSeconds = PlayerStatsSO.DamageAnimationTimeInSeconds;
+        this.deathAnimationTimeInSeconds = PlayerStatsSO.DeathAnimationTimeInSeconds;
         currentHealth = maxHealth;
     }
 
@@ -264,7 +266,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         DisableColliderComponent();
         var color = baseColor;
         color.a = 0.1f;
-        SpriteRenderer.color = color;
+        SpriteRenderer.DOColor(color, deathAnimationTimeInSeconds).SetUpdate(true);
     }
 
     private void DisableColliderComponent() {

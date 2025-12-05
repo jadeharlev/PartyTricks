@@ -9,5 +9,6 @@ public class DireDodgingPlayerStatsSO : ScriptableObject {
     public float ProjectileShootRate = 1f;
     public float BaseDamage = 1f;
     public float BaseHealth = 15f;
-    public float DamageAnimationTimeInSeconds = 0.1f;
+    public float DamageAnimationTimeInSeconds = 0.2f;
+    public float DeathAnimationTimeInSeconds = 0.05f;
 }

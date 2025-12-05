@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -27,6 +26,7 @@ public class DireDodgingPlayer : MonoBehaviour {
     [SerializeField] private DireDodgingHealthBar HealthBar;
     
     private int playerIndex;
+    private Sequence colorChangeSequence;
     private Color baseColor;
     private IDirectionalTwoButtonInputHandler navigator;
     private bool isAI;
@@ -239,13 +239,18 @@ public class DireDodgingPlayer : MonoBehaviour {
 
     private IEnumerator DamageCoroutine() {
         Debug.Log($"P{playerIndex+1} took damage!");
-        SpriteRenderer.DOColor(Color.white, damageAnimationTimeInSeconds/2f).onComplete = ResetColor;
-        yield return null;
+        var fadeInTween = SpriteRenderer.DOColor(Color.white, damageAnimationTimeInSeconds / 2f);
+        var fadeOutTween = SpriteRenderer.DOColor(baseColor, damageAnimationTimeInSeconds / 2f);
+        colorChangeSequence = DOTween.Sequence();
+        colorChangeSequence.Append(fadeInTween);
+        colorChangeSequence.Append(fadeOutTween);
+        colorChangeSequence.onComplete = ResetColorChangeSequence;
+        yield return new DOTweenCYInstruction.WaitForKill(fadeOutTween);
         damageCoroutineInstance = null;
     }
 
-    private void ResetColor() {
-        SpriteRenderer.DOColor(baseColor, damageAnimationTimeInSeconds/2f);
+    private void ResetColorChangeSequence() {
+        colorChangeSequence = null;
     }
 
     private void Die() {
@@ -255,6 +260,7 @@ public class DireDodgingPlayer : MonoBehaviour {
             StopCoroutine(intensityCoroutineInstance);
             intensityCoroutineInstance = null;
         }
+        if(colorChangeSequence != null) colorChangeSequence.Kill();
         DisableColliderComponent();
         var color = baseColor;
         color.a = 0.1f;

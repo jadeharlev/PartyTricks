@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
+using FMOD.Studio;
+using FMODUnity;
 using UnityEngine;
+using STOP_MODE = FMOD.Studio.STOP_MODE;
 
-public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
-{
+public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
+    private EventInstance musicInstance;
     public event Action<PlayerMinigameResult[]> OnMinigameFinished;
     public bool IsDoubleRound { get; private set; }
     private IDireDodgingState currentState;
@@ -15,6 +18,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private int ResultsDisplayDurationInSeconds = 5;
     [SerializeField] private int[] BaseFundsPerRank = new[] { 100, 80, 60, 50 };
     [SerializeField] private int FundsPerKill = 30;
+    [SerializeField] private EventReference MusicEvent;
 
     [Header("References")] 
     [SerializeField] private DireDodgingPlayer[] Players = new DireDodgingPlayer[4];
@@ -33,6 +37,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
         }
 
         Instance = this;
+        this.musicInstance = RuntimeManager.CreateInstance(MusicEvent);
     }
 
     private void Start() {
@@ -124,6 +129,14 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
         DebugLogger.Log(LogChannel.Systems, $"DireDodgingMinigame initialized. Double round: {isDoubleRound}");
     }
 
+    public void StartMusic() {
+        musicInstance.start();
+    }
+
+    public void SetMusicIntensity(float intensity) {
+        musicInstance.setParameterByName("Intensity", intensity);
+    }
+
     public void RegisterDeath(int killerID, int killedID) {
         DebugLogger.Log(LogChannel.Systems, $"P{killerID+1} eliminated P{killedID+1}!");
         if (currentState is DireDodgingGameplayState gameplayState) {
@@ -148,6 +161,10 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager
 
     private void OnDestroy() {
         Instance = null;
+    }
+
+    private void OnDisable() {
+        musicInstance.stop(STOP_MODE.IMMEDIATE);
     }
 
     public void ReturnAllProjectiles() {

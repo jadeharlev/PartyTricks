@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -12,6 +10,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
     private PlayerCornerDisplay[] playerCornerDisplays;
     private Camera gameCamera;
     private bool gameShouldEnd => (numberOfAlivePlayers <= 1);
+    private bool halfwayPointReached = false;
     public DireDodgingGameplayState(MinigameTimer timer, PlayerCornerDisplay[] playerCornerDisplays, Camera camera) {
         this.timer = timer;
         gameCamera = camera;
@@ -21,8 +20,10 @@ public class DireDodgingGameplayState : IDireDodgingState {
     }
 
     private void OnHalfwayPointReached(int remainingTimeInSeconds) {
+        halfwayPointReached = true;
         timer.OnHalfwayPointReached -= OnHalfwayPointReached;
         DireDodgingMinigameManager.Instance.StartIncreasingIntensity(remainingTimeInSeconds);
+        DireDodgingMinigameManager.Instance.SetMusicIntensity(2);
     }
     
 
@@ -30,6 +31,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
         DebugLogger.Log(LogChannel.Systems, "Dire Dodging: Entered Gameplay State.", LogLevel.Verbose);
         DireDodgingMinigameManager.Instance.EnableAllPlayerInput();
         DireDodgingMinigameManager.Instance.StartPlayerShooting();
+        DireDodgingMinigameManager.Instance.SetMusicIntensity(1);
         timer.StartTimer();
         numberOfAlivePlayers = 4;
         playerPlaces = new[] { 1, 1, 1, 1 };
@@ -43,6 +45,14 @@ public class DireDodgingGameplayState : IDireDodgingState {
 
     public void HandlePlayerKill(int playerIndex) {
         playerKills[playerIndex]++;
+        if (!halfwayPointReached) {
+            if (numberOfAlivePlayers == 3) {
+                DireDodgingMinigameManager.Instance.SetMusicIntensity(1);
+            }
+            if (numberOfAlivePlayers == 2) {
+                DireDodgingMinigameManager.Instance.SetMusicIntensity(2);
+            }   
+        }
         if (PlayerIsDead(playerIndex)) {
             Debug.Log("Updating kills for dead player with index " + playerIndex);
             playerCornerDisplays[playerIndex].UpdateEliminations(playerKills[playerIndex], playerPlaces[playerIndex]);

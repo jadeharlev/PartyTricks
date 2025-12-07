@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -41,6 +42,8 @@ public class DireDodgingPlayer : MonoBehaviour {
     private Camera mainCamera;
     private readonly Quaternion leftRotation = Quaternion.Euler(0, 0, 90);
     private readonly Quaternion rightRotation = Quaternion.Euler(0, 0, 270);
+    private EventReference hitEvent;
+    private EventReference deathEvent;
 
     private void Awake() {
         baseColor = SpriteRenderer.color;
@@ -160,6 +163,8 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.projectileShootRate = PlayerStatsSO.ProjectileShootRate;
         this.damageAnimationTimeInSeconds = PlayerStatsSO.DamageAnimationTimeInSeconds;
         this.deathAnimationTimeInSeconds = PlayerStatsSO.DeathAnimationTimeInSeconds;
+        this.hitEvent = PlayerStatsSO.GetHitEvent;
+        this.deathEvent = PlayerStatsSO.DeathEvent;
         currentHealth = maxHealth;
     }
 
@@ -231,6 +236,7 @@ public class DireDodgingPlayer : MonoBehaviour {
             Die();
             return;
         } else {
+            RuntimeManager.PlayOneShot(hitEvent);
             mainCamera.DOShakePosition(duration: 0.05f, strength: 0.2f, vibrato: 1, randomness: 90f, fadeOut: false).SetUpdate(true);
         }
         if (damageCoroutineInstance != null) {
@@ -267,6 +273,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         var color = baseColor;
         color.a = 0.1f;
         SpriteRenderer.DOColor(color, deathAnimationTimeInSeconds).SetUpdate(true);
+        RuntimeManager.PlayOneShot(deathEvent);
     }
 
     private void DisableColliderComponent() {

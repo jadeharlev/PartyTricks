@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="EventFolder" id="{7a8efef0-a7d3-4506-bccc-35a5f8853c97}">
+		<property name="name">
+			<value>DireDodging</value>
+		</property>
+		<relationship name="folder">
+			<destination>{98a1fb05-d4d8-4821-8946-350c53a2425c}</destination>
+		</relationship>
+	</object>
+</objects>

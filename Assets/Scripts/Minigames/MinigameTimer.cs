@@ -11,6 +11,7 @@ public class MinigameTimer : MonoBehaviour {
     private string endOfGameText;
     private int RemainingTimeInSeconds { get; set; }
     private int originalTimerDuration;
+    private bool halfwayPointEventTriggered;
     private Coroutine timerCoroutine = null;
 
     public void Initialize(int gameLengthInSeconds, string endOfGameText = "Game!") {
@@ -40,11 +41,12 @@ public class MinigameTimer : MonoBehaviour {
     private IEnumerator Timer() {
         while (RemainingTimeInSeconds > 0) {
             OnTick(RemainingTimeInSeconds);
+            if (!halfwayPointEventTriggered && RemainingTimeInSeconds <= (originalTimerDuration / 2f)) {
+                OnHalfwayPointReached?.Invoke(RemainingTimeInSeconds);
+                halfwayPointEventTriggered = true;
+            }
             RemainingTimeInSeconds--;
             DebugLogger.Log(LogChannel.Systems, "Game timer ticked: " + RemainingTimeInSeconds  + " seconds remaining.");
-            if (RemainingTimeInSeconds == (originalTimerDuration / 2)) {
-                OnHalfwayPointReached?.Invoke(RemainingTimeInSeconds);
-            }
             yield return new WaitForSeconds(1f);
         }
         OnTimeUp();

@@ -21,6 +21,7 @@ public class DireDodgingResultsState : IDireDodgingState {
 
     public void Enter() {
         DebugLogger.Log(LogChannel.Systems, "Dire Dodging: Entered Results State.", LogLevel.Verbose);
+        DireDodgingMinigameManager.Instance.SetMusicIntensity(0);
         PlayerMinigameResult[] results = CalculateMinigameResults();
         UpdatePlaceDisplays(results);
         placesDisplay.Show();

@@ -20,3 +20,17 @@ MonoBehaviour:
   BaseHealth: 3
   DamageAnimationTimeInSeconds: 0.2
   DeathAnimationTimeInSeconds: 0.25
+  GetHitEvent:
+    Guid:
+      Data1: 198578112
+      Data2: 1319044206
+      Data3: 1242449548
+      Data4: -1573139019
+    Path: event:/DireDodging/HitLight
+  DeathEvent:
+    Guid:
+      Data1: 1701156570
+      Data2: 1297590207
+      Data3: 754733758
+      Data4: -624353837
+    Path: event:/DireDodging/Death

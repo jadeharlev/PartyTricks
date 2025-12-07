@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DireDodgingPlayerStatsSO", menuName = "Scriptable Objects/DireDodgingPlayerStatsSO")]
@@ -11,4 +12,9 @@ public class DireDodgingPlayerStatsSO : ScriptableObject {
     public float BaseHealth = 15f;
     public float DamageAnimationTimeInSeconds = 0.2f;
     public float DeathAnimationTimeInSeconds = 0.05f;
+
+    [Header("References")] 
+    public EventReference GetHitEvent;
+
+    public EventReference DeathEvent;
 }

@@ -51,9 +51,6 @@ public class DireDodgingProjectile : MonoBehaviour {
     }
 
     private void Update() {
-        // var vector3 = transform.position;
-        // vector3.x = vector3.x + Speed * Time.deltaTime * direction;
-        // Rigidbody2D.MovePosition(vector3);
         transform.position += new Vector3(Speed * direction * Time.deltaTime, 0, 0);
     }
 }

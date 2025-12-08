@@ -49,7 +49,9 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
         InitializePlayerDisplays();
         PlacesDisplay.Hide();
         StartCountdown.Initialize(CountdownDurationInSeconds);
-        if (IsDoubleRound) GameTimeoutDurationInSeconds *= 2;
+        if (IsDoubleRound) {
+            GameTimeoutDurationInSeconds *= 2;
+        }
         MinigameTimer.Initialize(GameTimeoutDurationInSeconds, null);
         for (int i = 0; i < Players.Length; i++) {
             if (Players[i] == null) continue;
@@ -65,7 +67,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
                     increasedAttackSpeedPowerupCount++;
                 }
             }
-            Players[i].Initialize(i, slot.Navigator, slot.IsAI, increasedHPPowerupCount, increasedAttackSpeedPowerupCount);
+            Players[i].Initialize(i, slot.Navigator, slot.IsAI, increasedHPPowerupCount, increasedAttackSpeedPowerupCount, IsDoubleRound);
         }
     }
 

@@ -49,16 +49,20 @@ public class DireDodgingPlayer : MonoBehaviour {
         baseColor = SpriteRenderer.color;
     }
 
-    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfIncreasedHPPowerups, int numberOfIncreasedAttackSpeedPowerups) {
+    public void Initialize(int index, IDirectionalTwoButtonInputHandler inputHandler, bool isAI, int numberOfIncreasedHPPowerups, int numberOfIncreasedAttackSpeedPowerups, bool isDoubleRound) {
         mainCamera = Camera.main;
         ApplyBaseStats();
+        if (isDoubleRound) {
+            this.maxHealth *= 2;
+            this.currentHealth *= 2;
+        }
         ApplyStatBuffs(numberOfIncreasedHPPowerups, numberOfIncreasedAttackSpeedPowerups);
         this.playerIndex = index;
         this.navigator = inputHandler;
         this.isAI = isAI;
         this.inputEnabled = false;
         spriteHalfWidth = SpriteRenderer.bounds.size.x;
-        spriteHalfHeight = SpriteRenderer.bounds.extents.y + 0.2f; // offset added for health bar
+        spriteHalfHeight = SpriteRenderer.bounds.extents.y + 0.4f; // offset added for health bar
         
         InitializePools();
         DebugLogger.Log(LogChannel.Systems, $"P{playerIndex+1} initialized. IsAI: {isAI}");

@@ -39,9 +39,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
         deadPlayers = new[] { 0, 0, 0, 0 };
     }
 
-    public void OnUpdate() {
-        
-    }
+    public void OnUpdate() { }
 
     public void HandlePlayerKill(int playerIndex) {
         playerKills[playerIndex]++;

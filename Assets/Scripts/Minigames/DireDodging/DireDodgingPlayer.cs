@@ -122,7 +122,8 @@ public class DireDodgingPlayer : MonoBehaviour {
         StartCoroutine(ShootingCoroutine());
     }
     
-    private void Update() {
+    private void FixedUpdate()
+    {
         if (!isAlive) return;
         HandleInput();
     }
@@ -146,14 +147,14 @@ public class DireDodgingPlayer : MonoBehaviour {
 
     private void MoveUp() {
         var vector3 = Rigidbody2D.position;
-        vector3.y += maxMoveSpeed * Time.deltaTime;
+        vector3.y += maxMoveSpeed * Time.fixedDeltaTime;
         vector3.y = ClampYPosition(vector3.y);
         Rigidbody2D.MovePosition(vector3);
     }
 
     private void MoveDown() {
         var vector3 = Rigidbody2D.position;
-        vector3.y -= maxMoveSpeed * Time.deltaTime;
+        vector3.y -= maxMoveSpeed * Time.fixedDeltaTime;
         vector3.y = ClampYPosition(vector3.y);
         Rigidbody2D.MovePosition(vector3);
     }

@@ -1,4 +1,5 @@
 using System.Collections;
+using Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -9,15 +10,17 @@ public class PauseMenu : MonoBehaviour {
     private Button resumeButton;
     private Button optionsButton;
     private Button returnToMenuButton;
-    private PauseManager pauseManager;
+    private PauseService pauseService;
     private InputAction cancelAction;
     private InputAction navigateAction;
     private bool hasFocused;
+    private IPlayerService playerService;
     [SerializeField] private UIDocument pauseMenu;
 
-    public void Initialize(PauseManager manager) {
+    public void Initialize(PauseService service) {
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
         VisualElement root = pauseMenu.rootVisualElement;
-        pauseManager = manager;
+        pauseService = service;
         resumeButton = root.Q<Button>("ResumeButton");
         optionsButton = root.Q<Button>("OptionsButton");
         returnToMenuButton = root.Q<Button>("ReturnToMenuButton");
@@ -62,12 +65,12 @@ public class PauseMenu : MonoBehaviour {
     
 
     private void OnReturnToMenuClicked() {
-        foreach (var slot in GameSessionManager.Instance.PlayerSlots) {
+        foreach (var slot in playerService.PlayerSlots) {
             slot.Profile.Reset();
         }
         SceneManager.LoadScene("MainMenu");
         Time.timeScale = 1f;
-        pauseManager.Resume();
+        pauseService.Resume();
     }
 
     private void OnOptionsClicked() {
@@ -75,7 +78,7 @@ public class PauseMenu : MonoBehaviour {
     }
 
     private void OnResumeClicked() {
-        pauseManager.Resume();
+        pauseService.Resume();
     }
 
     private void OnDestroy() {

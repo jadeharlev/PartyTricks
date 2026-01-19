@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Services;
 using UnityEngine;
 
 public class BetPlayerManager {
@@ -6,10 +7,12 @@ public class BetPlayerManager {
     private List<BetSelector> activeSelectors = new();
     private Dictionary<int, int> playerBets = new();
     private PlayerCornerDisplay[] playerCornerDisplays;
+    private IPlayerService playerService;
     
     public BetPlayerManager(BetCard[] betCards, PlayerCornerDisplay[] playerCornerDisplays) {
         this.betCards = betCards;
         this.playerCornerDisplays = playerCornerDisplays;
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
     }
 
     public void InitializePlayers() {
@@ -26,9 +29,9 @@ public class BetPlayerManager {
         }
 
         for (int i = 0; i < playerCornerDisplays.Length; i++) {
-            PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
-            if (slot?.Profile != null) {
-                playerCornerDisplays[i].Initialize(slot.Profile);
+            PlayerProfile profile = playerService.GetPlayerProfile(i);
+            if (profile != null) {
+                playerCornerDisplays[i].Initialize(profile);
             }
         }
     }
@@ -76,9 +79,9 @@ public class BetPlayerManager {
 
     private void CreatePlayerSelectors() {
         activeSelectors.Clear();
-        for (int i = 0; i < GameSessionManager.Instance.PlayerSlots.Length; i++) {
-            PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
-            if (slot.Navigator == null) continue;
+        for (int i = 0; i < playerService.GetPlayerCount(); i++) {
+            PlayerSlot slot = playerService.PlayerSlots[i];
+            if (!slot.IsOccupied) continue;
             var selector = CreateSelector(i, slot);
             activeSelectors.Add(selector);
         }
@@ -87,7 +90,7 @@ public class BetPlayerManager {
     private BetSelector CreateSelector(int index, PlayerSlot slot) {
         var selectorObject = new GameObject($"Player_{index}_BetSelector");
         var selector = selectorObject.AddComponent<BetSelector>();
-        selector.Initialize(index, slot.Navigator, slot.Profile);
+        selector.Initialize(index, slot.InputHandler, slot.Profile);
         return selector;
     }
 
@@ -131,7 +134,6 @@ public class BetPlayerManager {
     public List<BetSelector> GetSelectors() => activeSelectors;
     
     private void HandleLockChanged(BetSelector selector, bool locked) {
-        Debug.Log("Locked player " + selector.PlayerIndex);
         int playerIndex = selector.PlayerIndex;
         var card = betCards[playerIndex];
         if(locked) {
@@ -163,7 +165,6 @@ public class BetPlayerManager {
         if (shouldFlash) {
             betCards[playerIndex].FlashArrow(isIncrease);
         }
-        Debug.Log($"Player {playerIndex} new bet: {newBet}");
     }
     
     public Dictionary<int, int> GetPlayerBets() => playerBets;

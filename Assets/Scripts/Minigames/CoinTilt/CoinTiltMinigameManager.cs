@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Services;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -27,10 +28,14 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     [SerializeField] private PlacesDisplay placesDisplay;
     private bool hasBeenInitialized;
     private readonly int[] playerScores = new int[4];
-
+    private IPlayerService playerService;
     private int numberOfCoinSpawnPowerups = 0;
     private void Start() {
         StartCoroutine(WaitForInitialization());
+    }
+
+    private void Awake() {
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
     }
 
     public void Initialize(bool isDoubleRound) {
@@ -138,7 +143,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
                 continue;
             }
 
-            var slot = GameSessionManager.Instance.PlayerSlots[i];
+            var slot = playerService.PlayerSlots[i];
             if (!slot) {
                 Debug.LogError($"PlayerSlot {i} not found!");
                 continue;
@@ -156,7 +161,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     }
 
     private void InitializePlayerWithEvents(int playerIndex, PlayerSlot slot) {
-        PlayerProfile profile = GameSessionManager.Instance.PlayerSlots[playerIndex].Profile;
+        PlayerProfile profile = playerService.PlayerSlots[playerIndex].Profile;
         int numberOfMagnetPowerups = 0;
         int numberOfMoveBoosts = 0;
         foreach (var itemDefinition in profile.Inventory.Items) {
@@ -168,7 +173,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
                 numberOfCoinSpawnPowerups++;
             }
         }
-        players[playerIndex].Initialize(playerIndex, slot.Navigator, slot.IsAI, numberOfMagnetPowerups, numberOfMoveBoosts);
+        players[playerIndex].Initialize(playerIndex, slot.InputHandler, slot.IsAI, numberOfMagnetPowerups, numberOfMoveBoosts);
         players[playerIndex].OnCoinCollected += HandleCoinCollected;
         players[playerIndex].OnFallOff += HandlePlayerFall;
     }
@@ -180,7 +185,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
                 continue;
             }
             
-            var slot = GameSessionManager.Instance.PlayerSlots[i];
+            var slot = playerService.PlayerSlots[i];
             if (slot?.Profile != null) {
                 playerCornerDisplays[i].Initialize(slot.Profile, PlayerCornerDisplay.DisplayMode.Score);
             }
@@ -200,7 +205,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
     private void StartCoinSpawning() {
         for (int i = 0; i < coinSpawners.Length; i++) {
             if (coinSpawners[i]) {
-                coinSpawners[i].StartSpawning(gameDurationInSeconds, numberOfCoinSpawnPowerups, GameSessionManager.Instance.PlayerSlots[i].Profile.Inventory.Items);
+                coinSpawners[i].StartSpawning(gameDurationInSeconds, numberOfCoinSpawnPowerups, playerService.GetPlayerProfile(i).Inventory.Items);
             }
         }
     }
@@ -260,7 +265,7 @@ public class CoinTiltMinigameManager : MonoBehaviour, IMinigameManager
         string[] resultsText = new string[4];
         for (int i = 0; i < results.Length; i++) {
             int fundsEarned = results[i].BaseFundsEarned;
-            int currentFunds = GameSessionManager.Instance.PlayerSlots[i].Profile.Wallet.GetCurrentFunds();
+            int currentFunds = playerService.PlayerSlots[i].Profile.Wallet.GetCurrentFunds();
             int newFunds = currentFunds + fundsEarned;
             int place = results[i].PlayerPlace;
             DebugLogger.Log(LogChannel.Systems, $"Player {i}: Score {playerScores[i]}, Rank {place}");

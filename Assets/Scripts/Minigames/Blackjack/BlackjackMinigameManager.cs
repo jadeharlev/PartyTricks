@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Services;
 using UnityEngine;
 
 public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
@@ -47,6 +48,7 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     private int[] playerBets;
     private List<BlackjackPlayerController> playerControllers;
     private List<BlackjackPlayer> players;
+    private IPlayerService playerService;
 
     private BlackjackShoe shoe;
     private bool hasBeenInitialized;
@@ -82,13 +84,14 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     }
 
     private void InitializeVariables() {
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
         shoe = new BlackjackShoe();
         dealer = new BlackjackPlayer();
         players = new List<BlackjackPlayer>();
         playerControllers = new List<BlackjackPlayerController>();
 
         for (var i = 0; i < 4; i++) {
-            PlayerProfile playerProfile = GameSessionManager.Instance.PlayerSlots[i].Profile;
+            PlayerProfile playerProfile = playerService.GetPlayerProfile(i);
             int numOfOddsPowerups = 0;
             foreach (var itemDefinition in playerProfile.Inventory.Items) {
                 if (itemDefinition.Id == "increaseBettingOdds") {
@@ -146,7 +149,7 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     }
 
     private void DeductPlayerBetFunds(int playerIndex) {
-        var slot = GameSessionManager.Instance.PlayerSlots[playerIndex];
+        var slot = playerService.PlayerSlots[playerIndex];
         if (slot?.Profile != null) {
             slot.Profile.Wallet.RemoveFunds(playerBets[playerIndex]);
             DebugLogger.Log(LogChannel.Systems,
@@ -171,8 +174,8 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
         playerControllers.Clear();
 
         for (var i = 0; i < 4; i++) {
-            var slot = GameSessionManager.Instance.PlayerSlots[i];
-            if (slot?.Navigator == null) continue;
+            var slot = playerService.PlayerSlots[i];
+            if (slot?.InputHandler == null) continue;
             SetUpBlackjackPlayerControllerObject(i, slot);
         }
     }
@@ -189,7 +192,7 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     private BlackjackPlayerController SetUpBlackjackPlayerController(int playerIndex, PlayerSlot slot,
         GameObject controllerObject) {
         var controller = controllerObject.AddComponent<BlackjackPlayerController>();
-        controller.Initialize(playerIndex, slot.Navigator, slot.IsAI);
+        controller.Initialize(playerIndex, slot.InputHandler, slot.IsAI);
         controller.OnHit += HandlePlayerHit;
         controller.OnStand += HandlePlayerStand;
         return controller;
@@ -199,7 +202,7 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
         for (var i = 0; i < playerDisplays.Length; i++) {
             playerDisplays[i].UpdatePlayerNumberDisplay(i);
 
-            var slot = GameSessionManager.Instance.PlayerSlots[i];
+            var slot = playerService.PlayerSlots[i];
             var funds = slot?.Profile?.Wallet.GetCurrentFunds() ?? 0;
             playerDisplays[i].UpdateBetLabel(playerBets[i], funds);
             playerDisplays[i].ChangeToPlayerColor(InactiveColor);

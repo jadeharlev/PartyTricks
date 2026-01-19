@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using FMOD.Studio;
 using FMODUnity;
+using Game;
+using Services;
 using UnityEngine;
 using STOP_MODE = FMOD.Studio.STOP_MODE;
 
@@ -11,6 +13,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
     public bool IsDoubleRound { get; private set; }
     private IDireDodgingState currentState;
     public static DireDodgingMinigameManager Instance { get; private set; }
+    private IPlayerService playerService;
 
     [Header("Minigame Settings")] 
     [SerializeField] private int GameTimeoutDurationInSeconds = 25;
@@ -37,6 +40,8 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
         }
 
         Instance = this;
+
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
         this.musicInstance = RuntimeManager.CreateInstance(MusicEvent);
     }
 
@@ -55,7 +60,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
         MinigameTimer.Initialize(GameTimeoutDurationInSeconds, null);
         for (int i = 0; i < Players.Length; i++) {
             if (Players[i] == null) continue;
-            PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
+            PlayerSlot slot = playerService.PlayerSlots[i];
             int increasedHPPowerupCount = 0;
             int increasedAttackSpeedPowerupCount = 0;
             foreach (var itemDefinition in slot.Profile.Inventory.Items) {
@@ -67,13 +72,13 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
                     increasedAttackSpeedPowerupCount++;
                 }
             }
-            Players[i].Initialize(i, slot.Navigator, slot.IsAI, increasedHPPowerupCount, increasedAttackSpeedPowerupCount, IsDoubleRound);
+            Players[i].Initialize(i, slot.InputHandler, slot.IsAI, increasedHPPowerupCount, increasedAttackSpeedPowerupCount, IsDoubleRound);
         }
     }
 
     private void InitializePlayerDisplays() {
         for (int i = 0; i < 4; i++) {
-            var slot = GameSessionManager.Instance.PlayerSlots[i];
+            var slot = playerService.PlayerSlots[i];
             if (slot?.Profile != null) {
                 PlayerCornerDisplays[i].Initialize(slot.Profile, PlayerCornerDisplay.DisplayMode.Eliminations);
             }

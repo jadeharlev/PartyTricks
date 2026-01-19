@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Services;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,8 +9,14 @@ public class BoardProgressDisplay : MonoBehaviour {
     private List<(Texture2D texture, bool isDouble)> minigameList = new();
     [SerializeField] private GameObject ProgressBoardIconPrefab;
     [SerializeField] private GameObject DoubleProgressBoardIconPrefab;
+    private IGameFlowService gameFlowService;
+
+    private void Awake() {
+        gameFlowService = ServiceLocatorAccessor.GetService<IGameFlowService>();
+    }
+
     private void Start() {
-        if (GameFlowManager.Instance == null) {
+        if (gameFlowService == null) {
             Debug.LogWarning("GameFlowManager not instantiated!");
         }
 
@@ -22,14 +30,14 @@ public class BoardProgressDisplay : MonoBehaviour {
     }
 
     private void AddUpcomingMinigames() {
-        List<(MinigameType minigameType, bool isDouble)> upcomingMinigames = GameFlowManager.Instance.GetUpcomingMinigameList();
+        List<(MinigameType minigameType, bool isDouble)> upcomingMinigames = gameFlowService.GetUpcomingMinigameList();
         foreach (var minigame in upcomingMinigames) {
             minigameList.Add((IconMapping.GetIcon(minigame.minigameType, minigame.isDouble, false), minigame.isDouble));
         }
     }
 
     private void AddCompletedMinigames() {
-        List<(MinigameType minigameType, bool isDouble)> completedMinigames = GameFlowManager.Instance.GetCompletedMinigameList();
+        List<(MinigameType minigameType, bool isDouble)> completedMinigames = gameFlowService.GetCompletedMinigameList();
         foreach (var minigame in completedMinigames) {
             minigameList.Add((IconMapping.GetIcon(minigame.minigameType, minigame.isDouble, true), minigame.isDouble));
         }

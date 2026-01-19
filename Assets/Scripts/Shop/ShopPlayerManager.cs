@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Services;
 using UnityEngine;
 
 public class ShopPlayerManager {
@@ -6,11 +7,13 @@ public class ShopPlayerManager {
     private ShopItemUI[] shopItemUIElements;
     private PlayerCornerDisplay[] playerCornerDisplays;
     private List<ShopSlotSelector> activeSelectors = new();
+    private IPlayerService playerService;
 
     public ShopPlayerManager(ShopNavigationService navigationService, ShopItemUI[] shopItemUIElements, PlayerCornerDisplay[] playerCornerDisplays) {
         this.navigationService = navigationService;
         this.shopItemUIElements = shopItemUIElements;
         this.playerCornerDisplays = playerCornerDisplays;
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
     }
 
     public void InitializePlayers() {
@@ -21,16 +24,16 @@ public class ShopPlayerManager {
 
     private void InitializeCornerDisplays() {
         for (int i = 0; i < playerCornerDisplays.Length; i++) {
-            var profile = GameSessionManager.Instance.PlayerSlots[i].Profile;
+            var profile = playerService.PlayerSlots[i].Profile;
             playerCornerDisplays[i].Initialize(profile);
         }
     }
 
     private void CreatePlayerSelectors() {
         activeSelectors.Clear();
-        for (int i = 0; i < GameSessionManager.Instance.PlayerSlots.Length; i++) {
-            PlayerSlot slot = GameSessionManager.Instance.PlayerSlots[i];
-            if (slot.Navigator == null) continue;
+        for (int i = 0; i < playerService.GetPlayerCount(); i++) {
+            PlayerSlot slot = playerService.PlayerSlots[i];
+            if (slot.InputHandler == null) continue;
             var selector = CreateSelector(i, slot);
             activeSelectors.Add(selector);
         }
@@ -39,7 +42,7 @@ public class ShopPlayerManager {
     private ShopSlotSelector CreateSelector(int index, PlayerSlot slot) {
         var selectorObject = new GameObject($"Player_{index}_ShopSlotSelector");
         var selector = selectorObject.AddComponent<ShopSlotSelector>();
-        selector.Initialize(index, slot.Navigator, navigationService, slot.Profile);
+        selector.Initialize(index, slot.InputHandler, navigationService, slot.Profile);
         return selector;
     }
 
@@ -68,6 +71,12 @@ public class ShopPlayerManager {
             selector.CanAct = true;
         }
 		SubscribeToSelectorEvents();
+    }
+
+    public void DisableAllSelectors() {
+        foreach (var selector in activeSelectors) {
+            selector.CanAct = false;
+        }
     }
     
     private void UnsubscribeFromSelectorEvents() {

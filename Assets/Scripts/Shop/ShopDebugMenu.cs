@@ -35,7 +35,7 @@ public class ShopDebugMenu : MonoBehaviour
     }
 
     public void ReturnToMainMenu() {
-        Destroy(GameObject.Find("GameSessionManager"));
+        Destroy(GameObject.Find("PlayerService"));
         Destroy(GameObject.Find("PlayerInputManager"));
         SceneManager.LoadScene("MainMenu");
     }

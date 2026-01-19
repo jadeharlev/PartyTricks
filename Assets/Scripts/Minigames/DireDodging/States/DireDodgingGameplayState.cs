@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Services;
 using UnityEngine;
 
 public class DireDodgingGameplayState : IDireDodgingState {
@@ -11,12 +12,14 @@ public class DireDodgingGameplayState : IDireDodgingState {
     private Camera gameCamera;
     private bool gameShouldEnd => (numberOfAlivePlayers <= 1);
     private bool halfwayPointReached = false;
+    private IPauseService pauseService;
     public DireDodgingGameplayState(MinigameTimer timer, PlayerCornerDisplay[] playerCornerDisplays, Camera camera) {
         this.timer = timer;
         gameCamera = camera;
         timer.OnTimerEnd += OnGameplayEnd;
         timer.OnHalfwayPointReached += OnHalfwayPointReached;
         this.playerCornerDisplays = playerCornerDisplays;
+        pauseService = ServiceLocatorAccessor.GetService<IPauseService>();
     }
 
     private void OnHalfwayPointReached(int remainingTimeInSeconds) {
@@ -70,7 +73,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
         numberOfAlivePlayers--;
         UpdateEliminations(playerIndex);
         gameCamera.DOShakePosition(duration: 0.1f, strength: 0.4f, vibrato: 1, randomness: 90f, fadeOut: false).SetUpdate(true);
-        PauseManager.Instance.DoTimedPause(0.3f, CheckForEndOfGame);
+        pauseService.DoTimedPause(0.3f, CheckForEndOfGame);
     }
 
     private void UpdateEliminations(int playerIndex) {
@@ -89,7 +92,7 @@ public class DireDodgingGameplayState : IDireDodgingState {
         UpdateAllDisplays();
         DireDodgingMinigameManager.Instance.FreezeAllPlayers();
         DireDodgingMinigameManager.Instance.ReturnAllProjectiles();
-        PauseManager.Instance.DoTimedPause(1f, () =>
+        pauseService.DoTimedPause(1f, () =>
         {
             DireDodgingMinigameManager.Instance.TransitionToResults(playerPlaces, playerKills); 
         });

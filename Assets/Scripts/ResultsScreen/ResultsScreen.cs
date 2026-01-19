@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Services;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,6 +14,11 @@ public class ResultsScreen : MonoBehaviour {
     [SerializeField] private ResultsScreenPlacesDisplay ResultsScreenPlacesDisplay;
     private int playerWinnerIndex;
     private int[] playerFunds;
+    private IPlayerService playerService;
+
+    private void Awake() {
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
+    }
 
     public void ReturnToMainMenu() {
         ResetProfiles();
@@ -20,7 +26,7 @@ public class ResultsScreen : MonoBehaviour {
     }
 
     private void ResetProfiles() {
-        PlayerSlot[] playerSlots = GameSessionManager.Instance.PlayerSlots;
+        PlayerSlot[] playerSlots = playerService.PlayerSlots as PlayerSlot[];
         foreach (var playerSlot in playerSlots) {
             playerSlot.Profile.Reset();
         }
@@ -36,7 +42,7 @@ public class ResultsScreen : MonoBehaviour {
     private void GetWinner() {
         int max = Int32.MinValue;
         for (int i = 0; i < 4; i++) {
-            playerFunds[i] = GameSessionManager.Instance.PlayerSlots[i].Profile.Wallet.GetCurrentFunds();
+            playerFunds[i] = playerService.GetPlayerProfile(i).Wallet.GetCurrentFunds();
             if (playerFunds[i] > max) {
                 max = playerFunds[i];
                 playerWinnerIndex = i;

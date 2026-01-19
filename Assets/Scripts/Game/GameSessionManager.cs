@@ -1,64 +1,72 @@
 using System;
+using Services;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
-public class GameSessionManager : MonoBehaviour
-{
-   public static GameSessionManager Instance { get; private set; }
+namespace Game {
+    public class GameSessionManager : MonoBehaviour {
+        private IPlayerService playerService;
+        private UnityEngine.InputSystem.PlayerInputManager unityInputManager;
+        
+        // used to handle cleanup
+        private bool isQuitting = false;
+    
+        private void Awake() {
+            playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
+            unityInputManager = GetComponent<UnityEngine.InputSystem.PlayerInputManager>();
 
-   [Header("Pause Settings")] [SerializeField]
-   private GameObject pauseMenuPrefab;
-   
-   public PlayerSlot[] PlayerSlots = new PlayerSlot[4];
-   private PlayerSlotManager playerSlotManager;
-   private DeviceDisconnectService deviceDisconnectService;
-   public Action<PlayerInput> OnPlayerJoined;
+            if (playerService == null) {
+                DebugLogger.Log(LogChannel.Systems, "No PlayerService found", LogLevel.Error);
+                enabled = false;
+                return;
+            }
+            
+            if (unityInputManager == null) {
+                DebugLogger.Log(LogChannel.Systems, "No PlayerInputManager found", LogLevel.Error);
+                enabled = false;
+                return;
+            }
 
-   private void OnEnable() {
-      InputSystem.onDeviceChange += deviceDisconnectService.OnDeviceChange;
-      SceneManager.sceneLoaded += SceneObserver.OnSceneLoaded;
-   }
+            ConfigureInputManager();
+        }
 
-   private void OnDisable() {
-      InputSystem.onDeviceChange -= deviceDisconnectService.OnDeviceChange;
-      SceneManager.sceneLoaded -= SceneObserver.OnSceneLoaded;
-   }
+        private void ConfigureInputManager() {
+            unityInputManager.joinBehavior = PlayerJoinBehavior.JoinPlayersWhenButtonIsPressed;
+            unityInputManager.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
+        }
 
-   private void Awake() {
-      if (Instance != null && Instance != this) {
-         Destroy(gameObject);
-         return;
-      }
-      Instance = this;
-      DontDestroyOnLoad(gameObject);
-      playerSlotManager = new PlayerSlotManager(PlayerSlots);
-      foreach (var playerSlot in PlayerSlots) {
-         var profile = new PlayerProfile(300);
-         playerSlot.AssignProfile(profile);
-      }
-      deviceDisconnectService = new DeviceDisconnectService();
-      SetUpPauseManager();
-   }
+        private void OnEnable() {
+            unityInputManager.onPlayerJoined += HandlePlayerJoined;
+            unityInputManager.onPlayerLeft += HandlePlayerLeft;
+        }
+        
+        private void OnDisable() {
+            unityInputManager.onPlayerJoined -= HandlePlayerJoined;
+            unityInputManager.onPlayerLeft -= HandlePlayerLeft;
+        }
+        
+        public void HandlePlayerJoined(PlayerInput playerInput) {
+            Debug.Log($"[GameSessionManager] Unity PlayerInput detected: {playerInput.playerIndex}");
+            bool playerJoined = playerService.TryJoinPlayer(playerInput);
+            if (!playerJoined) {
+                Debug.LogWarning("[GameSessionManager] Failed to join player");
+            }
+        }
+        
+        public void HandlePlayerLeft(PlayerInput playerInput) {
+            if (isQuitting) return;
+            Debug.Log($"[GameSessionManager] Unity PlayerInput left: {playerInput.playerIndex}");
+            for (int i = 0; i < playerService.PlayerSlots.Count; i++) {
+                var slot = playerService.PlayerSlots[i];
+                if (slot.PlayerInput == playerInput) {
+                    playerService.RemovePlayer(i);
+                    break;
+                }
+            }
+        }
 
-   private void SetUpPauseManager() {
-      if (PauseManager.Instance == null) {
-         GameObject pauseManagerObject = new GameObject("PauseManager");
-         pauseManagerObject.transform.SetParent(transform);
-         var pauseManager = pauseManagerObject.AddComponent<PauseManager>();
-         if (pauseMenuPrefab != null) {
-            pauseManager.SetPauseMenuPrefab(pauseMenuPrefab);
-         }
-         else {
-            Debug.LogWarning("GameSessionManager: pauseMenuPrefab is not assigned.");
-         }
-      }
-   }
-
-
-   public void HandlePlayerJoin(PlayerInput playerInput) {
-      playerSlotManager.AssignPlayer(playerInput);
-      OnPlayerJoined?.Invoke(playerInput);
-   }
-
+        private void OnApplicationQuit() {
+            isQuitting = true;
+        }
+    }
 }

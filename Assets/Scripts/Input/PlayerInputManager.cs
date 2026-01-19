@@ -13,7 +13,6 @@ public class PlayerInputManager : MonoBehaviour {
     private void Awake() {
         if (initialized) return;
         initialized = true;
-        DontDestroyOnLoad(this);
         if (this.mode == Mode.UI) {
             InputSystem.actions.FindActionMap("Player").Disable();
             InputSystem.actions.FindActionMap("UI").Enable();

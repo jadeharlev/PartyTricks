@@ -1,3 +1,4 @@
+using Services;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,7 @@ public class DebugMenu : MonoBehaviour {
     private InputAction toggleDebugMenuAction;
     private Rect windowRect = new Rect(20, 20, 300, 800);
     private bool isDoubleRound = false;
+    private IPlayerService playerService;
 
     private void Awake() {
         if (instance != null && instance != this) {
@@ -22,6 +24,7 @@ public class DebugMenu : MonoBehaviour {
         if (toggleDebugMenuAction == null) {
             Debug.LogWarning("DebugMenu: ToggleDebugMenu action not found. Debug menu will not be toggleable.");
         }
+        playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
     }
 
     private void Update() {
@@ -113,12 +116,12 @@ public class DebugMenu : MonoBehaviour {
     }
 
     private void RandomizeAllPlayerFunds() {
-        if (GameSessionManager.Instance == null) {
-            Debug.LogWarning("Debug Menu: GameSessionManager not found.");
+        if (playerService == null) {
+            Debug.LogWarning("Debug Menu: PlayerService not found.");
             return;
         }
 
-        foreach (var slot in GameSessionManager.Instance.PlayerSlots) {
+        foreach (var slot in playerService.PlayerSlots) {
             if (slot?.Profile != null) {
                 Wallet wallet = slot.Profile.Wallet;
                 int currentFunds = wallet.GetCurrentFunds();
@@ -134,11 +137,11 @@ public class DebugMenu : MonoBehaviour {
         SceneManager.sceneLoaded += OnDireDodgingSceneLoaded;
     }
 
-    private static void DisplayPlayerFunds() {
-        if (GameSessionManager.Instance != null) {
+    private void DisplayPlayerFunds() {
+        if (playerService != null) {
             GUILayout.Space(5);
-            for (int i = 0; i < GameSessionManager.Instance.PlayerSlots.Length; i++) {
-                var slot = GameSessionManager.Instance.PlayerSlots[i];
+            for (int i = 0; i < playerService.GetPlayerCount(); i++) {
+                var slot = playerService.PlayerSlots[i];
                 if (slot?.Profile != null) {
                     int funds = slot.Profile.Wallet.GetCurrentFunds();
                     string aiLabel = slot.IsAI ? " (AI)" : "";
@@ -205,12 +208,12 @@ public class DebugMenu : MonoBehaviour {
     }
 
     private void AddFundsToAllPlayers(int amount) {
-        if (GameSessionManager.Instance == null) {
-            Debug.LogWarning("Debug Menu: GameSessionManager not found.");
+        if (playerService == null) {
+            Debug.LogWarning("Debug Menu: PlayerService not found.");
             return;
         }
 
-        foreach (var slot in GameSessionManager.Instance.PlayerSlots) {
+        foreach (var slot in playerService.PlayerSlots) {
             if (slot?.Profile != null) {
                 slot.Profile.Wallet.AddFunds(amount);
             }
@@ -220,12 +223,12 @@ public class DebugMenu : MonoBehaviour {
     }
 
     private void ResetAllPlayerFunds() {
-        if (GameSessionManager.Instance == null) {
-            Debug.LogWarning("Debug Menu: GameSessionManager not found.");
+        if (playerService == null) {
+            Debug.LogWarning("Debug Menu: PlayerService not found.");
             return;
         }
 
-        foreach (var slot in GameSessionManager.Instance.PlayerSlots) {
+        foreach (var slot in playerService.PlayerSlots) {
             if (slot?.Profile != null) {
                 slot.Profile.Wallet.Reset();
             }

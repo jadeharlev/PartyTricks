@@ -1,25 +1,24 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Services;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameFlowManager : MonoBehaviour {
-    public static GameFlowManager Instance { get; private set; }
+public class GameFlowManager : MonoBehaviour, IGameFlowService {
     [SerializeField] private MinigameConfigSO config;
     [SerializeField] private int initialGameLength = 5;
     [SerializeField] private GameObject gameBoardDisplayPrefab;
+    
     private GameBoardGenerator boardGenerator;
     private GameBoardDisplay currentBoardDisplay;
+    private IEconomyService economyService;
     private int currentRoundIndex = -1;
     private List<(MinigameType minigameType, bool IsDouble)> gameBoard;
     private bool GameIsOver => currentRoundIndex >= gameBoard.Count;
+    
     private void Awake() {
-        if (Instance != null && Instance != this) {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        economyService = ServiceLocatorAccessor.GetService<IEconomyService>();
         boardGenerator = new GameBoardGenerator(initialGameLength);
     }
 
@@ -28,11 +27,6 @@ public class GameFlowManager : MonoBehaviour {
         gameBoard = boardGenerator.GameBoard;
         currentRoundIndex = 0;
         DebugLogger.Log(LogChannel.Systems, $"Game started. Board generated with {gameBoard.Count} rounds.");
-        Debug.Log("Displaying game board:");
-        foreach (var valueTuple in gameBoard) {
-            Debug.Log(valueTuple);
-        }
-
         ShowGameBoardDisplay();
     }
 
@@ -49,7 +43,6 @@ public class GameFlowManager : MonoBehaviour {
         }
         else {
             Debug.LogError("GameBoardDisplay component missing from prefab.");
-            return;
         }
     }
 
@@ -94,6 +87,7 @@ public class GameFlowManager : MonoBehaviour {
         if (minigameManager != null) {
             minigameManager.OnMinigameFinished += ProcessMinigameResults;
             var currentRoundDefinition = GetCurrentRoundDefinition();
+            // TODO clean up
             switch (minigameManager) {
                 case TestMinigameManager testManager:
                     testManager.Initialize(currentRoundDefinition.IsDouble);
@@ -125,14 +119,9 @@ public class GameFlowManager : MonoBehaviour {
         if (minigameManager != null) {
             minigameManager.OnMinigameFinished -= ProcessMinigameResults;
         }
-
-        if (EconomyService.Instance != null) {
-            EconomyService.Instance.ApplyRewards(results);
-        }
-        else {
-            Debug.LogError("GameFlowManager: EconomyService not found.");
-        }
         
+        economyService.ApplyRewards(results);
+
         DebugLogger.Log(LogChannel.Systems, "Minigame finished, results processed. Transitioning back to shop.");
         currentRoundIndex++;
         if (GameIsOver) {

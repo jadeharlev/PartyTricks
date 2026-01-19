@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Services;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -13,6 +15,11 @@ public class MainMenu : MonoBehaviour {
     private Button quitButton;
     private bool hasFocused;
     private InputAction navigateAction;
+    private IGameFlowService gameFlowService;
+
+    private void Awake() {
+        gameFlowService = ServiceLocatorAccessor.GetService<IGameFlowService>();
+    }
 
     private void Start()
     {
@@ -55,8 +62,8 @@ public class MainMenu : MonoBehaviour {
     }
 
     private void StartGame() {
-        if (GameFlowManager.Instance != null) {
-            GameFlowManager.Instance.StartGame();
+        if (gameFlowService != null) {
+            gameFlowService.StartGame();
         }
         else {
             Debug.LogError("MainMenu: GameFlowManager not found.");

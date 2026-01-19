@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Services;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -12,9 +13,23 @@ public class Shop : MonoBehaviour {
     private ShopPlayerManager playerManager;
     private ShopNavigationService shopNavigationService;
     private ShopPurchaseService shopPurchaseService;
+    private IGameFlowService gameFlowService;
+    private IPauseService pauseService;
     public int GridRows = 2;
     public int GridColumns = 2;
     public int ShopDurationInSeconds = 10;
+
+    private void Awake() {
+        gameFlowService = GlobalServiceLocator.Instance.GetService<IGameFlowService>();
+        pauseService = GlobalServiceLocator.Instance.GetService<IPauseService>();
+        if (pauseService != null) {
+            pauseService.OnPause += OnPause;
+            pauseService.OnUnpause += OnUnpause;
+        }
+    }
+    
+    private void OnPause() => playerManager?.DisableAllSelectors();
+    private void OnUnpause() => playerManager?.EnableAllSelectors();
 
     private void Start() {
         InitializeComponents();
@@ -37,7 +52,7 @@ public class Shop : MonoBehaviour {
     
     private void OnShopTimerEnd() {
         shopPurchaseService.ResolvePurchases(playerManager.GetSelectors(), ShopItemUIElements);
-        if (GameFlowManager.Instance != null) {
+        if (gameFlowService != null) {
             StartCoroutine(WaitAndThenMoveToNextMinigame());
         }
         else {
@@ -48,7 +63,7 @@ public class Shop : MonoBehaviour {
     private IEnumerator WaitAndThenMoveToNextMinigame() {
         int numberOfSecondsToWait = 5;
         yield return new WaitForSeconds(numberOfSecondsToWait);
-        GameFlowManager.Instance.OnShopEnd();
+        gameFlowService.OnShopEnd();
     }
 
     public void Reset() {
@@ -65,5 +80,9 @@ public class Shop : MonoBehaviour {
     private void OnDestroy() {
         CountdownTimer.OnTimerEnd -= OnShopTimerEnd;
         playerManager?.Cleanup();
+        if (pauseService != null) {
+            pauseService.OnPause -= OnPause;
+            pauseService.OnUnpause -= OnUnpause;
+        }
     }
 }

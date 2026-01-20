@@ -17,6 +17,7 @@ namespace Services {
             CreatePlayerService();
             CreateEconomyService();
             CreatePauseService();
+            CreatePowerUpService();
             CreateGameFlowManager();
             CreateGameSessionManager();
         }
@@ -83,6 +84,15 @@ namespace Services {
             else {
                 Debug.LogError($"Missing IPauseService component!");
             }
+        }
+        
+        private void CreatePowerUpService() {
+            // no prefab here since there's no extra configuration necessary
+            GameObject powerUpServiceObject = new GameObject("PowerUpService");
+            powerUpServiceObject.transform.SetParent(transform);
+            powerUpServiceObject.AddComponent<PowerUpService>();
+            var service = powerUpServiceObject.GetComponent<IPowerUpService>();
+            ServiceLocatorAccessor.RegisterGlobal<IPowerUpService>(service);
         }
 
         private void CreateGameFlowManager() {

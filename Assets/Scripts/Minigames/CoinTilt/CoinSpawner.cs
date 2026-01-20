@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using CoreData;
+using Services;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -32,7 +35,12 @@ public class CoinSpawner : MonoBehaviour {
     private bool powerupsHaveBeenApplied = false;
     private float increasedSpecialCoinRateModifier = 1;
     private readonly List<GameObject> activeCoins = new();
-    
+    private IPowerUpService powerUpService;
+
+    private void Awake() {
+        powerUpService = ServiceLocatorAccessor.GetService<IPowerUpService>();
+    }
+
     private void Update() {
         if (!isSpawning) return;
         
@@ -49,12 +57,9 @@ public class CoinSpawner : MonoBehaviour {
     }
 
     public void StartSpawning(float durationInSeconds, int numberOfCoinSpawnPowerups,
-        IReadOnlyList<ItemDefinition> inventoryItems) {
-        foreach (var itemDefinition in inventoryItems) {
-            if (itemDefinition.Id == "increasedSpecialCoinRate") {
-                increasedSpecialCoinRateModifier++;
-            }
-        }
+        PlayerProfile playerProfile) {
+        MovementModifiers modifiers = powerUpService.GetMovementModifiers(playerProfile);
+        increasedSpecialCoinRateModifier = 1 + modifiers.SpecialCoinRateBoostCount;
         if (!powerupsHaveBeenApplied) {
             float spawnRateMultiplier = 1;
             for (int i = 0; i < numberOfCoinSpawnPowerups; i++) {
@@ -135,7 +140,7 @@ public class CoinSpawner : MonoBehaviour {
 
     private void InitializeAndTrackCoin(GameObject coinObject, CoinTypeSO coinType) {
         Coin coin = coinObject.GetComponent<Coin>();
-        if(!coin) coin.InitializeWithType(coinType);
+        if(coin) coin.InitializeWithType(coinType);
         activeCoins.Add(coinObject);
         
         if (coinLifetimeInSeconds > 0) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using CoreData;
 using FMOD.Studio;
 using FMODUnity;
 using Game;
@@ -14,6 +15,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
     private IDireDodgingState currentState;
     public static DireDodgingMinigameManager Instance { get; private set; }
     private IPlayerService playerService;
+    private IPowerUpService powerUpService;
 
     [Header("Minigame Settings")] 
     [SerializeField] private int GameTimeoutDurationInSeconds = 25;
@@ -42,6 +44,7 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
         Instance = this;
 
         playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
+        powerUpService = ServiceLocatorAccessor.GetService<IPowerUpService>();
         this.musicInstance = RuntimeManager.CreateInstance(MusicEvent);
     }
 
@@ -61,17 +64,9 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
         for (int i = 0; i < Players.Length; i++) {
             if (Players[i] == null) continue;
             PlayerSlot slot = playerService.PlayerSlots[i];
-            int increasedHPPowerupCount = 0;
-            int increasedAttackSpeedPowerupCount = 0;
-            foreach (var itemDefinition in slot.Profile.Inventory.Items) {
-                if (itemDefinition.Id == "increasedHP") {
-                    increasedHPPowerupCount++;
-                }
-
-                if (itemDefinition.Id == "increasedAttackSpeed") {
-                    increasedAttackSpeedPowerupCount++;
-                }
-            }
+            CombatModifiers modifiers = powerUpService.GetCombatModifiers(slot.Profile);
+            int increasedHPPowerupCount = modifiers.IncreasedHPCount;
+            int increasedAttackSpeedPowerupCount = modifiers.IncreasedAttackSpeedCount;
             Players[i].Initialize(i, slot.InputHandler, slot.IsAI, increasedHPPowerupCount, increasedAttackSpeedPowerupCount, IsDoubleRound);
         }
     }

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using CoreData;
 using Services;
+using UnityEditor;
 using UnityEngine;
 
 public class BetPlayerManager {
@@ -8,11 +10,13 @@ public class BetPlayerManager {
     private Dictionary<int, int> playerBets = new();
     private PlayerCornerDisplay[] playerCornerDisplays;
     private IPlayerService playerService;
+    private IPowerUpService powerUpService;
     
     public BetPlayerManager(BetCard[] betCards, PlayerCornerDisplay[] playerCornerDisplays) {
         this.betCards = betCards;
         this.playerCornerDisplays = playerCornerDisplays;
         playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
+        powerUpService = ServiceLocatorAccessor.GetService<IPowerUpService>();
     }
 
     public void InitializePlayers() {
@@ -69,10 +73,9 @@ public class BetPlayerManager {
     private int GetMaxBet(PlayerProfile profile) {
         int currentFunds = profile.Wallet.GetCurrentFunds();
         int maxFundsToBet = currentFunds;
-        foreach (var itemDefinition in profile.Inventory.Items) {
-            if (itemDefinition.Id == "increaseBettingAmounts") {
-                maxFundsToBet = Mathf.RoundToInt(1.5f*maxFundsToBet);
-            }
+        GamblingModifiers modifiers = powerUpService.GetGamblingModifiers(profile);
+        for (int i = 0; i < modifiers.BettingAmountBoostCount; i++) {
+            maxFundsToBet = Mathf.RoundToInt(1.5f * maxFundsToBet);
         }
         return Mathf.Max(maxFundsToBet, 50);
     }

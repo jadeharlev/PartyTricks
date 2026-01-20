@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using CoreData;
 using Services;
 using UnityEngine;
 
@@ -49,6 +50,7 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
     private List<BlackjackPlayerController> playerControllers;
     private List<BlackjackPlayer> players;
     private IPlayerService playerService;
+    private IPowerUpService powerUpService;
 
     private BlackjackShoe shoe;
     private bool hasBeenInitialized;
@@ -85,6 +87,7 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
 
     private void InitializeVariables() {
         playerService = ServiceLocatorAccessor.GetService<IPlayerService>();
+        powerUpService = ServiceLocatorAccessor.GetService<IPowerUpService>();
         shoe = new BlackjackShoe();
         dealer = new BlackjackPlayer();
         players = new List<BlackjackPlayer>();
@@ -92,12 +95,8 @@ public class BlackjackMinigameManager : MonoBehaviour, IGamblingMinigame {
 
         for (var i = 0; i < 4; i++) {
             PlayerProfile playerProfile = playerService.GetPlayerProfile(i);
-            int numOfOddsPowerups = 0;
-            foreach (var itemDefinition in playerProfile.Inventory.Items) {
-                if (itemDefinition.Id == "increaseBettingOdds") {
-                    numOfOddsPowerups++;
-                }
-            }
+            GamblingModifiers modifiers = powerUpService.GetGamblingModifiers(playerProfile);
+            int numOfOddsPowerups = modifiers.BettingOddsBoostCount;
             players.Add(new BlackjackPlayer(numOfOddsPowerups));
         }
     }

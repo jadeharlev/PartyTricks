@@ -5,4 +5,5 @@ public interface IMinigameManager {
     public event Action<PlayerMinigameResult[]> OnMinigameFinished;
     // is this a double length / double points round?
     public bool IsDoubleRound { get; }
+    public void Initialize(bool isDoubleRound);
 }

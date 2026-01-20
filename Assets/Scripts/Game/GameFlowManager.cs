@@ -87,21 +87,7 @@ public class GameFlowManager : MonoBehaviour, IGameFlowService {
         if (minigameManager != null) {
             minigameManager.OnMinigameFinished += ProcessMinigameResults;
             var currentRoundDefinition = GetCurrentRoundDefinition();
-            // TODO clean up
-            switch (minigameManager) {
-                case TestMinigameManager testManager:
-                    testManager.Initialize(currentRoundDefinition.IsDouble);
-                    break;
-                case BlackjackMinigameManager blackjackManager:
-                    blackjackManager.Initialize(currentRoundDefinition.IsDouble);
-                    break;
-                case CoinTiltMinigameManager coinTiltMinigameManager:
-                    coinTiltMinigameManager.Initialize(currentRoundDefinition.IsDouble);
-                    break;
-                case DireDodgingMinigameManager direDodgingMinigameManager:
-                    direDodgingMinigameManager.Initialize(currentRoundDefinition.IsDouble);
-                    break;
-            }
+            minigameManager.Initialize(currentRoundDefinition.IsDouble);
         }
         else {
             Debug.LogError($"GameFlowManager: Couldn't find minigame manager for scene {scene.name}");

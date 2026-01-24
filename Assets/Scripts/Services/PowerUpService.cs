@@ -53,5 +53,18 @@ namespace Services {
             }
             return combatModifiers;
         }
+
+        public ShopModifiers GetShopModifiers(PlayerProfile playerProfile) {
+            int shopDiscountCount = 0;
+            foreach (var item in playerProfile.Inventory.Items) {
+                switch (item.Id) {
+                    case "shopDiscount":
+                        shopDiscountCount++;
+                        break;
+                }
+            }
+
+            return new ShopModifiers(shopDiscountCount);
+        }
     }
 }

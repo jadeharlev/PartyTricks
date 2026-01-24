@@ -9,10 +9,9 @@ public class ItemDefinition {
     public string Description { get; }
     public bool IsTemporary { get; }
     public int NumberOfUsesIfApplicable { get; }
-    public PowerUpEffect PowerUpEffect { get; }
 
     public ItemDefinition(Sprite image, string id, string displayName, int cost, PowerUpCategory category, string description,
-        bool isTemporary, int numberOfUsesIfApplicable, PowerUpEffect PowerUpEffect) {
+        bool isTemporary, int numberOfUsesIfApplicable) {
         this.Image = image;
         Id = id;
         DisplayName = displayName;
@@ -21,6 +20,5 @@ public class ItemDefinition {
         Description = description;
         IsTemporary = isTemporary;
         NumberOfUsesIfApplicable = numberOfUsesIfApplicable;
-        this.PowerUpEffect = PowerUpEffect;
     }
 }

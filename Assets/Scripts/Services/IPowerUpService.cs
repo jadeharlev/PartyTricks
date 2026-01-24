@@ -5,5 +5,6 @@ namespace Services {
         GamblingModifiers GetGamblingModifiers(PlayerProfile playerProfile);
         MovementModifiers GetMovementModifiers(PlayerProfile playerProfile);
         CombatModifiers GetCombatModifiers(PlayerProfile playerProfile);
+        ShopModifiers GetShopModifiers(PlayerProfile playerProfile);
     }
 }

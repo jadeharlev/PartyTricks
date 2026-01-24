@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CoreData;
 using Services;
 using UnityEngine;
 
@@ -18,13 +19,10 @@ public class ShopPurchaseService {
         PlayerProfile profile = playerService.GetPlayerProfile(playerSelector.PlayerIndex);
         ShopItemUI item = shopItems[index];
         
-        int cost = item.GetItemCost();
-        int finalCost = cost;
-        foreach (var itemDefinition in profile.Inventory.Items) {
-            if (itemDefinition.PowerUpEffect != null) {
-                finalCost = itemDefinition.PowerUpEffect.ApplyCostDiscount(finalCost);
-            }
-        }
+        int baseCost = item.GetItemCost();
+        var powerUpService = ServiceLocatorAccessor.GetService<IPowerUpService>();
+        ShopModifiers shopModifiers = powerUpService.GetShopModifiers(profile);
+        int finalCost = shopModifiers.ApplyDiscount(baseCost);
         bool purchaseSuccess = profile.Wallet.Buy(finalCost);
         if (purchaseSuccess) {
             profile.Inventory.AddItem(item.GetItem().ToDefinition());

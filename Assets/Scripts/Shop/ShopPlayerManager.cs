@@ -54,11 +54,12 @@ public class ShopPlayerManager {
         }
     }
 
-    private void HandleLockChanged(ShopSlotSelector selector, bool locked) {
+    private void HandleLockChanged(SelectionController controller, bool locked) {
+        ShopSlotSelector selector = (ShopSlotSelector)controller;
         shopItemUIElements[selector.CurrentShopItemIndex].OnPointedTo(selector.PlayerIndex, true, locked);
     }
 
-    private void HandleSelectionChanged(ShopSlotSelector selector, int newIndex) {
+    private void HandleSelectionChanged(SelectionController selector, int newIndex) {
         for (int i = 0; i < shopItemUIElements.Length; i++) {
             bool isSelected = (i == newIndex);
             shopItemUIElements[i].OnPointedTo(selector.PlayerIndex, isSelected, selector.IsLocked);

@@ -136,7 +136,7 @@ public class BetPlayerManager {
     
     public List<BetSelector> GetSelectors() => activeSelectors;
     
-    private void HandleLockChanged(BetSelector selector, bool locked) {
+    private void HandleLockChanged(SelectionController selector, bool locked) {
         int playerIndex = selector.PlayerIndex;
         var card = betCards[playerIndex];
         if(locked) {
@@ -150,7 +150,7 @@ public class BetPlayerManager {
         }
     }
 
-    private void HandleSelectionChanged(BetSelector selector, int betDelta) {
+    private void HandleSelectionChanged(SelectionController selector, int betDelta) {
         int playerIndex = selector.PlayerIndex;
         int currentBet = playerBets[playerIndex];
         int maxBetAllowed = GetMaxBet(selector.Profile);

@@ -61,7 +61,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.navigator = inputHandler;
         this.isAI = isAI;
         this.inputEnabled = false;
-        spriteHalfWidth = SpriteRenderer.bounds.size.x;
+        spriteHalfWidth = SpriteRenderer.bounds.size.x / 2f; // We only need the width from the center of the sprite to the edge
         spriteHalfHeight = SpriteRenderer.bounds.extents.y + 0.4f; // offset added for health bar
         
         InitializePools();
@@ -143,6 +143,14 @@ public class DireDodgingPlayer : MonoBehaviour {
                 MoveDown();
                 break;
         }
+        switch (input.x) {
+            case > 0:
+                MoveRight();
+                break;
+            case < 0:
+                MoveLeft();
+                break;
+        }
     }
 
     private void MoveUp() {
@@ -156,6 +164,20 @@ public class DireDodgingPlayer : MonoBehaviour {
         var vector3 = Rigidbody2D.position;
         vector3.y -= maxMoveSpeed * Time.fixedDeltaTime;
         vector3.y = ClampYPosition(vector3.y);
+        Rigidbody2D.MovePosition(vector3);
+    }
+
+    private void MoveRight() {
+        var vector3 = Rigidbody2D.position;
+        vector3.x += maxMoveSpeed * Time.fixedDeltaTime;
+        vector3.x = ClampXPosition(vector3.x);
+        Rigidbody2D.MovePosition(vector3);
+    }
+
+    private void MoveLeft() {
+        var vector3 = Rigidbody2D.position;
+        vector3.x -= maxMoveSpeed * Time.fixedDeltaTime;
+        vector3.x = ClampXPosition(vector3.x);
         Rigidbody2D.MovePosition(vector3);
     }
 
@@ -194,6 +216,12 @@ public class DireDodgingPlayer : MonoBehaviour {
         float screenBottom = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, 0)).y;
         float screenTop = mainCamera.ScreenToWorldPoint(new Vector3(0, Screen.height, 0)).y;
         return Mathf.Clamp(yPosition, screenBottom + spriteHalfHeight, screenTop - spriteHalfHeight);
+    }
+
+    private float ClampXPosition(float xPosition) {
+        float screenLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, 0)).x;
+        float screenRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, 0, 0)).x;
+        return Mathf.Clamp(xPosition, screenLeft + spriteHalfWidth, screenRight - spriteHalfWidth);
     }
 
     private void ShootRight() {

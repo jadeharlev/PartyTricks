@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -37,6 +38,12 @@ public class DireDodgingProjectile : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("ProjectileDespawnBounds")) {
+            ReturnToPool();
+        }
+    }
+    
+    private void OnCollisionEnter2D(Collision2D collision) {
+        if (collision.gameObject.CompareTag("Wall")) {
             ReturnToPool();
         }
     }

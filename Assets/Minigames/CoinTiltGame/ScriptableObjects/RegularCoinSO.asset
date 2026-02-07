@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e18cf73cac78945ae9f3072f7d6ec54b, type: 3}
-  m_Name: DoubleCoin
+  m_Name: RegularCoinSO
   m_EditorClassIdentifier: Game::CoinTypeSO
-  PointValue: 3
-  SpawnWeight: 0.2
-  CoinPrefab: {fileID: 106878366476334893, guid: 33c50abacd2724706af14b49dff0bc43, type: 3}
-  IsSpecialCoin: 1
+  PointValue: 1
+  SpawnWeight: 1
+  CoinPrefab: {fileID: 106878366476334893, guid: 5732919b5cc02457b8c0e1ad8ce6b325, type: 3}

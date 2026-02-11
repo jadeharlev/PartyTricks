@@ -8,7 +8,9 @@ public class DireDodgingHealthBar : MonoBehaviour {
         this.baseScale = transform.localScale;
     }
 
-    public void UpdateDisplay(float currentHealth, float maxHealth) {
+    public void UpdateDisplay(float currentHealth, float maxHealth)
+    {
+        if (currentHealth < 0) currentHealth = 0;
         transform.DOScale(new Vector3(currentHealth / maxHealth, baseScale.y, baseScale.z), 0.25f).SetUpdate(true);
     }
 }

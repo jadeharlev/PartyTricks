@@ -5,4 +5,9 @@ public interface IDirectionalTwoButtonInputHandler {
     bool SelectIsPressed();
     bool CancelIsPressed();
     bool IsActive();
+    
+    // Add these for charged attack
+    bool ChargeIsPressed();
+    bool ChargeIsHeld();
+    bool ChargeIsReleased();
 }

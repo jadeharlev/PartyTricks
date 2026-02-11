@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -27,6 +28,14 @@ public class DireDodgingPlayer : MonoBehaviour {
     [SerializeField] private Transform PoolParent;
     [SerializeField] private DireDodgingHealthBar HealthBar;
     
+    private bool isCharging = false;
+    private float chargeStartTime = 0f;
+    private float chargeTimeRequired = 2f;
+    private float chargedProjectileScale = 2f;
+    private float chargedProjectileSpeed = 2f;
+    private Coroutine shootingCoroutineInstance = null;
+    private Vector2 lastMoveDirection = Vector2.right;
+    
     private int playerIndex;
     private Sequence colorChangeSequence;
     private Color baseColor;
@@ -36,15 +45,22 @@ public class DireDodgingPlayer : MonoBehaviour {
     private bool isAlive = true;
     private ObjectPool<DireDodgingProjectile>[] projectilePools;
     private List<DireDodgingProjectile> activeProjectiles = new();
+    
+    private bool isGhostMode = false;
+    private float ghostChargeTime = 1f;
+    private float ghostProjectileSpeed = 1.2f;
 
     private Coroutine damageCoroutineInstance = null;
     private Coroutine intensityCoroutineInstance = null;
     private Camera mainCamera;
     private readonly Quaternion leftRotation = Quaternion.Euler(0, 0, 90);
     private readonly Quaternion rightRotation = Quaternion.Euler(0, 0, 270);
+    private readonly Quaternion upRotation = Quaternion.Euler(0, 0, 0);
+    private readonly Quaternion downRotation = Quaternion.Euler(0, 0, 180);
     private EventReference hitEvent;
     private EventReference deathEvent;
-
+    
+    
     private void Awake() {
         baseColor = SpriteRenderer.color;
     }
@@ -61,7 +77,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.navigator = inputHandler;
         this.isAI = isAI;
         this.inputEnabled = false;
-        spriteHalfWidth = SpriteRenderer.bounds.size.x;
+        spriteHalfWidth = SpriteRenderer.bounds.size.x / 2f;
         spriteHalfHeight = SpriteRenderer.bounds.extents.y + 0.4f; // offset added for health bar
         
         InitializePools();
@@ -117,21 +133,143 @@ public class DireDodgingPlayer : MonoBehaviour {
     public void EnableInput() {
         inputEnabled = true;
     }
-
+    
     public void StartShooting() {
-        StartCoroutine(ShootingCoroutine());
+        if (shootingCoroutineInstance == null) {
+            shootingCoroutineInstance = StartCoroutine(ShootingCoroutine());
+        }
+    }
+
+    private void Update() {
+        HandleCharging(); 
+    }
+
+    private void FixedUpdate() {
+        HandleInput();
     }
     
-    private void FixedUpdate()
-    {
-        if (!isAlive) return;
-        HandleInput();
+    
+    private void ShootRight() {
+        var projectile = projectilePools[1].Get();
+        Vector2 position = transform.position;
+        position.x += spriteHalfWidth;
+        projectile.transform.position = position;
+        projectile.transform.rotation = rightRotation;
+        projectile.transform.localScale = Vector3.one * projectileScale;
+    
+        // Pass Vector2.right for direction
+        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, Vector2.right);
+    }
+    
+    private void ShootLeft() {
+        var projectile = projectilePools[0].Get();
+        Vector2 position = transform.position;
+        position.x -= spriteHalfWidth;
+        projectile.transform.position = position;
+        projectile.transform.rotation = leftRotation;
+        projectile.transform.localScale = Vector3.one * projectileScale;
+    
+        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, Vector2.left);
+    }
+    
+    private void ShootUp() {
+        var projectile = projectilePools[1].Get();
+        Vector2 position = transform.position;
+        position.y += spriteHalfHeight;
+        projectile.transform.position = position;
+        projectile.transform.rotation = upRotation;
+        projectile.transform.localScale = Vector3.one * projectileScale;
+    
+        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, Vector2.up);
+    }
+    
+    private void ShootDown() {
+        var projectile = projectilePools[0].Get();
+        Vector2 position = transform.position;
+        position.y -= spriteHalfHeight;
+        projectile.transform.position = position;
+        projectile.transform.rotation = downRotation;
+        projectile.transform.localScale = Vector3.one * projectileScale;
+    
+        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, Vector2.down);
+    }
+    
+    private void HandleCharging() {
+        if (!inputEnabled) return;
+        if (navigator == null) return;
+
+        bool chargeHeld = navigator.ChargeIsHeld();
+
+        if (chargeHeld && !isCharging) {
+            StartCharging();
+        }
+
+        if (isCharging && !chargeHeld) {
+            ReleaseCharge();
+        }
+    }
+    
+    
+    private void StartCharging() {
+        isCharging = true;
+        chargeStartTime = Time.time;
+    
+        Debug.Log($"P{playerIndex+1} started charging!");
+    }
+    
+    private void ReleaseCharge() {
+        float chargeTime = Time.time - chargeStartTime;
+        float requiredTime = isGhostMode ? ghostChargeTime : chargeTimeRequired;
+    
+        if (chargeTime >= requiredTime) {
+            ShootChargedProjectile();
+            Debug.Log($"P{playerIndex+1} fired charged shot! ({chargeTime:F2}s)");
+        } else {
+            Debug.Log($"P{playerIndex+1} released too early ({chargeTime:F2}s / {chargeTimeRequired}s)");
+        }
+    
+        isCharging = false;
+    }
+    
+    private void ShootChargedProjectile() {
+        Vector2 shootDirection = GetShootDirection();
+    
+        float damage;
+        float speed;
+    
+        if (isGhostMode) {
+            damage = 0f;
+            speed = projectileSpeed * ghostProjectileSpeed;
+        } else {
+            damage = maxHealth * 10f;
+            speed = projectileSpeed * chargedProjectileSpeed;
+        }
+    
+        var projectile = projectilePools[1].Get();
+    
+        Vector2 spawnOffset = shootDirection * (spriteHalfWidth * 1.5f);
+        projectile.transform.position = (Vector2)transform.position + spawnOffset;
+    
+        projectile.transform.rotation = GetRotationForDirection(shootDirection);
+        projectile.transform.localScale = Vector3.one * projectileScale * chargedProjectileScale;
+    
+        projectile.Initialize(playerIndex, damage, speed, shootDirection, isGhostMode);
     }
 
     private void HandleInput() {
         if (!inputEnabled) return;
+        if (navigator == null) return;
+    
         Vector2 input = navigator.GetNavigate();
-        ApplyMovement(input);
+    
+        // Track last move direction for shooting
+        if (input.magnitude > 0.1f) {
+            lastMoveDirection = input.normalized;
+        }
+
+        if (isAlive) {
+            ApplyMovement(input);
+        }
     }
 
     private void ApplyMovement(Vector2 input) {
@@ -141,6 +279,15 @@ public class DireDodgingPlayer : MonoBehaviour {
                 break;
             case < 0:
                 MoveDown();
+                break;
+        }
+
+        switch (input.x) {
+            case > 0:
+                MoveRight();
+                break;
+            case < 0:
+                MoveLeft();
                 break;
         }
     }
@@ -159,9 +306,24 @@ public class DireDodgingPlayer : MonoBehaviour {
         Rigidbody2D.MovePosition(vector3);
     }
 
+    private void MoveLeft() {
+        var vector3 = Rigidbody2D.position;
+        vector3.x -= maxMoveSpeed * Time.fixedDeltaTime;
+        vector3.x = ClampXPosition(vector3.x);
+        Rigidbody2D.MovePosition(vector3);
+    }
+
+    private void MoveRight() {
+        var vector3 = Rigidbody2D.position;
+        vector3.x += maxMoveSpeed * Time.fixedDeltaTime;
+        vector3.x = ClampXPosition(vector3.x);
+        Rigidbody2D.MovePosition(vector3);
+    }
+    
+    
     private void ApplyBaseStats() {
         this.maxMoveSpeed = PlayerStatsSO.MoveSpeed;
-        this.projectileScale = PlayerStatsSO.ProjectileScale * 0.36f; // scale to prefab size
+        this.projectileScale = PlayerStatsSO.ProjectileScale * 0.36f;
         this.projectileSpeed = PlayerStatsSO.ProjectileSpeed;
         this.baseDamage = PlayerStatsSO.BaseDamage;
         this.maxHealth = PlayerStatsSO.BaseHealth;
@@ -176,18 +338,48 @@ public class DireDodgingPlayer : MonoBehaviour {
     private IEnumerator ShootingCoroutine() {
         float nextShootTime = 0f;
         while (inputEnabled && isAlive) {
-            if (Time.time >= nextShootTime) {
+            if (!isCharging && Time.time >= nextShootTime)
+            {
                 Shoot();
                 nextShootTime = Time.time + projectileShootRate;
             }
-
             yield return null;
         }
+        shootingCoroutineInstance = null;
     }
 
     private void Shoot() {
-        ShootRight();
-        ShootLeft();
+        if (isGhostMode) return;
+    
+        Vector2 shootDirection = GetShootDirection();
+    
+        var projectile = projectilePools[0].Get();
+    
+        Vector2 spawnOffset = shootDirection * (spriteHalfWidth * 1.5f);
+        projectile.transform.position = (Vector2)transform.position + spawnOffset;
+    
+        projectile.transform.rotation = GetRotationForDirection(shootDirection);
+        projectile.transform.localScale = Vector3.one * projectileScale;
+        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, shootDirection, false);
+    }
+    
+    private Vector2 GetShootDirection() {
+        // Snap to cardinal directions (up, down, left, right)
+        if (Mathf.Abs(lastMoveDirection.x) > Mathf.Abs(lastMoveDirection.y)) {
+            // Horizontal movement is stronger
+            return lastMoveDirection.x > 0 ? Vector2.right : Vector2.left;
+        } else {
+            // Vertical movement is stronger
+            return lastMoveDirection.y > 0 ? Vector2.up : Vector2.down;
+        }
+    }
+
+    private Quaternion GetRotationForDirection(Vector2 direction) {
+        if (direction == Vector2.right) return rightRotation;
+        if (direction == Vector2.left) return leftRotation;
+        if (direction == Vector2.up) return upRotation;
+        if (direction == Vector2.down) return downRotation;
+        return rightRotation; // Default
     }
     
     private float ClampYPosition(float yPosition) {
@@ -196,26 +388,10 @@ public class DireDodgingPlayer : MonoBehaviour {
         return Mathf.Clamp(yPosition, screenBottom + spriteHalfHeight, screenTop - spriteHalfHeight);
     }
 
-    private void ShootRight() {
-        var projectile = projectilePools[1].Get();
-        Vector2 position = transform.position;
-        position.x += spriteHalfWidth;
-        projectile.transform.position = position;
-        projectile.transform.rotation = rightRotation;
-        projectile.transform.localScale = Vector3.one * projectileScale;
-        
-        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, true);
-    }
-
-    private void ShootLeft() {
-        var projectile = projectilePools[0].Get();
-        Vector2 position = transform.position;
-        position.x -= spriteHalfWidth;
-        projectile.transform.position = position;
-        projectile.transform.rotation = leftRotation;
-        projectile.transform.localScale = Vector3.one * projectileScale;
-        
-        projectile.Initialize(playerIndex, baseDamage, projectileSpeed, false);
+    private float ClampXPosition(float xPosition) {
+        float screenLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, 0)).x;
+        float screenRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, 0, 0)).x;
+        return Mathf.Clamp(xPosition, screenLeft + spriteHalfWidth, screenRight - spriteHalfWidth);
     }
 
     public void Freeze() {
@@ -234,20 +410,52 @@ public class DireDodgingPlayer : MonoBehaviour {
     }
 
     private void TakeDamage(DireDodgingProjectile projectile) {
-        currentHealth -= projectile.Damage;
-        HealthBar.UpdateDisplay(currentHealth, maxHealth);
-        if (PlayerIsDead) {
-            DireDodgingMinigameManager.Instance.RegisterDeath(projectile.OwnerIndex, playerIndex);
-            Die();
-            return;
-        } else {
+        if (projectile.IsGhostProjectile) {
+            // Ghost projectile - apply stun instead of damage
+            StartCoroutine(StunCoroutine());
             RuntimeManager.PlayOneShot(hitEvent);
-            mainCamera.DOShakePosition(duration: 0.05f, strength: 0.2f, vibrato: 1, randomness: 90f, fadeOut: false).SetUpdate(true);
+        } else {
+            // Normal projectile - apply damage
+            currentHealth -= projectile.Damage;
+            HealthBar.UpdateDisplay(currentHealth, maxHealth);
+        
+            if (PlayerIsDead) {
+                DireDodgingMinigameManager.Instance.RegisterDeath(projectile.OwnerIndex, playerIndex);
+                Die();
+                return;
+            } else {
+                RuntimeManager.PlayOneShot(hitEvent);
+                mainCamera.DOShakePosition(duration: 0.05f, strength: 0.2f, vibrato: 1, randomness: 90f, fadeOut: false).SetUpdate(true);
+            }
+        
+            if (damageCoroutineInstance != null) {
+                StopCoroutine(damageCoroutineInstance);
+            }
+            damageCoroutineInstance = StartCoroutine(DamageCoroutine());
         }
-        if (damageCoroutineInstance != null) {
-            StopCoroutine(damageCoroutineInstance);
-        }
-        damageCoroutineInstance = StartCoroutine(DamageCoroutine());
+    }
+    
+    private bool isStunned = false;
+
+    private IEnumerator StunCoroutine() {
+        if (isStunned) yield break;
+    
+        isStunned = true;
+        float originalSpeed = maxMoveSpeed;
+        maxMoveSpeed = 0f;
+    
+        Debug.Log($"P{playerIndex+1} stunned for 1 second!");
+        
+        Color originalColor = SpriteRenderer.color;
+        SpriteRenderer.color = new Color(0.5f, 0f, 0.5f, 1f);
+    
+        yield return new WaitForSeconds(1f);
+    
+        maxMoveSpeed = originalSpeed;
+        SpriteRenderer.color = originalColor;
+        isStunned = false;
+    
+        Debug.Log($"P{playerIndex+1} stun ended!");
     }
 
     private IEnumerator DamageCoroutine() {
@@ -267,18 +475,50 @@ public class DireDodgingPlayer : MonoBehaviour {
     }
 
     private void Die() {
-        inputEnabled = false;
         isAlive = false;
+        isGhostMode = true;
+    
         if (intensityCoroutineInstance != null) {
             StopCoroutine(intensityCoroutineInstance);
             intensityCoroutineInstance = null;
         }
         if(colorChangeSequence != null) colorChangeSequence.Kill();
+    
         DisableColliderComponent();
+    
         var color = baseColor;
         color.a = 0.1f;
         SpriteRenderer.DOColor(color, deathAnimationTimeInSeconds).SetUpdate(true);
+    
         RuntimeManager.PlayOneShot(deathEvent);
+    
+        // Start ghost mode coroutine
+        StartCoroutine(DeathCoroutine());
+    }
+    
+    private IEnumerator DeathCoroutine() {
+        yield return new WaitForSeconds(deathAnimationTimeInSeconds);
+    
+        Color ghostColor = baseColor;
+        ghostColor.a = 0.3f; // 30% opacity
+        SpriteRenderer.color = ghostColor;
+    
+        foreach (var projectile in activeProjectiles.ToArray()) {
+            projectile.ReturnToPool();
+        }
+    
+        if (shootingCoroutineInstance != null) {
+            StopCoroutine(shootingCoroutineInstance);
+            shootingCoroutineInstance = null;
+        }
+    
+        inputEnabled = true;
+    
+        if (HealthBar != null) {
+            HealthBar.gameObject.SetActive(false);
+        }
+    
+        Debug.Log($"P{playerIndex+1} is now a ghost! Can shoot charged stun shots.");
     }
 
     private void DisableColliderComponent() {
@@ -313,7 +553,7 @@ public class DireDodgingPlayer : MonoBehaviour {
         while (Time.time - startTime < duration) {
             float elapsed = Time.time - startTime;
             float t = elapsed / duration;
-            float easedT = t * t; // quadratic easing
+            float easedT = t * t;
             projectileSpeed = Mathf.Lerp(initialProjectileSpeed, targetProjectileSpeed, easedT);
             projectileShootRate = Mathf.Lerp(initialShootRate, targetShootRate, easedT);
             projectileScale = Mathf.Lerp(initialProjectileScale, targetProjectileScale, easedT);

@@ -124,7 +124,7 @@
                 },
                 {
                     "name": "up",
-                    "id": "8180e8bd-4097-4f4e-ab88-4523101a6ce9",
+                    "id": "d7f2782f-9753-4e04-80d5-22cdc8c6e95d",
                     "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
@@ -146,7 +146,7 @@
                 },
                 {
                     "name": "down",
-                    "id": "1c5327b5-f71c-4f60-99c7-4e737386f1d1",
+                    "id": "35c03b49-0139-46ce-afa3-05406b32a8e5",
                     "path": "<Keyboard>/downArrow",
                     "interactions": "",
                     "processors": "",
@@ -168,7 +168,7 @@
                 },
                 {
                     "name": "left",
-                    "id": "2e46982e-44cc-431b-9f0b-c11910bf467a",
+                    "id": "95a0ee01-7114-4462-8077-242c7cc7cba7",
                     "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
@@ -190,7 +190,7 @@
                 },
                 {
                     "name": "right",
-                    "id": "77bff152-3580-4b21-b6de-dcd0c7e41164",
+                    "id": "382fa37d-30a9-4bf1-b555-7200676f6d40",
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
@@ -583,6 +583,15 @@
                     "name": "Pause",
                     "type": "Button",
                     "id": "d5a60ccb-4f8b-4280-809a-1dbc6c7aa61e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Charge",
+                    "type": "Button",
+                    "id": "a38666d6-7cd6-432d-ac8e-f1417cacba88",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -1071,6 +1080,17 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cf9d0d7b-fc50-4182-9397-9b801c53e906",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Charge",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

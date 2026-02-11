@@ -189,4 +189,29 @@ public class DireDodgingMinigameManager : MonoBehaviour, IMinigameManager {
         yield return new WaitForSeconds(ResultsDisplayDurationInSeconds);
         OnMinigameFinished?.Invoke(playerResults);
     }
+    
+    // Add this method to DireDodgingMinigameManager
+    public void DebugKillPlayer(int playerIndex) {
+        if (playerIndex < 0 || playerIndex >= Players.Length) {
+            Debug.LogWarning($"Invalid player index: {playerIndex}");
+            return;
+        }
+    
+        DireDodgingPlayer player = Players[playerIndex];
+        if (player == null) {
+            Debug.LogWarning($"Player {playerIndex} is null");
+            return;
+        }
+    
+        // Force the player to take lethal damage
+        var dummyProjectile = new GameObject("DummyProjectile").AddComponent<DireDodgingProjectile>();
+        dummyProjectile.Initialize(playerIndex, 9999f, 0f, Vector2.zero, false);
+    
+        // Use reflection to call TakeDamage (or make it public)
+        var method = typeof(DireDodgingPlayer).GetMethod("TakeDamage", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        method?.Invoke(player, new object[] { dummyProjectile });
+    
+        Destroy(dummyProjectile.gameObject);
+    }
 }

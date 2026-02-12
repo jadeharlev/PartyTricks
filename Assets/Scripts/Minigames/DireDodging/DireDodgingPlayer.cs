@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using FMODUnity;
+using FMOD.Studio;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -27,12 +28,10 @@ public class DireDodgingPlayer : MonoBehaviour {
     [SerializeField] private GameObject ProjectilePrefab;
     [SerializeField] private Transform PoolParent;
     [SerializeField] private DireDodgingHealthBar HealthBar;
+    [SerializeField] private SpriteRenderer chargeIndicator;
     
     private bool isCharging = false;
     private float chargeStartTime = 0f;
-    private float chargeTimeRequired = 2f;
-    private float chargedProjectileScale = 2f;
-    private float chargedProjectileSpeed = 2f;
     private Coroutine shootingCoroutineInstance = null;
     private Vector2 lastMoveDirection = Vector2.right;
     
@@ -47,8 +46,6 @@ public class DireDodgingPlayer : MonoBehaviour {
     private List<DireDodgingProjectile> activeProjectiles = new();
     
     private bool isGhostMode = false;
-    private float ghostChargeTime = 1f;
-    private float ghostProjectileSpeed = 1.2f;
 
     private Coroutine damageCoroutineInstance = null;
     private Coroutine intensityCoroutineInstance = null;
@@ -59,6 +56,18 @@ public class DireDodgingPlayer : MonoBehaviour {
     private readonly Quaternion downRotation = Quaternion.Euler(0, 0, 180);
     private EventReference hitEvent;
     private EventReference deathEvent;
+    private EventReference chargeLoopEvent; 
+    private EventReference chargeReleaseEvent;
+    private EventReference chargeShootEvent;
+    private EventInstance chargeLoopInstance;
+    
+    private float chargeTimeRequired;
+    private float chargedProjectileScale;
+    private float chargedProjectileSpeed;
+    private float ghostChargeTime;
+    private float ghostProjectileSpeed;
+    private float ghostMoveSpeedMultiplier;
+    private float stunDuration;
     
     
     private void Awake() {
@@ -142,10 +151,35 @@ public class DireDodgingPlayer : MonoBehaviour {
 
     private void Update() {
         HandleCharging(); 
+        UpdateChargeIndicator();
     }
 
     private void FixedUpdate() {
         HandleInput();
+    }
+    
+    private void UpdateChargeIndicator() {
+        if (chargeIndicator == null) return;
+    
+        if (isCharging) {
+            float chargeTime = Time.time - chargeStartTime;
+            float requiredTime = isGhostMode ? ghostChargeTime : chargeTimeRequired;
+            float chargePercent = Mathf.Clamp01(chargeTime / requiredTime);
+        
+            chargeIndicator.transform.localScale = new Vector3(1f, chargePercent, 1f);
+        
+            // Optional: Change color based on completion
+            if (chargePercent >= 1f) {
+                chargeIndicator.color = Color.green;
+            } else {
+                chargeIndicator.color = Color.yellow;
+            }
+        
+            chargeIndicator.enabled = true;
+        } else {
+            chargeIndicator.enabled = false;
+            chargeIndicator.transform.localScale = new Vector3(1f, 0f, 1f);
+        }
     }
     
     
@@ -157,7 +191,6 @@ public class DireDodgingPlayer : MonoBehaviour {
         projectile.transform.rotation = rightRotation;
         projectile.transform.localScale = Vector3.one * projectileScale;
     
-        // Pass Vector2.right for direction
         projectile.Initialize(playerIndex, baseDamage, projectileSpeed, Vector2.right);
     }
     
@@ -214,18 +247,25 @@ public class DireDodgingPlayer : MonoBehaviour {
         isCharging = true;
         chargeStartTime = Time.time;
     
-        Debug.Log($"P{playerIndex+1} started charging!");
+        // Start looping charge sound immediately
+        chargeLoopInstance = RuntimeManager.CreateInstance(chargeLoopEvent);
+        chargeLoopInstance.start();
     }
     
     private void ReleaseCharge() {
         float chargeTime = Time.time - chargeStartTime;
         float requiredTime = isGhostMode ? ghostChargeTime : chargeTimeRequired;
     
+        if (chargeLoopInstance.isValid()) {
+            chargeLoopInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            chargeLoopInstance.release();
+        }
+    
         if (chargeTime >= requiredTime) {
             ShootChargedProjectile();
-            Debug.Log($"P{playerIndex+1} fired charged shot! ({chargeTime:F2}s)");
+            RuntimeManager.PlayOneShot(chargeShootEvent);
         } else {
-            Debug.Log($"P{playerIndex+1} released too early ({chargeTime:F2}s / {chargeTimeRequired}s)");
+            RuntimeManager.PlayOneShot(chargeReleaseEvent);
         }
     
         isCharging = false;
@@ -262,17 +302,19 @@ public class DireDodgingPlayer : MonoBehaviour {
     
         Vector2 input = navigator.GetNavigate();
     
-        // Track last move direction for shooting
-        if (input.magnitude > 0.1f) {
+        if (input.magnitude > 0.1f) {   
             lastMoveDirection = input.normalized;
         }
 
-        if (isAlive) {
-            ApplyMovement(input);
-        }
+        ApplyMovement(input);
     }
 
     private void ApplyMovement(Vector2 input) {
+        float speedMultiplier = isGhostMode ? ghostMoveSpeedMultiplier : 1f;
+    
+        float originalSpeed = maxMoveSpeed;
+        maxMoveSpeed *= speedMultiplier;
+    
         switch (input.y) {
             case > 0:
                 MoveUp();
@@ -290,6 +332,8 @@ public class DireDodgingPlayer : MonoBehaviour {
                 MoveLeft();
                 break;
         }
+    
+        maxMoveSpeed = originalSpeed;
     }
 
     private void MoveUp() {
@@ -322,6 +366,7 @@ public class DireDodgingPlayer : MonoBehaviour {
     
     
     private void ApplyBaseStats() {
+        // Movement & Combat
         this.maxMoveSpeed = PlayerStatsSO.MoveSpeed;
         this.projectileScale = PlayerStatsSO.ProjectileScale * 0.36f;
         this.projectileSpeed = PlayerStatsSO.ProjectileSpeed;
@@ -330,8 +375,27 @@ public class DireDodgingPlayer : MonoBehaviour {
         this.projectileShootRate = PlayerStatsSO.ProjectileShootRate;
         this.damageAnimationTimeInSeconds = PlayerStatsSO.DamageAnimationTimeInSeconds;
         this.deathAnimationTimeInSeconds = PlayerStatsSO.DeathAnimationTimeInSeconds;
+    
+        // Charge Attack
+        this.chargeTimeRequired = PlayerStatsSO.ChargeTimeRequired;
+        this.chargedProjectileScale = PlayerStatsSO.ChargedProjectileScale;
+        this.chargedProjectileSpeed = PlayerStatsSO.ChargedProjectileSpeed;
+    
+        // Ghost Mode
+        this.ghostChargeTime = PlayerStatsSO.GhostChargeTime;
+        this.ghostProjectileSpeed = PlayerStatsSO.GhostProjectileSpeed;
+        this.ghostMoveSpeedMultiplier = PlayerStatsSO.GhostMoveSpeedMultiplier;
+    
+        // Stun
+        this.stunDuration = PlayerStatsSO.StunDuration;
+    
+        // Sound Events
         this.hitEvent = PlayerStatsSO.GetHitEvent;
         this.deathEvent = PlayerStatsSO.DeathEvent;
+        this.chargeLoopEvent = PlayerStatsSO.ChargeLoopEvent;
+        this.chargeReleaseEvent = PlayerStatsSO.ChargeReleaseEvent;
+        this.chargeShootEvent = PlayerStatsSO.ChargeShootEvent;
+    
         currentHealth = maxHealth;
     }
 
@@ -364,12 +428,9 @@ public class DireDodgingPlayer : MonoBehaviour {
     }
     
     private Vector2 GetShootDirection() {
-        // Snap to cardinal directions (up, down, left, right)
         if (Mathf.Abs(lastMoveDirection.x) > Mathf.Abs(lastMoveDirection.y)) {
-            // Horizontal movement is stronger
             return lastMoveDirection.x > 0 ? Vector2.right : Vector2.left;
         } else {
-            // Vertical movement is stronger
             return lastMoveDirection.y > 0 ? Vector2.up : Vector2.down;
         }
     }
@@ -410,15 +471,18 @@ public class DireDodgingPlayer : MonoBehaviour {
     }
 
     private void TakeDamage(DireDodgingProjectile projectile) {
+        if (isGhostMode) {
+            Debug.Log($"P{playerIndex+1} is a ghost - immune to projectiles!");
+            return;
+        }
+    
         if (projectile.IsGhostProjectile) {
-            // Ghost projectile - apply stun instead of damage
             StartCoroutine(StunCoroutine());
             RuntimeManager.PlayOneShot(hitEvent);
         } else {
-            // Normal projectile - apply damage
             currentHealth -= projectile.Damage;
             HealthBar.UpdateDisplay(currentHealth, maxHealth);
-        
+    
             if (PlayerIsDead) {
                 DireDodgingMinigameManager.Instance.RegisterDeath(projectile.OwnerIndex, playerIndex);
                 Die();
@@ -427,7 +491,7 @@ public class DireDodgingPlayer : MonoBehaviour {
                 RuntimeManager.PlayOneShot(hitEvent);
                 mainCamera.DOShakePosition(duration: 0.05f, strength: 0.2f, vibrato: 1, randomness: 90f, fadeOut: false).SetUpdate(true);
             }
-        
+    
             if (damageCoroutineInstance != null) {
                 StopCoroutine(damageCoroutineInstance);
             }
@@ -443,19 +507,15 @@ public class DireDodgingPlayer : MonoBehaviour {
         isStunned = true;
         float originalSpeed = maxMoveSpeed;
         maxMoveSpeed = 0f;
-    
-        Debug.Log($"P{playerIndex+1} stunned for 1 second!");
         
         Color originalColor = SpriteRenderer.color;
         SpriteRenderer.color = new Color(0.5f, 0f, 0.5f, 1f);
     
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(stunDuration); // Use configurable duration
     
         maxMoveSpeed = originalSpeed;
         SpriteRenderer.color = originalColor;
         isStunned = false;
-    
-        Debug.Log($"P{playerIndex+1} stun ended!");
     }
 
     private IEnumerator DamageCoroutine() {
@@ -478,21 +538,25 @@ public class DireDodgingPlayer : MonoBehaviour {
         isAlive = false;
         isGhostMode = true;
     
+        if (isCharging && chargeLoopInstance.isValid()) {
+            chargeLoopInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            chargeLoopInstance.release();
+        }
+    
         if (intensityCoroutineInstance != null) {
             StopCoroutine(intensityCoroutineInstance);
             intensityCoroutineInstance = null;
         }
         if(colorChangeSequence != null) colorChangeSequence.Kill();
-    
+
         DisableColliderComponent();
-    
+
         var color = baseColor;
         color.a = 0.1f;
         SpriteRenderer.DOColor(color, deathAnimationTimeInSeconds).SetUpdate(true);
-    
+
         RuntimeManager.PlayOneShot(deathEvent);
-    
-        // Start ghost mode coroutine
+
         StartCoroutine(DeathCoroutine());
     }
     
@@ -564,5 +628,12 @@ public class DireDodgingPlayer : MonoBehaviour {
         projectileShootRate = targetShootRate;
         projectileScale = targetProjectileScale;
         intensityCoroutineInstance = null;
+    }
+    
+    private void OnDestroy() {
+        if (chargeLoopInstance.isValid()) {
+            chargeLoopInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            chargeLoopInstance.release();
+        }
     }
 }

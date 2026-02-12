@@ -12,14 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd6e1f7930356446ea2526cc99b7e5ad, type: 3}
   m_Name: DireDodgingPlayerStatsSO
   m_EditorClassIdentifier: Game::DireDodgingPlayerStatsSO
-  MoveSpeed: 10
+  MoveSpeed: 8
   ProjectileScale: 1
   ProjectileSpeed: 6
-  ProjectileShootRate: 1
+  ProjectileShootRate: 2
   BaseDamage: 1
   BaseHealth: 3
   DamageAnimationTimeInSeconds: 0.2
   DeathAnimationTimeInSeconds: 0.25
+  ChargeTimeRequired: 2
+  ChargedProjectileScale: 2
+  ChargedProjectileSpeed: 2
+  GhostChargeTime: 1
+  GhostProjectileSpeed: 1.2
+  GhostMoveSpeedMultiplier: 0.25
+  StunDuration: 2
   GetHitEvent:
     Guid:
       Data1: 198578112
@@ -34,3 +41,24 @@ MonoBehaviour:
       Data3: 754733758
       Data4: -624353837
     Path: event:/DireDodging/Death
+  ChargeLoopEvent:
+    Guid:
+      Data1: 1819612923
+      Data2: 1096946304
+      Data3: -2127009139
+      Data4: 17996525
+    Path: event:/DireDodging/ChargeLoop
+  ChargeReleaseEvent:
+    Guid:
+      Data1: 1867979415
+      Data2: 1260686202
+      Data3: -557507427
+      Data4: 620156436
+    Path: event:/DireDodging/ChargeRelease
+  ChargeShootEvent:
+    Guid:
+      Data1: -1222966678
+      Data2: 1194935093
+      Data3: 349146006
+      Data4: 1289414296
+    Path: event:/DireDodging/ChargeShoot

@@ -153,6 +153,18 @@ public class DireDodgingPlayer : MonoBehaviour {
     private void Update() {
         HandleCharging(); 
         UpdateChargeIndicator();
+        UpdateChargeParticleDirection();
+    }
+    
+    private void UpdateChargeParticleDirection() {
+        if (!isCharging || chargeParticles == null) return;
+    
+        Vector2 shootDirection = GetShootDirection();
+        Vector2 particleOffset = shootDirection * 2f; // Stays in front
+        chargeParticles.transform.localPosition = particleOffset;
+    
+        float angle = Mathf.Atan2(-shootDirection.y, -shootDirection.x) * Mathf.Rad2Deg;
+        chargeParticles.transform.rotation = Quaternion.Euler(0, 0, angle - 90);
     }
 
     private void FixedUpdate() {
@@ -247,11 +259,18 @@ public class DireDodgingPlayer : MonoBehaviour {
     private void StartCharging() {
         isCharging = true;
         chargeStartTime = Time.time;
-        
+    
         if (chargeParticles != null) {
+            Vector2 shootDirection = GetShootDirection();
+            Vector2 particleOffset = shootDirection * 2f; // 2 units away from player
+            chargeParticles.transform.localPosition = particleOffset;
+        
+            float angle = Mathf.Atan2(-shootDirection.y, -shootDirection.x) * Mathf.Rad2Deg;
+            chargeParticles.transform.rotation = Quaternion.Euler(0, 0, angle - 90);
+        
             chargeParticles.Play();
         }
-    
+
         chargeLoopInstance = RuntimeManager.CreateInstance(chargeLoopEvent);
         chargeLoopInstance.start();
     }

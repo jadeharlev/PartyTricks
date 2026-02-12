@@ -10,6 +10,7 @@ public class DireDodgingProjectile : MonoBehaviour {
 
     // positive 1: right, negative 1: left
     private Vector2 moveDirection;
+    private bool hasBeenReturned = false;
     
     [SerializeField] private Rigidbody2D Rigidbody2D;
     [SerializeField] private SpriteRenderer SpriteRenderer;
@@ -26,8 +27,8 @@ public class DireDodgingProjectile : MonoBehaviour {
         Speed = speed;
         moveDirection = direction.normalized;
         IsGhostProjectile = isGhost;
+        hasBeenReturned = false;
     
-        // Make ghost projectiles a different color
         if (isGhost && SpriteRenderer != null) {
             Color ghostColor = SpriteRenderer.color;
             ghostColor.a = 0.5f; // Semi-transparent
@@ -51,6 +52,8 @@ public class DireDodgingProjectile : MonoBehaviour {
         }
     }
     public void ReturnToPool() {
+        if (hasBeenReturned) return;
+        hasBeenReturned = true;
         if (projectilePool != null) {
             projectilePool.Release(this);
         }

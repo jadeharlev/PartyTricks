@@ -564,6 +564,10 @@ public class DireDodgingPlayer : MonoBehaviour {
         isAlive = false;
         isGhostMode = true;
     
+        // Freeze time and zoom in on death
+        Time.timeScale = 0f;
+        ZoomCameraOnDeath();
+
         if (isCharging) {
             if (chargeParticles != null) {
                 chargeParticles.Stop();
@@ -573,7 +577,7 @@ public class DireDodgingPlayer : MonoBehaviour {
                 chargeLoopInstance.release();
             }
         }
-    
+
         if (intensityCoroutineInstance != null) {
             StopCoroutine(intensityCoroutineInstance);
             intensityCoroutineInstance = null;
@@ -589,6 +593,27 @@ public class DireDodgingPlayer : MonoBehaviour {
         RuntimeManager.PlayOneShot(deathEvent);
 
         StartCoroutine(DeathCoroutine());
+    }
+
+    private void ZoomCameraOnDeath() {
+        if (mainCamera == null) return;
+    
+        float freezeDuration = 1f;
+        float zoomAmount = 0.7f;
+    
+        float originalSize = mainCamera.orthographicSize;
+        Vector3 originalPosition = mainCamera.transform.position;
+    
+        Vector3 targetPosition = new Vector3(transform.position.x, transform.position.y, originalPosition.z);
+    
+        mainCamera.DOOrthoSize(originalSize * zoomAmount, freezeDuration * 0.5f).SetUpdate(true);
+        mainCamera.transform.DOMove(targetPosition, freezeDuration * 0.5f).SetUpdate(true);
+    
+        DOVirtual.DelayedCall(freezeDuration, () => {
+            mainCamera.DOOrthoSize(originalSize, 0.3f).SetUpdate(true);
+            mainCamera.transform.DOMove(originalPosition, 0.3f).SetUpdate(true);
+            Time.timeScale = 1f;
+        }, false).SetUpdate(true);
     }
     
     private IEnumerator DeathCoroutine() {

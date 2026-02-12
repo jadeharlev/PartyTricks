@@ -16,6 +16,7 @@ MonoBehaviour:
   - Type: 0
     SceneNames:
     - DireDodging
+    - AirHockey
   - Type: 1
     SceneNames:
     - Blackjack

@@ -63,11 +63,11 @@ public class DebugMenu : MonoBehaviour {
         }
         
         GUILayout.Space(10);
-        
+
         if (GUILayout.Button("Load Dire Dodging", GUILayout.Height(40))) {
             LoadDireDodging();
         }
-        
+
         if (direDodgingManager != null) {
             GUILayout.Label("Dire Dodging Controls", GUI.skin.box);
             GUILayout.Space(10);
@@ -89,12 +89,6 @@ public class DebugMenu : MonoBehaviour {
             }
         
             GUILayout.Space(20);
-        }
-        
-        GUILayout.Space(10);
-        
-        if (GUILayout.Button("Load Button Minigame", GUILayout.Height(40))) {
-            LoadButtonMinigame();
         }
 
         GUILayout.Space(10);
@@ -181,14 +175,7 @@ public class DebugMenu : MonoBehaviour {
         SceneManager.LoadScene("DireDodging");
         SceneManager.sceneLoaded += OnDireDodgingSceneLoaded;
     }
-
-    private void LoadButtonMinigame()
-    { 
-        DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Loading Button Minigame scene. Double: {isDoubleRound}");
-        SceneManager.LoadScene("DemoScene");
-        SceneManager.sceneLoaded += OnButtonMinigameSceneLoaded;
-    }
-
+    
     private void DisplayPlayerFunds() {
         if (playerService != null) {
             GUILayout.Space(5);
@@ -253,21 +240,6 @@ public class DebugMenu : MonoBehaviour {
         direDodgingManager = FindAnyObjectByType<DireDodgingMinigameManager>();
         if (direDodgingManager != null) {
             direDodgingManager.Initialize(isDoubleRound);
-            DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Dire Dodging manager initialized. Double: {isDoubleRound}");
-        } else {
-            Debug.LogError("Debug Menu: Could not find DireDodgingMinigameManager in scene!");
-        }
-    }
-
-    private void OnButtonMinigameSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.name != "DemoScene") return;
-        SceneManager.sceneLoaded -= OnButtonMinigameSceneLoaded;
-        
-        ButtonMinigameManager manager = FindAnyObjectByType<ButtonMinigameManager>();
-        if (manager != null)
-        {
-            manager.Initialize(isDoubleRound);
             DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Dire Dodging manager initialized. Double: {isDoubleRound}");
         } else {
             Debug.LogError("Debug Menu: Could not find DireDodgingMinigameManager in scene!");

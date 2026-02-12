@@ -29,6 +29,7 @@ public class DireDodgingPlayer : MonoBehaviour {
     [SerializeField] private Transform PoolParent;
     [SerializeField] private DireDodgingHealthBar HealthBar;
     [SerializeField] private SpriteRenderer chargeIndicator;
+    [SerializeField] private ParticleSystem chargeParticles;
     
     private bool isCharging = false;
     private float chargeStartTime = 0f;
@@ -246,8 +247,11 @@ public class DireDodgingPlayer : MonoBehaviour {
     private void StartCharging() {
         isCharging = true;
         chargeStartTime = Time.time;
+        
+        if (chargeParticles != null) {
+            chargeParticles.Play();
+        }
     
-        // Start looping charge sound immediately
         chargeLoopInstance = RuntimeManager.CreateInstance(chargeLoopEvent);
         chargeLoopInstance.start();
     }
@@ -255,6 +259,10 @@ public class DireDodgingPlayer : MonoBehaviour {
     private void ReleaseCharge() {
         float chargeTime = Time.time - chargeStartTime;
         float requiredTime = isGhostMode ? ghostChargeTime : chargeTimeRequired;
+        
+        if (chargeParticles != null) {
+            chargeParticles.Stop();
+        }
     
         if (chargeLoopInstance.isValid()) {
             chargeLoopInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
@@ -284,7 +292,6 @@ public class DireDodgingPlayer : MonoBehaviour {
             damage = maxHealth * 10f;
             speed = projectileSpeed * chargedProjectileSpeed;
         }
-    
         var projectile = projectilePools[1].Get();
     
         Vector2 spawnOffset = shootDirection * (spriteHalfWidth * 1.5f);
@@ -538,9 +545,14 @@ public class DireDodgingPlayer : MonoBehaviour {
         isAlive = false;
         isGhostMode = true;
     
-        if (isCharging && chargeLoopInstance.isValid()) {
-            chargeLoopInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-            chargeLoopInstance.release();
+        if (isCharging) {
+            if (chargeParticles != null) {
+                chargeParticles.Stop();
+            }
+            if (chargeLoopInstance.isValid()) {
+                chargeLoopInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                chargeLoopInstance.release();
+            }
         }
     
         if (intensityCoroutineInstance != null) {

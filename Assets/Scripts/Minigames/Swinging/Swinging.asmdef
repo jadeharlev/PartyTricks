@@ -1,0 +1,22 @@
+{
+    "name": "Swinging",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0ee3bad7f4ea44e6286dc0acbeaa68e5",
+        "GUID:c4ee63b75e61b4f318b9801d0a999f69",
+        "GUID:976052858674e42a9ba4fcc09b52d299",
+        "GUID:6d65ccba677f04471b4e45b01cb10fba",
+        "GUID:57c1395ed337141c4bb205a2dbe71e2e",
+        "GUID:9c2e25a91fd9740a7a4ac8646759e267",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

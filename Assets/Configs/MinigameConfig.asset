@@ -22,6 +22,7 @@ MonoBehaviour:
   - Type: 2
     SceneNames:
     - CoinTiltGame
+    - VineSwinging
   - Type: 3
     SceneNames:
     - Blackjack

@@ -1,3 +1,4 @@
+using System.Linq;
 using Services;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -61,6 +62,12 @@ public class DebugMenu : MonoBehaviour {
         
         if (GUILayout.Button("Load Dire Dodging", GUILayout.Height(40))) {
             LoadDireDodging();
+        }
+        
+        GUILayout.Space(10);
+        
+        if (GUILayout.Button("Load Vine Swinging", GUILayout.Height(40))) {
+            LoadVineSwinging();
         }
 
         GUILayout.Space(10);
@@ -136,6 +143,12 @@ public class DebugMenu : MonoBehaviour {
         SceneManager.LoadScene("DireDodging");
         SceneManager.sceneLoaded += OnDireDodgingSceneLoaded;
     }
+    
+    private void LoadVineSwinging() {
+        DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Loading Vine Swinging scene. Double: {isDoubleRound}");
+        SceneManager.LoadScene("VineSwinging");
+        SceneManager.sceneLoaded += OnVineSwingingSceneLoaded;
+    }
 
     private void DisplayPlayerFunds() {
         if (playerService != null) {
@@ -204,6 +217,22 @@ public class DebugMenu : MonoBehaviour {
             DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Dire Dodging manager initialized. Double: {isDoubleRound}");
         } else {
             Debug.LogError("Debug Menu: Could not find DireDodgingMinigameManager in scene!");
+        }
+    }
+    
+    private void OnVineSwingingSceneLoaded(Scene scene, LoadSceneMode mode) {
+        if (scene.name != "VineSwinging") return;
+        
+        SceneManager.sceneLoaded -= OnVineSwingingSceneLoaded;
+        
+        // Find and initialize the dire dodging manager
+        IMinigameManager minigameManager = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+            .OfType<IMinigameManager>().FirstOrDefault();
+        if (minigameManager != null) {
+            minigameManager.Initialize(isDoubleRound);
+            DebugLogger.Log(LogChannel.Systems, $"Debug Menu: Vine Swinging manager initialized. Double: {isDoubleRound}");
+        } else {
+            Debug.LogError("Debug Menu: Could not find Minigame Manager in scene!");
         }
     }
 

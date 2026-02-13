@@ -4,6 +4,7 @@ using Minigames.Swinging.States;
 using Services;
 using UnityEngine;
 using VineSwinging.Core;
+using Random = UnityEngine.Random;
 
 namespace Minigames.Swinging {
     public class VineSwingingMinigameManager : MonoBehaviour, IMinigameManager {
@@ -29,6 +30,7 @@ namespace Minigames.Swinging {
         [SerializeField] private VineSwingingPlayerView[] playerViews = new VineSwingingPlayerView[4];
         [SerializeField] private VineTrackView[] trackViews = new VineTrackView[4];
         [SerializeField] private VineSwingingCameraFollow[] cameraFollows = new VineSwingingCameraFollow[4];
+        [SerializeField] private CoinTrailSpawnerView[] coinSpawners = new CoinTrailSpawnerView[4];
 
         public PlayerStateMachine[] PlayerStateMachines { get; private set; }
         public IPlayerService PlayerService { get; private set; }
@@ -79,14 +81,23 @@ namespace Minigames.Swinging {
             placesDisplay.Hide();
             startCountdown.Initialize(countdownDurationInSeconds);
             gameTimer.Initialize(gameDurationInSeconds);
-
+            
             SwingConfig config = playerStats.CreateConfig();
             PlayerStateMachines = new PlayerStateMachine[4];
+            float[][] allVinePositions = new float[4][];
             for (int i = 0; i < 4; i++) {
                 var (vinePositions, phaseOffsets, periods) = trackViews[i].SpawnVines(vineCount, config.VineSpacing, vineAnchorY, config, playerStats.PeriodVariation);
+                allVinePositions[i] = vinePositions;
                 PlayerStateMachines[i] = new PlayerStateMachine(config, vinePositions, vineAnchorY, phaseOffsets, periods);
                 PlayerStateMachines[i].Start(0);
                 cameraFollows[i].Initialize(PlayerStateMachines[i].PlayerContext);
+            }
+
+            int seed = Random.Range(0, 10000);
+            var trails = CoinTrailGenerator.GenerateAllTrails(vineCount, config, seed);
+            var randomNumberGenerator = new System.Random(seed);
+            for (int i = 0; i < 4; i++) {
+                coinSpawners[i].SpawnCoinsForTrack(trails, allVinePositions[i], vineAnchorY, playerStats.CoinTypes, randomNumberGenerator);
             }
         }
 

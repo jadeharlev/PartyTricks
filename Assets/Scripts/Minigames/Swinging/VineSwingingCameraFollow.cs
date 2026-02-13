@@ -19,7 +19,7 @@ namespace Minigames.Swinging {
 
         private void LateUpdate() {
             if (targetContext == null) return;
-            float targetXPosition = targetContext.PositionX;
+            float targetXPosition = targetContext.PositionX + lookAheadDistance;
             float smoothedXPosition =
                 Mathf.SmoothDamp(transform.localPosition.x, targetXPosition, ref xVelocity, smoothTimeInSeconds);
             transform.localPosition = new Vector3(smoothedXPosition, fixedYPosition, fixedZPosition);

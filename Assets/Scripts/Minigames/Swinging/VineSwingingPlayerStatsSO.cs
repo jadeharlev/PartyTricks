@@ -18,8 +18,14 @@ public class VineSwingingPlayerStatsSO : ScriptableObject {
     [Header("Fall/Respawn")] 
     [SerializeField] public float FallThresholdY = -8f;
     [SerializeField] public float RespawnDelayInSeconds = 1f;
+    
+    [Header("Coins")]
+    [SerializeField] public int CoinsPerGap = 5;
+    [SerializeField] public int VineScoreValue = 5;
+    [SerializeField] public CoinTypeSO[] CoinTypes;
+    [SerializeField] public float CoinArcHeight = 2f;
 
     public SwingConfig CreateConfig() {
-        return new SwingConfig(Amplitude, RopeLength, Period, LaunchForce, GrabRadius, FallThresholdY, RespawnDelayInSeconds, VineSpacing, Gravity);
+        return new SwingConfig(Amplitude, RopeLength, Period, LaunchForce, GrabRadius, FallThresholdY, RespawnDelayInSeconds, VineSpacing, Gravity, CoinsPerGap, VineScoreValue, CoinArcHeight);
     }
 }

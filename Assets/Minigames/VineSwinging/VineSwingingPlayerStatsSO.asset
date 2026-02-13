@@ -12,13 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9a1c10dbe5f04cb59060533d76f182f, type: 3}
   m_Name: VineSwingingPlayerStatsSO
   m_EditorClassIdentifier: Swinging::VineSwingingPlayerStatsSO
-  Amplitude: 1.4
+  Amplitude: 1.45
   RopeLength: 3.5
-  Period: 3
-  LaunchForce: 1.75
-  GrabRadius: 2.55
-  VineSpacing: 11
+  Period: 2.9
+  LaunchForce: 1.8
+  GrabRadius: 2.6
+  VineSpacing: 14
   Gravity: 20
-  PeriodVariation: 0.121
+  PeriodVariation: 0.1
   FallThresholdY: -8
   RespawnDelayInSeconds: 1
+  CoinsPerGap: 3
+  VineScoreValue: 5
+  CoinTypes:
+  - {fileID: 11400000, guid: 1e055c9adfc97415a8e26d3a53fc5705, type: 2}
+  - {fileID: 11400000, guid: ded30831a03cb48dcb1dacbcde121f2c, type: 2}
+  CoinArcHeight: 2

@@ -32,7 +32,11 @@ namespace Minigames.Swinging.States {
                 minigameManager.PlayerStateMachines[i].Update(deltaTime, releasePressed);
                 
                 minigameManager.PlayerViews[i].Pull(minigameManager.PlayerStateMachines[i].PlayerContext);
-                minigameManager.PlayerCornerDisplays[i].UpdateScore(minigameManager.PlayerStateMachines[i].PlayerContext.FurthestVineIndex);
+
+                var playerContext = minigameManager.PlayerStateMachines[i].PlayerContext;
+                var swingConfig = minigameManager.PlayerStateMachines[i].SwingConfig;
+                int score = playerContext.FurthestVineIndex * swingConfig.VineScoreValue + playerContext.TotalCoinValue;
+                minigameManager.PlayerCornerDisplays[i].UpdateScore(score);
             }
         }
 

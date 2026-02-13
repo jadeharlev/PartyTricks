@@ -29,7 +29,9 @@ namespace Minigames.Swinging.States {
         private PlayerMinigameResult[] CalculateResults() {
             int[] scores = new int[4];
             for (int i = 0; i < 4; i++) {
-                scores[i] = minigameManager.PlayerStateMachines[i].PlayerContext.FurthestVineIndex;
+                var context = minigameManager.PlayerStateMachines[i].PlayerContext;
+                var config = minigameManager.PlayerStateMachines[i].SwingConfig;
+                scores[i] = context.FurthestVineIndex * config.VineScoreValue + context.TotalCoinValue;
             }
 
             int[] ranks = ResultsCalculator.CalculateRanks(scores);

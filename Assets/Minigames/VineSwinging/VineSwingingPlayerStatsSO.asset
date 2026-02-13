@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: VineSwingingPlayerStatsSO
   m_EditorClassIdentifier: Swinging::VineSwingingPlayerStatsSO
   Amplitude: 1.4
-  RopeLength: 4
-  Period: 3.5
-  LaunchForce: 1.3
-  GrabRadius: 2.5
-  VineSpacing: 10
-  Gravity: 15
+  RopeLength: 3.5
+  Period: 3
+  LaunchForce: 1.75
+  GrabRadius: 2.55
+  VineSpacing: 11
+  Gravity: 20
+  PeriodVariation: 0.121
   FallThresholdY: -8
   RespawnDelayInSeconds: 1

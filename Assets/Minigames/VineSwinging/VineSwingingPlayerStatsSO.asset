@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Swinging::VineSwingingPlayerStatsSO
   Amplitude: 1.45
   RopeLength: 3.5
-  Period: 2.9
+  Period: 2.85
   LaunchForce: 1.8
-  GrabRadius: 2.6
-  VineSpacing: 14
+  GrabRadius: 1.5
+  VineSpacing: 14.7
   Gravity: 20
   PeriodVariation: 0.1
   FallThresholdY: -8

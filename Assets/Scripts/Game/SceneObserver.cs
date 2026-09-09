@@ -2,7 +2,6 @@ using System.Linq;
 using Debug;
 using Options;
 using Services;
-using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -12,7 +11,7 @@ namespace Game {
         public static void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
             GameSettings.Display.ApplyAntiAliasing();
             var pauseService = ServiceLocatorAccessor.GetService<IPauseService>();
-            foreach (var input in Object.FindObjectsByType<PlayerInput>(FindObjectsSortMode.None)) {
+            foreach (var input in PlayerInput.all) {
                 input.ActivateInput();
             }
 

@@ -73,10 +73,6 @@ namespace TitleScreen {
                 quitButton
             };
 
-            foreach (var playerSlot in playerService.PlayerSlots) {
-                if(playerSlot.IsOccupied && !playerSlot.IsAI) HandleInputConnected(playerSlot.PlayerInput);
-            }
-
             inputModule = EventSystem.current.GetComponent<InputSystemUIInputModule>();
             if (inputModule != null) {
                 cachedMoveAction = inputModule.move;
@@ -106,13 +102,13 @@ namespace TitleScreen {
             if (playerInput.devices.Any(device => device is Keyboard || device is Mouse)) return;
 
             var submitAction = playerInput.actions.FindAction("UI/Submit");
-            if (submitAction != null) {
+            if (submitAction != null && !subscribedSubmitActions.Contains(submitAction)) {
                 submitAction.performed += OnGamepadSubmitPerformed;
                 subscribedSubmitActions.Add(submitAction);
             }
 
             var navigateAction = playerInput.actions.FindAction("UI/Navigate");
-            if (navigateAction != null) {
+            if (navigateAction != null && !gamepadNavigateActions.Contains(navigateAction)) {
                 gamepadNavigateActions.Add(navigateAction);
             }
         }

@@ -5,7 +5,6 @@ using System.Linq;
 using FMOD.Studio;
 using FMODUnity;
 using Options;
-using Player;
 using Services;
 using TMPro;
 using UnityEngine;
@@ -74,10 +73,8 @@ namespace TitleScreen {
                 quitButton
             };
 
-            playerService.OnPlayerJoined += HandlePlayerJoined;
-
             foreach (var playerSlot in playerService.PlayerSlots) {
-                if(playerSlot.IsOccupied && !playerSlot.IsAI) HandlePlayerJoined(playerSlot.SlotIndex);
+                if(playerSlot.IsOccupied && !playerSlot.IsAI) HandleInputConnected(playerSlot.PlayerInput);
             }
 
             inputModule = EventSystem.current.GetComponent<InputSystemUIInputModule>();
@@ -89,27 +86,32 @@ namespace TitleScreen {
             }
 
             StartCoroutine(FocusFirstButtonAfterOneFrame());
-            SubscribeToGamepadActions();
         }
 
+        private void OnEnable() {
+            playerService.OnInputConnected += HandleInputConnected;
+            SubscribeToGamepadActions();
+            UpdateConnectedPlayersText();
+        }
+        
+
         private void SubscribeToGamepadActions() {
-            for (int i = 0; i < playerService.PlayerSlots.Count; i++) {
-                SubscribeGamepadActionsForPlayer(i);
+            foreach (var playerInput in PlayerInput.all) {
+                SubscribeGamepadActionsForInput(playerInput);
             }
         }
 
-        private void SubscribeGamepadActionsForPlayer(int playerIndex) {
-            var slot = playerService.PlayerSlots[playerIndex];
-            if (!slot.IsOccupied || slot.PlayerInput == null) return;
-            if (slot.PlayerInput.devices.Any(device => device is Keyboard || device is Mouse)) return;
+        private void SubscribeGamepadActionsForInput(PlayerInput playerInput) {
+            if (playerInput == null) return;
+            if (playerInput.devices.Any(device => device is Keyboard || device is Mouse)) return;
 
-            var submitAction = slot.PlayerInput.actions.FindAction("UI/Submit");
+            var submitAction = playerInput.actions.FindAction("UI/Submit");
             if (submitAction != null) {
                 submitAction.performed += OnGamepadSubmitPerformed;
                 subscribedSubmitActions.Add(submitAction);
             }
 
-            var navigateAction = slot.PlayerInput.actions.FindAction("UI/Navigate");
+            var navigateAction = playerInput.actions.FindAction("UI/Navigate");
             if (navigateAction != null) {
                 gamepadNavigateActions.Add(navigateAction);
             }
@@ -139,20 +141,15 @@ namespace TitleScreen {
             }
         }
 
-        private void HandlePlayerJoined(int playerIndex, PlayerProfile profile = null) {
+        private void HandleInputConnected(PlayerInput playerInput) {
+            SubscribeGamepadActionsForInput(playerInput);
             UpdateConnectedPlayersText();
-            SubscribeGamepadActionsForPlayer(playerIndex);
         }
 
         private void UpdateConnectedPlayersText() {
-            var connectedPlayers = new List<string>();
-            for (int i = 0; i < playerService.PlayerSlots.Count; i++) {
-                if (playerService.PlayerSlots[i].IsOccupied && !playerService.PlayerSlots[i].IsAI) {
-                    connectedPlayers.Add($"P{i+1}");
-                }
-            }
-            connectedPlayersLabel.text = connectedPlayers.Count > 0 ?
-                "Connected: " + string.Join(", ", connectedPlayers)
+            int deviceCount = PlayerInput.all.Count;
+            connectedPlayersLabel.text = deviceCount > 0 ?
+                $"{deviceCount} controller{(deviceCount == 1 ? "" : "s")} connected"
                 : string.Empty;
         }
 
@@ -189,24 +186,25 @@ namespace TitleScreen {
         }
 
         private void OnDisable() {
-            if (musicInstance.isValid()) {
-                musicInstance.stop(STOP_MODE.ALLOWFADEOUT);
-            }
-        }
-
-        private void OnDestroy() {
-            playerService.OnPlayerJoined -= HandlePlayerJoined;
-            startGameButton.onClick.RemoveAllListeners();
-            optionsButton.onClick.RemoveAllListeners();
-            creditsButton.onClick.RemoveAllListeners();
-            quitButton.onClick.RemoveAllListeners();
-        
+            playerService.OnInputConnected -= HandleInputConnected;
+            
             foreach (var action in subscribedSubmitActions) {
                 action.performed -= OnGamepadSubmitPerformed;
             }
         
             subscribedSubmitActions.Clear();
             gamepadNavigateActions.Clear();
+            
+            if (musicInstance.isValid()) {
+                musicInstance.stop(STOP_MODE.ALLOWFADEOUT);
+            }
+        }
+
+        private void OnDestroy() {
+            startGameButton.onClick.RemoveAllListeners();
+            optionsButton.onClick.RemoveAllListeners();
+            creditsButton.onClick.RemoveAllListeners();
+            quitButton.onClick.RemoveAllListeners();
         
             if (inputModule != null) {
                 inputModule.move = cachedMoveAction;

@@ -1,4 +1,5 @@
 using System.Collections;
+using Input.ControllerConnection;
 using Services;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace TitleScreen {
         [SerializeField] private SplashScreen SplashScreen;
         [SerializeField] private IntroDisplay IntroDisplay;
         [SerializeField] private MainMenu MainMenu;
+        [SerializeField] private ControllerConnectionSystem ControllerConnectionSystem;
         [SerializeField] private bool ShowIntro;
         [SerializeField] private bool ShowSplashScreen;
 
@@ -18,6 +20,7 @@ namespace TitleScreen {
             SplashScreen.gameObject.SetActive(false);
             IntroDisplay.gameObject.SetActive(false);
             MainMenu.gameObject.SetActive(false);
+            ControllerConnectionSystem.gameObject.SetActive(false);
         }
 
         private IEnumerator Start() {
@@ -29,6 +32,7 @@ namespace TitleScreen {
             if (ShowIntro) yield return RunPhase(IntroDisplay);
         
             yield return RunPhase(MainMenu);
+            yield return RunPhase(ControllerConnectionSystem);
             gameFlowService.StartGame();
         }
 

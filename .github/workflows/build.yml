@@ -8,6 +8,8 @@ on:
       - 'ProjectSettings/**'
       - '.github/workflows/build.yml'
 
+# edit this comment to force a rebuild!
+
 jobs:
   build-windows:
     name: Windows Build

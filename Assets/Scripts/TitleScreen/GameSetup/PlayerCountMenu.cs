@@ -131,8 +131,8 @@ namespace TitleScreen.GameSetup {
 
         private void AdjustPanelSizeAutomatically() {
             float humanPlayerWidth = widthPerPlayer * currentHumanPlayerCount;
-            HumanPlayerRectTransform.DOSizeDelta(new Vector2(humanPlayerWidth, rectTransformHeight), ScaleAnimationDurationInSeconds);
-            AIPlayerRectTransform.DOSizeDelta(new Vector2(CanvasWidth - humanPlayerWidth, rectTransformHeight), ScaleAnimationDurationInSeconds);
+            HumanPlayerRectTransform.DOSizeDelta(new Vector2(humanPlayerWidth, rectTransformHeight), ScaleAnimationDurationInSeconds).SetLink(gameObject);
+            AIPlayerRectTransform.DOSizeDelta(new Vector2(CanvasWidth - humanPlayerWidth, rectTransformHeight), ScaleAnimationDurationInSeconds).SetLink(gameObject);
         }
 
         private void OnDecreaseInput() {

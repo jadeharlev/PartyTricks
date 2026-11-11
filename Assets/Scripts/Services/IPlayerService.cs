@@ -21,6 +21,7 @@ namespace Services {
         public bool PlayerIsHuman(int playerIndex);
 
         public int GetPlayerCount();
+        public int GetMaxPlayers();
         public int GetHumanPlayerCount();
         public int GetAIPlayerCount();
         

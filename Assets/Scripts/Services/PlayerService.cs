@@ -167,6 +167,10 @@ namespace Services {
          return playerSlots.Length;
       }
 
+      public int GetMaxPlayers() {
+         return maxPlayers;
+      }
+
       public int GetHumanPlayerCount() {
          return playerSlots.Count(slot => !slot.IsAI);
       }
